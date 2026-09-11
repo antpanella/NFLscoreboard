@@ -237,9 +237,12 @@ body.nostrip .strip{display:none}
   <div class="phead"><h2>Settings</h2><button id="sClose">Done</button></div>
   <label>Refresh every
     <select id="sInterval">
+      <option value="2">2 sec</option><option value="3">3 sec</option>
+      <option value="5">5 sec</option><option value="8">8 sec</option>
       <option value="10">10 sec</option><option value="15">15 sec</option>
       <option value="20">20 sec</option><option value="30">30 sec</option>
     </select></label>
+  <label>Smooth clock between polls <input type="checkbox" id="sTickClock"></label>
   <label>Alert sound <input type="checkbox" id="sSound"></label>
   <label>Touchdowns <input type="checkbox" id="sTD"></label>
   <label>Field goals <input type="checkbox" id="sFG"></label>
@@ -248,6 +251,7 @@ body.nostrip .strip{display:none}
   <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
   <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
   <label>Cover flips (4th qtr) <input type="checkbox" id="sCover"></label>
+  <label>Live odds &amp; drive detail <input type="checkbox" id="sDeep"></label>
   <label>Final scores <input type="checkbox" id="sFinal"></label>
   <label>Long plays over <input type="number" id="sYards" min="0" max="99" step="5"> yds</label>
   <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
@@ -276,6 +280,8 @@ body.nostrip .strip{display:none}
 
   <label><button id="sDemo" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Run a demo Sunday</button></label>
 
+  <div id="diag"><h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">WHAT THE FEED IS SENDING</h3><div id="diagItems" style="font-size:1rem;color:var(--sideline);line-height:1.5"></div></div>
+
   <div id="log"><h3>RECENT ALERTS</h3><div id="logItems"></div></div>
 
   <p class="note">
@@ -293,16 +299,20 @@ body.nostrip .strip{display:none}
 'use strict';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
+var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
 
 var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND',
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
-var DEFAULTS = {interval:15, sound:true, td:true, fg:true, to:true, final:true,
+var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   yards:35, dur:12, fav:'', today:false, scale:1, delay:0,
-  recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
+  deep:true, smooth:true, recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
+var polls = 0, deepOk = 0, deepFail = 0, deepAt = 0;
+var DEEP = Object.create(null), deepQ = [], deepTimer = null;
+var RAW = Object.create(null);   // last raw competition per game, for diagnostics
 var buffer = [];          // fetched snapshots waiting out the delay
 var prev = null;          // Map gameId -> snapshot
 var fired = Object.create(null);
@@ -418,6 +428,113 @@ function drain(){
   }
 }
 
+/* ---------------- per-game detail ----------------
+   The scoreboard carries only opening and closing prices, so the live line has to
+   come from the per-game summary. Same host as the scoreboard, so CORS already
+   works. This is written defensively: the exact shape of ESPN's in-game odds is
+   unverified, so every path is tried and anything unusable is ignored rather than
+   guessed at. Whatever it finds shows up in the diagnostics panel. */
+function readSummary(j){
+  var out = {live:null, wp:null, possession:'', dd:'', redzone:false,
+             lastPlay:'', lastPlayId:'', who:null, sawOdds:false};
+
+  // odds — prefer an entry carrying live/current numbers over a static one
+  var pc = (j && j.pickcenter) || [];
+  for (var i = 0; i < pc.length; i++){
+    var o = pc[i] || {}, cur = o.current || null;
+    var sp = NaN, ou = null, txt = '';
+    if (cur){
+      var cs = cur.pointSpread || {}, ct = cur.total || {};
+      sp = parseFloat(cs.american || cs.alternateDisplayValue || cs.displayValue || cs.value);
+      var t = parseFloat(String(ct.alternateDisplayValue || ct.displayValue || ct.value || '')
+              .replace(/[ou]/i, ''));
+      if (isFinite(t)) ou = t;
+      txt = cur.spread || cs.alternateDisplayValue || cs.displayValue || '';
+    }
+    if (!isFinite(sp)) sp = parseFloat(o.spread);
+    if (ou === null && typeof o.overUnder === 'number') ou = o.overUnder;
+    if (!txt) txt = o.details || '';
+    if (isFinite(sp) || ou !== null){
+      out.sawOdds = true;
+      out.live = {text: txt, home: isFinite(sp) ? sp : 0, ou: ou};
+      if (cur) break;                    // a current block wins outright
+    }
+  }
+
+  // win probability — last entry of the play-by-play series
+  var wpArr = (j && j.winprobability) || [];
+  if (wpArr.length){
+    var last = wpArr[wpArr.length - 1] || {};
+    var h = parseFloat(last.homeWinPercentage);
+    if (isFinite(h)) out.wp = h > 1 ? h / 100 : h;
+  }
+
+  // possession, down and distance, last play
+  var hc = j && j.header && j.header.competitions && j.header.competitions[0];
+  var sit = (hc && hc.situation) || (j && j.situation) || null;
+  if (sit){
+    out.possession = sit.possession || '';
+    out.dd = String(sit.downDistanceText || sit.shortDownDistanceText || '')
+               .replace(/\s+at\s+/i, ' ');
+    out.redzone = !!sit.isRedZone;
+    if (sit.lastPlay){
+      out.lastPlay = sit.lastPlay.text || '';
+      out.lastPlayId = sit.lastPlay.id || out.lastPlay;
+      out.who = names(sit);
+    }
+  }
+  var dc = j && j.drives && j.drives.current;
+  if (dc){
+    if (!out.possession && dc.team && dc.team.id) out.possession = String(dc.team.id);
+    var plays = dc.plays || [];
+    if (!out.lastPlay && plays.length){
+      var lp = plays[plays.length - 1] || {};
+      out.lastPlay = lp.text || '';
+      out.lastPlayId = lp.id || out.lastPlay;
+    }
+  }
+  return out;
+}
+
+function fetchDetail(id){
+  return fetch(SUM + '?event=' + encodeURIComponent(id) + '&_=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(j){ DEEP[id] = readSummary(j); deepOk++; deepAt = Date.now(); })
+    .catch(function(){ deepFail++; });
+}
+
+/* One game per tick, spread so every live game refreshes roughly every 20s no
+   matter how many are on. Thirteen live games works out under one request a second. */
+function deepTick(){
+  clearTimeout(deepTimer);
+  var games = window.__games || [];
+  var ids = [];
+  for (var i = 0; i < games.length; i++) if (games[i].state === 'in') ids.push(games[i].id);
+  if (!cfg.deep || !ids.length){ deepTimer = setTimeout(deepTick, 4000); return; }
+  if (!deepQ.length) deepQ = ids.slice();
+  var id = deepQ.shift();
+  var gap = Math.max(1200, Math.round(20000 / ids.length));
+  fetchDetail(id).then(function(){ deepTimer = setTimeout(deepTick, gap); });
+}
+
+/* Detail overrides the scoreboard where the scoreboard is silent or stale. */
+function overlay(games){
+  for (var i = 0; i < games.length; i++){
+    var g = games[i], d = DEEP[g.id];
+    if (!d) continue;
+    if (d.live) g.live = d.live;
+    if (d.wp !== null && (g.wp === null || g.wp === undefined)) g.wp = d.wp;
+    if (!g.possession && d.possession) g.possession = d.possession;
+    if (!g.dd && d.dd) g.dd = d.dd;
+    if (!g.redzone && d.redzone) g.redzone = true;
+    if (!g.lastPlay && d.lastPlay){
+      g.lastPlay = d.lastPlay;
+      g.lastPlayId = d.lastPlayId;
+      if (d.who && d.who.length) g.who = d.who;
+    }
+  }
+}
+
 /* ---------------- parsing ---------------- */
 function parse(data){
   var out = [];
@@ -436,6 +553,7 @@ function parse(data){
     var st = (comp.status || ev.status || {});
     var type = st.type || {};
     var sit = comp.situation || {};
+    RAW[ev.id] = comp;
     var cur = line(comp);
     var pinned = pinLine(ev.id, cur, type.state || 'pre');
 
@@ -450,7 +568,12 @@ function parse(data){
       net: comp.broadcast || (comp.broadcasts && comp.broadcasts[0] && comp.broadcasts[0].names &&
             comp.broadcasts[0].names[0]) || '',
       home: side(home), away: side(away),
-      possession: sit.possession || '',
+      // ESPN does not always populate situation.possession; the team credited with
+      // the last play is the next best signal for who has the ball
+      possession: sit.possession ||
+        (sit.lastPlay && sit.lastPlay.team && sit.lastPlay.team.id) ||
+        (sit.lastPlay && sit.lastPlay.start && sit.lastPlay.start.team &&
+         sit.lastPlay.start.team.id) || '',
       dd: String(sit.downDistanceText || sit.shortDownDistanceText || '')
             .replace(/\s+at\s+/i, ' '),
       redzone: !!sit.isRedZone,
@@ -458,7 +581,9 @@ function parse(data){
       odds: pinned,        // closing line, pinned locally — drives the cover-flip alerts
       live: cur,           // whatever the payload says right now, may be null
       wp: winProb(comp),   // home win share 0..1, or null if ESPN doesn't supply it
-      lastPlayId: (sit.lastPlay && sit.lastPlay.id) || '',
+      // ESPN does not always supply lastPlay.id; fall back to the text itself, or
+      // turnover and big-play alerts can never fire (both keys stay '' and match)
+      lastPlayId: (sit.lastPlay && (sit.lastPlay.id || sit.lastPlay.text)) || '',
       lastPlay: (sit.lastPlay && sit.lastPlay.text) || '',
       who: names(sit)
     });
@@ -609,7 +734,9 @@ function side(c){
 
 /* ---------------- alerts ---------------- */
 function ingest(data){
+  polls++;
   var games = parse(data);
+  overlay(games);
   var wk = data && data.week && data.week.number;
   var sn = data && data.season;
   document.getElementById('weekLabel').textContent =
@@ -677,11 +804,17 @@ function detect(was, now){
     else if (d === 2) kind = 'SAFETY';
     // d === 1 is an extra point riding on a TD already announced — skip it
 
-    if (kind === 'TOUCHDOWN' && !cfg.td) kind = null;
-    if (kind === 'FIELD GOAL' && !cfg.fg) kind = null;
-
-    if (kind){
+    // A scoring play involving one of your players always fires, even when that
+    // alert type is switched off entirely.
+    var mineNow = fanHit(now.who);
+    var on = (kind === 'TOUCHDOWN' && cfg.td) || (kind === 'FIELD GOAL' && cfg.fg) ||
+             kind === 'SAFETY';
+    if (kind && (on || mineNow)){
       push(now, kind + ' — ' + team.abbr, now.lastPlay || (team.name + ' score'), false, team);
+      return;
+    }
+    if (mineNow){
+      push(now, 'SCORE — ' + team.abbr, now.lastPlay || (team.name + ' score'), false, team);
       return;
     }
   }
@@ -887,9 +1020,11 @@ function render(){
     if (u > best){ best = u; cols = c; rows = r; }
   }
   document.documentElement.style.setProperty('--cols', cols);
+  live.forEach(noteClock);
   box.innerHTML = live.map(card).join('');
   fit(cols, rows);
   collectTickers();
+  diagnose(live);
 }
 
 // closer game, later quarter, higher score = shown first
@@ -912,7 +1047,8 @@ function card(g){
     team(g.away, g.possession === g.away.id, lead === 'home') +
     team(g.home, g.possession === g.home.id, lead === 'away') +
     '<div class="meta" data-k="' + esc(g.id) + ':m"><span class="track">' +
-      '<span class="clock">' + esc(quarter(g)) + '</span>' +
+      '<span class="clock" data-c="' + esc(g.id) + '" data-q="' + esc(qLabel(g)) + '">' +
+        esc(quarter(g)) + '</span>' +
       (fc ? '<span class="fan">\u2605 ' + fc + '</span>' : '') +
       (g.dd ? '<span class="dd">' + esc(g.redzone ? 'RZ  ' + g.dd : g.dd) + '</span>' : '') +
     '</span></div>' + infoLine(g) + '</article>';
@@ -926,6 +1062,9 @@ function infoLine(g){
   var out = [];
 
   if (cfg.odds){
+    /* ESPN's scoreboard carries only open and close prices — there is no live
+       in-game line here, confirmed against the feed — so this is labelled for
+       what it is rather than implying it moves. */
     var mkt = g.live || g.odds;
     if (mkt && mkt.text){
       out.push('<span class="mk">' + esc(mkt.text) +
@@ -958,9 +1097,31 @@ function team(t, hasBall, losing){
     '<span class="pts">' + t.score + '</span></div>';
 }
 
+/* ESPN only moves the clock when we poll it. Between polls we run it down locally
+   and resync on every fetch. The real clock stops between plays, so this can read
+   a few seconds fast during a stoppage — it is a smoother display, not a truer one. */
+var CLK = Object.create(null);
+function noteClock(g){
+  var running = g.state === 'in' && !/halftime|end of|end /i.test(g.detail || '');
+  var sec = clockSecs(g.clock);
+  CLK[g.id] = {sec: sec, at: Date.now(), run: running && sec !== null && sec > 0};
+}
+function tickClocks(){
+  if (!cfg.smooth) return;
+  var els = document.querySelectorAll('#live .clock[data-c]');
+  for (var i = 0; i < els.length; i++){
+    var el = els[i], st = CLK[el.getAttribute('data-c')];
+    if (!st || !st.run) continue;
+    var left = Math.max(0, st.sec - Math.floor((Date.now() - st.at) / 1000));
+    var base = el.getAttribute('data-q') || '';
+    el.textContent = base + '  ' + Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2);
+  }
+}
+
+function qLabel(g){ return g.period > 4 ? 'OT' : 'Q' + g.period; }
 function quarter(g){
   if (g.period === 0) return g.detail;
-  var q = g.period > 4 ? 'OT' : 'Q' + g.period;
+  var q = qLabel(g);
   if (/halftime/i.test(g.detail)) return 'HALFTIME';
   if (/end/i.test(g.detail)) return 'END ' + q;
   return q + '  ' + g.clock;
@@ -988,6 +1149,42 @@ function paintStatus(){
   else { dot.className = 'dead'; txt.textContent = 'no connection · ' + fmtAge(age) + ' old'; }
 }
 function fmtAge(s){ return s < 90 ? s + 's' : Math.round(s / 60) + ' min'; }
+
+/* Shows exactly which fields ESPN is actually populating for the first live game.
+   Several features depend on optional blocks, and guessing at them from the
+   outside has cost us a lot of time. */
+function diagnose(live){
+  var el = document.getElementById('diagItems');
+  if (!el) return;
+  if (!live || !live.length){ el.textContent = 'No live game to inspect yet.'; return; }
+  var g = live[0], raw = RAW[g.id] || {};
+  var sit = raw.situation || null;
+  function yn(v){ return v ? '<b style="color:var(--live)">yes</b>' : '<b style="color:var(--redzone)">no</b>'; }
+  el.innerHTML =
+    '<div>' + esc(g.away.abbr) + ' at ' + esc(g.home.abbr) +
+      ' — state <b>' + esc(g.state) + '</b>, period ' + g.period + ', clock ' + esc(g.clock) + '</div>' +
+    '<div>situation block: ' + yn(sit) + '</div>' +
+    '<div>possession: ' + yn(sit && sit.possession) + '</div>' +
+    '<div>down &amp; distance: ' + yn(sit && sit.downDistanceText) + '</div>' +
+    '<div>last play text: ' + yn(sit && sit.lastPlay && sit.lastPlay.text) + '</div>' +
+    '<div>last play id: ' + yn(sit && sit.lastPlay && sit.lastPlay.id) + '</div>' +
+    '<div>player names: ' + yn(sit && sit.lastPlay && sit.lastPlay.athletesInvolved &&
+      sit.lastPlay.athletesInvolved.length) + '</div>' +
+    '<div>win probability: ' + yn(g.wp !== null && g.wp !== undefined) + '</div>' +
+    '<div>odds block: ' + yn(g.odds) + '</div>' +
+    '<div>fantasy roster loaded: ' + yn(FAN.ready) +
+      (FAN.ready ? ' (' + FAN.roster.length + ')' : '') + '</div>' +
+    '<div>polls received: <b>' + polls + '</b>, last ' +
+      (lastGood ? Math.round((Date.now() - lastGood) / 1000) + 's ago' : 'never') + '</div>' +
+    '<div>alerts fired: <b>' + logLines.length + '</b></div>' +
+    '<div style="margin-top:.5rem">detail fetch: <b>' + deepOk + '</b> ok, <b>' +
+      deepFail + '</b> failed' + (deepAt ? ', last ' +
+      Math.round((Date.now() - deepAt) / 1000) + 's ago' : '') + '</div>' +
+    '<div>live line from detail: ' + yn(g.live) +
+      (g.live && g.live.text ? ' (' + esc(g.live.text) + ')' : '') + '</div>' +
+    '<div>detail supplied possession: ' + yn(RAW[g.id] && !((RAW[g.id].situation||{}).possession) &&
+      DEEP[g.id] && DEEP[g.id].possession) + '</div>';
+}
 
 function paintLog(){
   document.getElementById('logItems').innerHTML = logLines.map(function(l){
@@ -1191,6 +1388,7 @@ function demoTick(){
       .toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   document.getElementById('dot').className = 'stale';
   timer = setTimeout(demoTick, 1500);
+  if (!window.__demoClock){ window.__demoClock = setInterval(tickClocks, 1000); }
 }
 function startDemo(){
   DEMO = true; SIM = buildSim(); simMin = 0; prev = null;
@@ -1210,6 +1408,20 @@ var SLEEP = 'https://api.sleeper.app/v1';
 var ALIAS = {WSH:'WAS', WAS:'WSH', LA:'LAR', JAC:'JAX'};
 
 function norm(s){ return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); }
+/* Last name from "Josh Allen", "J.Allen" or "Amon-Ra St. Brown". Returns '' when
+   there is only a single token, so a bare surname is never indexed as one. */
+function surnameOf(name){
+  var t = String(name || '').trim();
+  if (!t) return '';
+  var parts = t.split(/\s+/);
+  var last = parts[parts.length - 1];
+  if (parts.length === 1){
+    var dot = last.split('.');                 // "J.Allen" -> "Allen"
+    if (dot.length < 2 || !dot[dot.length - 1]) return '';
+    last = dot[dot.length - 1];
+  }
+  return norm(last);
+}
 function isTeamId(id){ return /^[A-Z]{2,4}$/.test(id); }
 function fanNote(msg){ document.getElementById('fanNote').textContent = msg; }
 function sget(path){
@@ -1319,6 +1531,17 @@ function applyRoster(list, starters, map, leagues){
     FAN.names[m.n] = e;
     FAN.roster.push(e);
   });
+  // ESPN sometimes gives abbreviated names ("J.Allen"); index unambiguous surnames
+  FAN.last = Object.create(null);
+  var dupes = Object.create(null);
+  FAN.roster.forEach(function(e){
+    var parts = surnameOf(e.name);
+    if (!parts) return;
+    var ln = parts;
+    if (!ln) return;
+    if (FAN.last[ln]) dupes[ln] = 1; else FAN.last[ln] = e;
+  });
+  for (var d in dupes) delete FAN.last[d];
   FAN.ready = FAN.roster.length > 0;
   FAN.label = leagues.length === 1 ? (leagues[0].name || 'my league') : leagues.length + ' leagues';
 
@@ -1338,6 +1561,11 @@ function fanHit(who){
   for (var i = 0; i < who.length; i++){
     var e = FAN.names[norm(who[i])];
     if (e && (!cfg.starterOnly || e.starter)) return e;
+  }
+  for (var j = 0; j < who.length; j++){          // surname fallback
+    var ln = surnameOf(who[j]);
+    var f = ln && FAN.last ? FAN.last[ln] : null;
+    if (f && (!cfg.starterOnly || f.starter)) return f;
   }
   return null;
 }
@@ -1556,7 +1784,7 @@ bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
 bind('sRecs','recs','bool'); bind('sStrips','strips','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
-bind('sTick','tick','bool');
+bind('sTick','tick','bool'); bind('sDeep','deep','bool'); bind('sTickClock','smooth','bool');
 bind('sLiveOnly','liveOnly','bool');
 document.getElementById('sUser').value = cfg.sleeperUser || '';
 document.getElementById('sConnect').addEventListener('click', sleeperConnect);
@@ -1565,10 +1793,13 @@ document.getElementById('sLeague').addEventListener('change', function(){
 });
 document.getElementById('sTest').addEventListener('click', function(){
   unlockAudio();
-  queue.push({kind:'TOUCHDOWN \u2014 BUF', who:'Josh Allen  \u2192  Khalil Shakir',
-    body:'Josh Allen 8 yd touchdown pass to Khalil Shakir, extra point good',
-    score:'BUF 21  HOU 17', color:'', logo:'', mine:'Khalil Shakir', sound:SOUNDS.FANTASY});
-  if (!showing) next();
+  // route through push() so this also proves the alert log is working
+  push({id:'test-' + Date.now(), who:['Josh Allen','Khalil Shakir'],
+        possession:'', home:{id:'h', abbr:'HOU', score:17},
+        away:{id:'a', abbr:'BUF', score:21}},
+       'TOUCHDOWN \u2014 BUF',
+       'Josh Allen 8 yd touchdown pass to Khalil Shakir, extra point good',
+       false, {abbr:'BUF', color:'#00338d', logo:''});
 });
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
 paintLog();
@@ -1579,7 +1810,13 @@ function boot(demo){
   keepAwake();
   fullscreen();
   if (demo) startDemo();
-  else { poll(); setInterval(paintStatus, 1000); setInterval(drain, 500); }
+  else {
+    poll();
+    setInterval(paintStatus, 1000);
+    setInterval(drain, 500);
+    setInterval(tickClocks, 1000);
+    deepTick();
+  }
 }
 document.getElementById('start').addEventListener('click', function(){ boot(false); });
 document.getElementById('demo').addEventListener('click', function(){ boot(true); });
