@@ -436,7 +436,7 @@ function drain(){
    guessed at. Whatever it finds shows up in the diagnostics panel. */
 function readSummary(j){
   var out = {live:null, wp:null, possession:'', dd:'', redzone:false,
-             lastPlay:'', lastPlayId:'', who:null, sawOdds:false};
+             lastPlay:'', lastPlayId:'', who:null, sawOdds:false, at:Date.now()};
 
   // odds — prefer an entry carrying live/current numbers over a static one
   var pc = (j && j.pickcenter) || [];
@@ -527,7 +527,9 @@ function overlay(games){
     if (!g.possession && d.possession) g.possession = d.possession;
     if (!g.dd && d.dd) g.dd = d.dd;
     if (!g.redzone && d.redzone) g.redzone = true;
-    if (!g.lastPlay && d.lastPlay){
+    /* Each game's detail only refreshes every ~20s, so an old play must not be
+       paired with a score change the scoreboard just reported. */
+    if (!g.lastPlay && d.lastPlay && (Date.now() - (d.at || 0)) < 25000){
       g.lastPlay = d.lastPlay;
       g.lastPlayId = d.lastPlayId;
       if (d.who && d.who.length) g.who = d.who;
@@ -798,23 +800,36 @@ function detect(was, now){
 
   if (d > 0){
     var team = dh > da ? now.home : now.away;
+    var txt = now.lastPlay || '';
     var kind = null;
     if (d >= 6) kind = 'TOUCHDOWN';
     else if (d === 3) kind = 'FIELD GOAL';
-    else if (d === 2) kind = 'SAFETY';
+    else if (d === 2) kind = /two.?point|conversion/i.test(txt) ? '2-PT CONVERSION' : 'SAFETY';
     // d === 1 is an extra point riding on a TD already announced — skip it
 
-    // A scoring play involving one of your players always fires, even when that
-    // alert type is switched off entirely.
-    var mineNow = fanHit(now.who);
+    /* The alert type comes from the score delta, but the play text and player
+       names come from whichever play the feed happens to be showing — and those
+       can disagree, because the score often updates before the play does. If the
+       text does not describe this kind of score it belongs to an earlier play, so
+       the names are dropped rather than miscredited. */
+    var fits =
+      kind === 'TOUCHDOWN'       ? /touchdown|\bTD\b/i.test(txt) :
+      kind === 'FIELD GOAL'      ? /field goal|\bFG\b/i.test(txt) :
+      kind === '2-PT CONVERSION' ? /two.?point|conversion/i.test(txt) :
+      kind === 'SAFETY'          ? /safety/i.test(txt) : false;
+
+    var body = fits ? txt : (team.name + ' ' + (kind || 'score').toLowerCase());
+    var whoList = fits ? (now.who || []) : [];
+
+    var mineNow = fits ? fanHit(now.who) : null;
     var on = (kind === 'TOUCHDOWN' && cfg.td) || (kind === 'FIELD GOAL' && cfg.fg) ||
-             kind === 'SAFETY';
+             kind === 'SAFETY' || kind === '2-PT CONVERSION';
     if (kind && (on || mineNow)){
-      push(now, kind + ' — ' + team.abbr, now.lastPlay || (team.name + ' score'), false, team);
+      push(now, kind + ' — ' + team.abbr, body, false, team, false, whoList);
       return;
     }
     if (mineNow){
-      push(now, 'SCORE — ' + team.abbr, now.lastPlay || (team.name + ' score'), false, team);
+      push(now, 'SCORE — ' + team.abbr, body, false, team, false, whoList);
       return;
     }
   }
@@ -836,7 +851,7 @@ function detect(was, now){
   }
 }
 
-function push(game, kind, body, quiet, team, hot){
+function push(game, kind, body, quiet, team, hot, whoList){
   // GO WATCH THIS and OVERTIME are once-per-game states. A cover flip can happen
   // several times in a fourth quarter, so it dedupes on the scoreline instead.
   var once = /^(GO WATCH THIS|OVERTIME)/.test(kind);
@@ -846,9 +861,9 @@ function push(game, kind, body, quiet, team, hot){
   if (quiet) return;
 
   var arrow = / to /i.test(body || '') ? '  \u2192  ' : '  \u00b7  ';
-  var who = (game.who || []).join(arrow);
+  var who = (whoList !== undefined ? whoList : (game.who || [])).join(arrow);
 
-  var hit = fanHit(game.who);
+  var hit = fanHit(whoList !== undefined ? whoList : game.who);
   if (!hit && /INTERCEPT|TURNOVER/i.test(kind)){
     var pa = game.possession === game.home.id ? game.home.abbr
            : game.possession === game.away.id ? game.away.abbr : '';
