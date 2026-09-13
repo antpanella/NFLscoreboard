@@ -310,6 +310,9 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
+// when each team last scored a touchdown, so a following +2 can be recognised
+// as a conversion rather than guessed at
+var LAST6 = Object.create(null);
 var polls = 0, deepOk = 0, deepFail = 0, deepAt = 0;
 var DEEP = Object.create(null), deepQ = [], deepTimer = null;
 var RAW = Object.create(null);   // last raw competition per game, for diagnostics
@@ -643,6 +646,19 @@ function winProb(comp){
   return null;
 }
 
+/* A +2 is nearly always a two-point conversion; safeties happen a couple of times
+   a month across the whole league. The play text settles it when it is there, but
+   it is often stale or missing, so the fallback is context: a conversion follows
+   that same team's touchdown, a safety never does. When neither test is conclusive
+   the alert says "2 POINTS" rather than asserting the wrong one. */
+function twoOrSafety(game, team, txt){
+  if (/safety/i.test(txt)) return 'SAFETY';
+  if (/two.?point|conversion|2.?pt/i.test(txt)) return '2-PT CONVERSION';
+  var td = LAST6[game.id + ':' + team.abbr];
+  if (td && (Date.now() - td) < 150000) return '2-PT CONVERSION';
+  return '2 POINTS';
+}
+
 /* The line people actually bet is the one at kickoff. ESPN may move this field to
    live in-game numbers, or drop the odds block entirely — a completed MLB game
    carries no odds block at all — so the closing line is pinned locally and the
@@ -804,7 +820,7 @@ function detect(was, now){
     var kind = null;
     if (d >= 6) kind = 'TOUCHDOWN';
     else if (d === 3) kind = 'FIELD GOAL';
-    else if (d === 2) kind = /two.?point|conversion/i.test(txt) ? '2-PT CONVERSION' : 'SAFETY';
+    else if (d === 2) kind = twoOrSafety(now, team, txt);
     // d === 1 is an extra point riding on a TD already announced — skip it
 
     /* The alert type comes from the score delta, but the play text and player
@@ -812,6 +828,8 @@ function detect(was, now){
        can disagree, because the score often updates before the play does. If the
        text does not describe this kind of score it belongs to an earlier play, so
        the names are dropped rather than miscredited. */
+    if (d >= 6) LAST6[now.id + ':' + team.abbr] = Date.now();
+
     var fits =
       kind === 'TOUCHDOWN'       ? /touchdown|\bTD\b/i.test(txt) :
       kind === 'FIELD GOAL'      ? /field goal|\bFG\b/i.test(txt) :
@@ -823,7 +841,7 @@ function detect(was, now){
 
     var mineNow = fits ? fanHit(now.who) : null;
     var on = (kind === 'TOUCHDOWN' && cfg.td) || (kind === 'FIELD GOAL' && cfg.fg) ||
-             kind === 'SAFETY' || kind === '2-PT CONVERSION';
+             kind === 'SAFETY' || kind === '2-PT CONVERSION' || kind === '2 POINTS';
     if (kind && (on || mineNow)){
       push(now, kind + ' — ' + team.abbr, body, false, team, false, whoList);
       return;
