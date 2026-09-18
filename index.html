@@ -187,6 +187,13 @@ body.nostrip .strip{display:none}
   padding:.25em .5em;font:inherit;font-size:1rem;width:6.5rem;border-radius:2px}
 #panel input[type=checkbox]{width:1.3rem;height:1.3rem;accent-color:var(--flag)}
 #panel .note{color:var(--sideline);font-size:1rem;line-height:1.45;margin-top:1.2rem}
+#gvTeams{display:grid;grid-template-columns:repeat(2,1fr);gap:0 .7rem;margin:.5rem 0}
+#gvTeams .tr{display:flex;align-items:center;gap:.35rem;border-bottom:1px solid var(--line);
+  padding:.22rem 0}
+#gvTeams .tr b{font-size:1rem;font-weight:700;width:2.9em;flex:none}
+#gvTeams select{background:var(--turf);color:var(--chalk);border:1px solid var(--line);
+  padding:.12em .2em;font:inherit;font-size:.85rem;border-radius:2px;flex:1;min-width:0}
+#gvTeams .tr.set select{border-color:var(--flag);color:var(--flag)}
 #panel kbd{background:var(--turf);border:1px solid var(--line);padding:.05em .4em;
   border-radius:2px;font-family:inherit;font-weight:600}
 #log{margin-top:1.2rem}
@@ -285,16 +292,17 @@ body.nostrip .strip{display:none}
   <label>Bridge URL <input type="text" id="sGvUrl" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
   <label>Key or token <input type="password" id="sGvKey" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
   <label><button id="sGvLoad" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Find lights</button>
-    <button id="sGvTest" style="color:var(--sideline);font-size:1rem">Test flash</button></label>
+    <button id="sGvTest" style="color:var(--sideline);font-size:1rem">Test flash</button>
+    <button id="sGvStop" style="color:var(--redzone);font-size:1rem;font-weight:600">Stop</button></label>
   <label>Light <select id="sGvDev"><option value="">none</option></select></label>
-  <label>Animation <select id="sGvMode">
+  <label>Default animation <select id="sGvMode">
       <option value="colors">Team colours</option>
       <option value="segments">Every other LED, crawling</option>
       <option value="scene">A DIY scene from the Govee app</option>
     </select></label>
-  <label>DIY scene <select id="sGvScene"><option value="">— none —</option></select></label>
-  <label>Assign that scene to <select id="sGvTeam"><option value="">— pick a team —</option></select></label>
+  <div id="gvTeams"></div>
   <label>Pulses <input type="number" id="sGvPulses" min="1" max="4" step="1"></label>
+  <label>Scene runs for <input type="number" id="sGvHold" min="2" max="60" step="1"> sec</label>
   <label>Min seconds between <input type="number" id="sGvGap" min="5" max="120" step="5"></label>
   <p id="gvNote" class="note" style="margin-top:.4rem">Govee blocks browsers directly, so this needs a relay. Either a Cloudflare Worker (paste its https URL above and your ACCESS_TOKEN below), or <kbd>node govee-bridge.mjs</kbd> on this laptop (then paste your real Govee key). With the Worker, the board never holds your Govee key.</p>
 
@@ -326,7 +334,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   yards:35, dur:12, fav:'', today:false, scale:1, delay:0,
   deep:true, smooth:true, govee:true,
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -1841,29 +1849,87 @@ function gvScenes(){
         '&device=' + encodeURIComponent(cfg.goveeDev))
     .then(function(r){ return r.json(); })
     .then(function(j){
-      var diy = j.diy || [], dyn = j.dynamic || [], all = diy.concat(dyn);
-      var sel = document.getElementById('sGvScene');
-      sel.innerHTML = '<option value="">— none —</option>' + all.map(function(x, i){
-        return '<option value="' + i + '">' + esc(x.name) +
-               (i >= diy.length ? ' (built-in)' : '') + '</option>';
-      }).join('');
-      window.__gvScenes = all;
-      var m = gvMap(), got = Object.keys(m);
-      gvNote(diy.length + ' of your own scenes, ' + dyn.length + ' built in.' +
-        (got.length ? '  Assigned: ' + got.join(', ') : '  Pick a scene, then a team.'));
+      var diy = j.diy || [], dyn = j.dynamic || [];
+      // your own scenes first, then Govee's built-ins
+      window.__gvScenes = diy.concat(dyn.map(function(x){
+        return {name:x.name + ' (built-in)', value:x.value, instance:x.instance};
+      }));
+      gvTeamRows();
+      gvNote(diy.length + ' of your own scenes, ' + dyn.length +
+        ' built in — now selectable per team below.');
     })
-    .catch(function(){ gvNote('Could not read scenes — is the relay running the latest code?'); });
+    .catch(function(){
+      gvTeamRows();
+      gvNote('Could not read scenes — is the relay running the latest code?');
+    });
 }
 
-function gvAssign(){
-  var si = document.getElementById('sGvScene').value;
-  var team = document.getElementById('sGvTeam').value;
-  var all = window.__gvScenes || [];
-  if (si === '' || !team) return;
-  var m = gvMap();
-  m[team] = all[Number(si)];
-  cfg.goveeScenes = JSON.stringify(m); save();
-  gvNote(team + ' → ' + all[Number(si)].name + '.  Assigned: ' + Object.keys(m).join(', '));
+/* One row per team. Each can use the default animation, either built-in effect,
+   or a DIY scene the strip reports. Stored per team so the choice survives a
+   reload even before the scene list has been fetched. */
+function gvTeamRows(){
+  var box = document.getElementById('gvTeams');
+  if (!box) return;
+  var scenes = window.__gvScenes || [], m = gvMap();
+
+  box.innerHTML = TEAMS.map(function(t){
+    var cur = m[t], sel = '';
+    if (cur === 'colors') sel = 'colors';
+    else if (cur === 'segments') sel = 'segments';
+    else if (cur && cur.value !== undefined) sel = 'v:' + cur.value;
+
+    var opts = ['<option value=""' + (sel === '' ? ' selected' : '') + '>default</option>',
+                '<option value="colors"' + (sel === 'colors' ? ' selected' : '') + '>colours</option>',
+                '<option value="segments"' + (sel === 'segments' ? ' selected' : '') + '>crawl</option>'];
+    var seen = false;
+    scenes.forEach(function(x){
+      var v = 'v:' + x.value;
+      if (v === sel) seen = true;
+      opts.push('<option value="' + esc(v) + '"' + (v === sel ? ' selected' : '') + '>' +
+        esc(x.name) + '</option>');
+    });
+    // a scene saved earlier but not in the current list still shows by name
+    if (sel.indexOf('v:') === 0 && !seen){
+      opts.push('<option value="' + esc(sel) + '" selected>' + esc(cur.name || 'saved scene') + '</option>');
+    }
+    return '<div class="tr' + (sel ? ' set' : '') + '"><b>' + esc(t) + '</b>' +
+      '<select data-team="' + esc(t) + '">' + opts.join('') + '</select></div>';
+  }).join('');
+
+  [].slice.call(box.querySelectorAll('select')).forEach(function(el){
+    el.addEventListener('change', function(){
+      var t = el.getAttribute('data-team'), v = el.value, map = gvMap();
+      if (!v) delete map[t];
+      else if (v === 'colors' || v === 'segments') map[t] = v;
+      else {
+        var raw = v.slice(2);
+        var hit = (window.__gvScenes || []).filter(function(x){ return String(x.value) === raw; })[0];
+        if (hit) map[t] = hit;
+      }
+      cfg.goveeScenes = JSON.stringify(map); save();
+      el.parentNode.className = 'tr' + (v ? ' set' : '');
+      gvNote(Object.keys(map).length + ' team' +
+        (Object.keys(map).length === 1 ? '' : 's') + ' set: ' + Object.keys(map).join(', '));
+    });
+  });
+}
+
+// Ends whatever is running now, and reports which Worker version answered so a
+// stale deploy is obvious rather than looking like a bug.
+function gvStop(){
+  fetch(gvBase(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var v = j.version || 0;
+      gvNote('Relay version ' + (v || 'unknown — old code, needs redeploy') +
+        (v >= 5 ? ' (current)' : ' — scenes will not stop until you redeploy'));
+    })
+    .catch(function(){});
+  if (!cfg.goveeDev) return;
+  fetch(gvBase() + '/stop', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku})
+  }).catch(function(){});
 }
 
 function gvFlash(hex, alt, abbr){
@@ -1871,10 +1937,12 @@ function gvFlash(hex, alt, abbr){
   if (Date.now() - gvLast < cfg.goveeGap * 1000) return;   // two scores close together
   gvLast = Date.now();
   var body = {key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku,
-    color:hex, alt:alt, pulses:cfg.goveePulses, mode:cfg.goveeMode, segments:cfg.goveeSeg};
-  var sc = gvMap()[abbr || ''];              // a scene for this team wins
-  if (sc){ body.mode = 'scene'; body.scene = sc; }
-  else if (cfg.goveeMode === 'scene') body.mode = 'colors';
+    color:hex, alt:alt, pulses:cfg.goveePulses, mode:cfg.goveeMode,
+    segments:cfg.goveeSeg, hold:cfg.goveeHold};
+  var pick = gvMap()[abbr || ''];            // this team's own choice wins
+  if (pick === 'colors' || pick === 'segments') body.mode = pick;
+  else if (pick && pick.value !== undefined){ body.mode = 'scene'; body.scene = pick; }
+  else if (cfg.goveeMode === 'scene') body.mode = 'colors';   // default with nothing set
   fetch(gvBase() + '/flash', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(body)
@@ -1934,9 +2002,6 @@ TEAMS.forEach(function(t){
   var o = document.createElement('option');
   o.value = t; o.textContent = t;
   document.getElementById('sFav').appendChild(o);
-  var o2 = document.createElement('option');
-  o2.value = t; o2.textContent = t;
-  document.getElementById('sGvTeam').appendChild(o2);
 });
 bind('sInterval','interval','num'); bind('sSound','sound','bool');
 bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
@@ -1949,7 +2014,7 @@ bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
-bind('sGvMode','goveeMode','str'); bind('sTickClock','smooth','bool');
+bind('sGvMode','goveeMode','str'); bind('sGvHold','goveeHold','num'); bind('sTickClock','smooth','bool');
 bind('sLiveOnly','liveOnly','bool');
 document.getElementById('sUser').value = cfg.sleeperUser || '';
 document.getElementById('sConnect').addEventListener('click', sleeperConnect);
@@ -1963,13 +2028,14 @@ document.getElementById('sGvDev').addEventListener('change', function(){
   cfg.goveeSeg = Number(v[2] || 0); save();
   if (cfg.goveeDev) gvScenes(); else gvNote('No light selected.');
 });
-document.getElementById('sGvTeam').addEventListener('change', gvAssign);
+gvTeamRows();
+document.getElementById('sGvStop').addEventListener('click', gvStop);
 document.getElementById('sGvTest').addEventListener('click', function(){
   if (!cfg.goveeDev) return gvNote('Pick a light first.');
   gvLast = 0;
-  var t = document.getElementById('sGvTeam').value || 'BUF';
-  gvNote('Testing as if ' + t + ' scored…');
-  gvFlash('#00338d', '#c60c30', t);
+  var f = cfg.fav || 'BUF';
+  gvNote('Testing as if ' + f + ' scored — set Highlight team above to test another.');
+  gvFlash('#00338d', '#c60c30', f);
 });
 document.getElementById('sTest').addEventListener('click', function(){
   unlockAudio();
