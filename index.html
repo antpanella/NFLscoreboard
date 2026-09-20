@@ -180,6 +180,9 @@ body.nofan .fanrow{display:none}
 .fantasy .fc{font-weight:700}
 .fantasy .fp b{font-weight:700;color:var(--chalk)}
 .fantasy .fp i{font-style:normal;font-weight:600;color:var(--fantasy);opacity:.85}
+.fantasy .fp .jn{font-weight:700;opacity:.95}
+.fantasy .fp u{text-decoration:none;font-weight:700;color:var(--flag)}
+.fantasy .fp.bench u{opacity:.7}
 .fantasy .fp.bench b{opacity:.65;font-weight:600}
 body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .meta .clock{color:var(--chalk);font-weight:600}
@@ -310,8 +313,16 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Alert stays up <select id="sDur">
       <option value="8">8 sec</option><option value="12">12 sec</option><option value="18">18 sec</option>
     </select></label>
+  <label>…but a newer play cuts in after <select id="sMinShow">
+      <option value="2">2 sec</option><option value="4">4 sec</option>
+      <option value="6">6 sec</option><option value="999">never</option>
+    </select></label>
   <label>Highlight team
     <select id="sFav"><option value="">none</option></select></label>
+  <label>Card order <select id="sOrder">
+      <option value="kick">by kickoff time (fixed)</option>
+      <option value="heat">most interesting first</option>
+    </select></label>
   <label>Today's games only <input type="checkbox" id="sToday"></label>
   <label>Text size <select id="sScale">
       <option value="0.8">smaller</option><option value="0.9">small</option>
@@ -379,7 +390,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20 \u00b7 fantasy row, team colours, rest colour';
+var BUILD = 'build 2026-09-20e \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -388,7 +399,7 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
-  yards:35, dur:12, fav:'', today:false, scale:1, delay:0,
+  yards:35, dur:12, minShow:4, order:'kick', fav:'', today:false, scale:1, delay:0,
   deep:true, smooth:true, govee:true,
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
@@ -417,14 +428,15 @@ var buffer = [];          // fetched snapshots waiting out the delay
 var prev = null;          // Map gameId -> snapshot
 var fired = Object.create(null);
 var queue = [];
-var showing = false;
+var showing = false, shownAt = 0, alertTimer = null;
 var lastGood = 0;
 var fails = 0;
 var timer = null;
 var audio = null;
 var wake = null;
 var logLines = [];
-var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:''};
+var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
+           week:0, mine:[], pts:{}, ptsAt:0};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -446,7 +458,8 @@ function bind(id, key, kind){
     cfg[key] = (kind === 'bool') ? el.checked : (kind === 'num' ? Number(el.value) : el.value);
     save();
     if (key === 'tint' || key === 'dimLose') paintFlags();
-    if (/^(scale|recs|strips|liveOnly|odds|tick|tint|dimLose|fanRow)$/.test(key)) render();
+    if (key === 'order'){ HOLD.n = -1; }
+    if (/^(scale|recs|strips|liveOnly|odds|tick|tint|dimLose|fanRow|order)$/.test(key)) render();
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -1010,17 +1023,30 @@ function push(game, kind, body, quiet, team, hot, whoList){
   logLines.unshift({kind:kind, who:who, body:body, mine:hit ? hit.name : '', at:new Date()});
   if (logLines.length > 12) logLines.pop();
   paintLog();
+  /* A new play takes the screen. Without this the banner sat for its full run
+     while later alerts chimed behind it, so the sound and the screen disagreed.
+     The one showing still gets a floor of a few seconds so a scoring flurry
+     doesn't strobe past unread. */
   if (!showing) next();
+  else {
+    var up = Date.now() - shownAt;
+    // whichever comes first: the floor for the current banner, or its own run
+    var wait = Math.min(cfg.dur * 1000 - up, (cfg.minShow || 0) * 1000 - up);
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(next, Math.max(0, wait));
+  }
 
   var card = document.querySelector('[data-g="' + game.id + '"]');
   if (card){ card.classList.add('flash'); setTimeout(function(){ card.classList.remove('flash'); }, 2500); }
 }
 
 function next(){
+  clearTimeout(alertTimer);                 // one chain only, never two
   var a = queue.shift();
   var box = document.getElementById('alert');
   if (!a){ showing = false; box.className = ''; return; }
   showing = true;
+  shownAt = Date.now();
 
   if (a.mine){
     box.style.background = 'var(--fantasy)';
@@ -1046,7 +1072,7 @@ function next(){
   tones(a.sound);
   if (a.flash) gvFlash(a.flash, a.flashAlt, a.flashTeam);
 
-  setTimeout(next, cfg.dur * 1000);
+  alertTimer = setTimeout(next, cfg.dur * 1000);
 }
 
 function light(hex){
@@ -1111,7 +1137,10 @@ function render(){
     else soon.push(g);
   });
 
-  live.sort(function(a, b){ return heat(b) - heat(a); });
+  live.sort(cfg.order === 'heat'
+    ? function(a, b){ return heat(b) - heat(a); }
+    : byKick);
+  if (cfg.order !== 'heat') live = holdOrder(live);
   // soon/done are ordered inside dayRows, which buckets them by calendar day first
 
   document.body.classList.toggle('nostrip', !cfg.strips || (cfg.liveOnly && live.length > 0));
@@ -1167,6 +1196,33 @@ function render(){
   fit(cols, rows);
   collectTickers();
   diagnose(live);
+}
+
+/* Cards move around when they are ranked by drama, which makes a score you were
+   watching hard to find again. Kickoff order is fixed for the whole afternoon:
+   earliest start top-left, ties broken by the game id so it never wobbles. */
+function byKick(a, b){
+  var ta = new Date(a.date).getTime() || 0, tb = new Date(b.date).getTime() || 0;
+  return (ta - tb) || String(a.id).localeCompare(String(b.id));
+}
+
+/* Once the cards are placed they stay put, even as games kick off or go final,
+   until the number of live games changes — at which point the grid has to be
+   rebuilt anyway, so that is the moment to re-sort. */
+var HOLD = {n: -1, ids: []};
+function holdOrder(live){
+  if (live.length !== HOLD.n){
+    HOLD.n = live.length;
+    HOLD.ids = live.map(function(g){ return g.id; });
+    return live;
+  }
+  var by = Object.create(null);
+  live.forEach(function(g){ by[g.id] = g; });
+  var out = [], seen = Object.create(null);
+  HOLD.ids.forEach(function(id){ if (by[id]){ out.push(by[id]); seen[id] = 1; } });
+  live.forEach(function(g){ if (!seen[g.id]) out.push(g); });   // a swap, same count
+  HOLD.ids = out.map(function(g){ return g.id; });
+  return out;
 }
 
 // closer game, later quarter, higher score = shown first
@@ -1367,6 +1423,10 @@ function diagnose(live){
     '<div>odds block: ' + yn(g.odds) + '</div>' +
     '<div>fantasy roster loaded: ' + yn(FAN.ready) +
       (FAN.ready ? ' (' + FAN.roster.length + ')' : '') + '</div>' +
+    '<div>live fantasy points: ' + yn(Object.keys(FAN.pts).length) +
+      (FAN.ptsAt ? ' (' + Object.keys(FAN.pts).length + ' players, ' +
+        Math.round((Date.now() - FAN.ptsAt) / 1000) + 's ago, week ' + FAN.week + ')'
+        : ' \u2014 week ' + (FAN.week || '?')) + '</div>' +
     '<div>polls received: <b>' + polls + '</b>, last ' +
       (lastGood ? Math.round((Date.now() - lastGood) / 1000) + 's ago' : 'never') + '</div>' +
     '<div>alerts fired: <b>' + logLines.length + '</b></div>' +
@@ -1588,6 +1648,7 @@ function startDemo(){
   for (var k in LINES) if (/^dp?\d+$/.test(k)) delete LINES[k];   // fresh pins each run
   saveLines();
   fired = Object.create(null); queue = []; showing = false;
+  clearTimeout(alertTimer);
   document.getElementById('alert').className = '';
   demoTick();
 }
@@ -1639,6 +1700,7 @@ function sleeperConnect(){
     cfg.sleeperUser = u; cfg.sleeperId = user.user_id; save();
     return sget('/state/nfl');
   }).then(function(st){
+    FAN.week = st.display_week || st.week || 0;      // live scoring is per week
     return sget('/user/' + cfg.sleeperId + '/leagues/nfl/' + (st.league_season || st.season));
   }).then(function(lgs){
     if (!lgs || !lgs.length) throw new Error('no leagues');
@@ -1664,10 +1726,12 @@ function loadRoster(){
   fanNote('Loading your roster…');
 
   var ids = Object.create(null), starters = Object.create(null);
+  FAN.mine = [];
   return Promise.all(pick.map(function(l){
     return sget('/league/' + l.league_id + '/rosters').then(function(rs){
       (rs || []).forEach(function(r){
         if (String(r.owner_id) !== String(cfg.sleeperId)) return;
+        FAN.mine.push({league:l.league_id, roster:r.roster_id});
         (r.players || []).forEach(function(x){ if (x) ids[x] = 1; });
         (r.starters || []).forEach(function(x){ if (x && x !== '0') starters[x] = 1; });
       });
@@ -1685,8 +1749,10 @@ function resolveIds(list, starters, leagues){
   var c = pcache(), map = c.map || {};
   var missing = list.filter(function(id){ return !isTeamId(id) && !map[id]; });
   var stale = !c.at || (Date.now() - c.at) > 6 * 3600 * 1000;
+  // an older cache has names but no jersey numbers — pull the list once more
+  var noNums = list.some(function(id){ return !isTeamId(id) && map[id] && map[id].j === undefined; });
 
-  if (!missing.length || !stale){
+  if (!missing.length && !noNums){
     applyRoster(list, starters, map, leagues);
     return Promise.resolve();
   }
@@ -1700,7 +1766,8 @@ function resolveIds(list, starters, leagues){
         map[id] = {
           n: pl.search_full_name || norm((pl.first_name || '') + (pl.last_name || '')),
           d: ((pl.first_name || '') + ' ' + (pl.last_name || '')).trim(),
-          t: pl.team || '', p: pl.position || ''
+          t: pl.team || '', p: pl.position || '',
+          j: String(pl.number != null ? pl.number : (pl.jersey_number != null ? pl.jersey_number : ''))
         };
       });
       pcache({at:Date.now(), map:map});
@@ -1715,12 +1782,12 @@ function applyRoster(list, starters, map, leagues){
   list.forEach(function(id){
     if (isTeamId(id)){
       FAN.defs[id] = !!starters[id];
-      FAN.roster.push({name:id + ' defense', team:id, pos:'DEF', starter:!!starters[id]});
+      FAN.roster.push({id:id, name:id + ' defense', team:id, pos:'DEF', starter:!!starters[id]});
       return;
     }
     var m = map[id];
     if (!m || !m.n) return;
-    var e = {name:m.d, team:m.t, pos:m.p, starter:!!starters[id]};
+    var e = {id:id, name:m.d, team:m.t, pos:m.p, num:m.j || '', starter:!!starters[id]};
     FAN.names[m.n] = e;
     FAN.roster.push(e);
   });
@@ -1736,6 +1803,9 @@ function applyRoster(list, starters, map, leagues){
   });
   for (var d in dupes) delete FAN.last[d];
   FAN.ready = FAN.roster.length > 0;
+  // live points refresh on their own clock; the board redraws when they land
+  if (FAN.ready && !FAN.ptsTimer){ FAN.ptsTimer = setInterval(fanPoints, 45000); }
+  if (FAN.ready) fanPoints();
   FAN.label = leagues.length === 1 ? (leagues[0].name || 'my league') : leagues.length + ' leagues';
 
   var unresolved = list.length - FAN.roster.length;
@@ -1802,15 +1872,53 @@ function fanLine(g){
   if (cfg.fanRow === false) return '';
   var list = fanIn(g);
   if (!list.length) return '';
+  var sum = 0, any = false;
   var out = list.map(function(e){
     var tag = e.pos === 'DEF' ? '' : ' <i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i>';
-    return '<span class="fp' + (e.starter ? '' : ' bench') + '"><b>' +
-      esc(shortName(e.name)) + '</b>' + tag + '</span>';
+    var num = e.num ? '<i class="jn">#' + esc(e.num) + '</i> ' : '';
+    var v = fanPts(e), pts = '';
+    if (v !== null){ any = true; if (e.starter) sum += v;
+      pts = ' <u>' + fmtPts(v) + '</u>'; }
+    return '<span class="fp' + (e.starter ? '' : ' bench') + '">' + num + '<b>' +
+      esc(shortName(e.name)) + '</b>' + tag + pts + '</span>';
   });
-  return '<div class="fanrow"><span class="fc">\u2605 ' + list.length + '</span>' +
+  return '<div class="fanrow"><span class="fc">\u2605 ' + list.length +
+    (any ? ' \u00b7 ' + fmtPts(sum) : '') + '</span>' +
     '<span class="fantasy" data-k="' + esc(g.id) + ':f"><span class="track">' +
     out.join('') + '</span></span></div>';
 }
+
+/* Live fantasy points. Sleeper's matchups call returns points already scored by
+   the league's own rules, so custom scoring is handled for free — no need to run
+   raw stats through a scoring table here. */
+function fanPoints(){
+  if (!FAN.ready || !FAN.week || !FAN.mine.length) return;
+  Promise.all(FAN.mine.map(function(m){
+    return sget('/league/' + m.league + '/matchups/' + FAN.week)
+      .then(function(rows){
+        (rows || []).forEach(function(r){
+          if (String(r.roster_id) !== String(m.roster)) return;
+          var pp = r.players_points;
+          // older shapes carry only the starters' points, in array order
+          if (!pp && r.starters && r.starters_points){
+            pp = {};
+            r.starters.forEach(function(id, i){
+              if (id && id !== '0' && typeof r.starters_points[i] === 'number') pp[id] = r.starters_points[i];
+            });
+          }
+          for (var id in (pp || {})) FAN.pts[id] = pp[id];
+        });
+      }).catch(function(){});
+  })).then(function(){
+    FAN.ptsAt = Date.now();
+    render();
+  });
+}
+function fanPts(e){
+  var v = e && e.id !== undefined ? FAN.pts[e.id] : undefined;
+  return (typeof v === 'number') ? v : null;
+}
+function fmtPts(v){ return (Math.round(v * 10) / 10).toFixed(1); }
 
 // how many of my players are in this game — counts only what would actually alert,
 // so the star on a card matches the banners you'll get from it
@@ -2225,6 +2333,7 @@ TEAMS.forEach(function(t){
 bind('sInterval','interval','num'); bind('sSound','sound','bool');
 bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
 bind('sFinal','final','bool'); bind('sYards','yards','num'); bind('sDur','dur','num');
+bind('sMinShow','minShow','num'); bind('sOrder','order','str');
 bind('sFav','fav','str'); bind('sToday','today','bool'); bind('sScale','scale','num');
 bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
