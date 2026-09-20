@@ -435,7 +435,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <div id="gvTeams"></div>
   <label>Pulses <input type="number" id="sGvPulses" min="1" max="4" step="1"></label>
   <label>Scene runs for <input type="number" id="sGvHold" min="2" max="60" step="1"> sec</label>
-  <label>Min seconds between <input type="number" id="sGvGap" min="5" max="120" step="5"></label>
+  <label>Min seconds between <input type="number" id="sGvGap" min="3" max="120" step="1"></label>
   <label>When the show ends <select id="sGvRestMode">
       <option value="color">Go to this colour</option>
       <option value="off">Turn the strip off</option>
@@ -465,7 +465,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20r \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20s \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -479,7 +479,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -1615,6 +1615,12 @@ function diagnose(live){
           : 'nothing qualifies yet (Q4 inside ' + (cfg.closeMin || 2) + ':00, within ' +
             (cfg.closeMargin || 8) + ' points)';
       })() + '</div>' +
+    '<div>last light shows: ' + (gvLog.length
+      ? gvLog.map(function(f){
+          return esc(f.team) + ' ' + esc(f.scene || f.mode) + ' ' +
+            Math.round((Date.now() - f.at) / 1000) + 's ago';
+        }).join(' \u00b7 ')
+      : 'none yet') + '</div>' +
     '<div>chimes: <b>' + toneOk + '</b> played, <b>' + toneMiss + '</b> recovered' +
       (audio ? ', context ' + audio.state : ', no context') +
       (toneWhy ? ' \u2014 ' + esc(toneWhy) : '') + '</div>' +
@@ -2488,6 +2494,7 @@ window.addEventListener('resize', refit);
    relays locally; colour correction and rate budgeting live there. */
 var gvLast = 0;
 // a pasted URL usually carries a trailing slash, which would make //devices
+var gvPending = null, gvLog = [];
 function gvBase(){ return String(cfg.goveeUrl || '').trim().replace(/\/+$/, ''); }
 function gvNote(m){ var e = document.getElementById('gvNote'); if (e) e.textContent = m; }
 
@@ -2600,14 +2607,16 @@ function gvTeamRows(){
     var cur = m[t], sel = '';
     if (cur === 'colors') sel = 'colors';
     else if (cur === 'segments') sel = 'segments';
-    else if (cur && cur.value !== undefined) sel = 'v:' + cur.value;
+    // a DIY scene and a built-in one can share a number, so the instance is
+    // part of the key — otherwise picking one could bind the other
+    else if (cur && cur.value !== undefined) sel = 'v:' + (cur.instance || '') + ':' + cur.value;
 
     var opts = ['<option value=""' + (sel === '' ? ' selected' : '') + '>default</option>',
                 '<option value="colors"' + (sel === 'colors' ? ' selected' : '') + '>colours</option>',
                 '<option value="segments"' + (sel === 'segments' ? ' selected' : '') + '>crawl</option>'];
     var seen = false;
     scenes.forEach(function(x){
-      var v = 'v:' + x.value;
+      var v = 'v:' + (x.instance || '') + ':' + x.value;
       if (v === sel) seen = true;
       opts.push('<option value="' + esc(v) + '"' + (v === sel ? ' selected' : '') + '>' +
         esc(x.name) + '</option>');
@@ -2627,7 +2636,9 @@ function gvTeamRows(){
       else if (v === 'colors' || v === 'segments') map[t] = v;
       else {
         var raw = v.slice(2);
-        var hit = (window.__gvScenes || []).filter(function(x){ return String(x.value) === raw; })[0];
+        var hit = (window.__gvScenes || []).filter(function(x){
+          return ((x.instance || '') + ':' + x.value) === raw;
+        })[0];
         if (hit) map[t] = hit;
       }
       cfg.goveeScenes = JSON.stringify(map); save();
@@ -2672,9 +2683,19 @@ function gvStop(quiet){
   setTimeout(send, (Math.max(2, Number(cfg.goveeHold) || 8) + 5) * 1000);
 }
 
+/* Two scores inside the minimum gap used to mean the second one was dropped —
+   so a Dallas touchdown during someone else's light show left the wrong team's
+   colours running, which looked exactly like the wrong show firing. The newer
+   score now waits out the gap and then takes over; only older ones are dropped. */
 function gvFlash(hex, alt, abbr){
   if (!cfg.govee || !cfg.goveeDev || !cfg.goveeSku) return;
-  if (Date.now() - gvLast < cfg.goveeGap * 1000) return;   // two scores close together
+  var wait = cfg.goveeGap * 1000 - (Date.now() - gvLast);
+  if (wait > 0){
+    clearTimeout(gvPending);
+    gvPending = setTimeout(function(){ gvFlash(hex, alt, abbr); }, wait + 50);
+    return;
+  }
+  clearTimeout(gvPending);
   gvLast = Date.now();
   var body = {key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku,
     color:hex, alt:alt, pulses:cfg.goveePulses, mode:cfg.goveeMode,
@@ -2683,6 +2704,9 @@ function gvFlash(hex, alt, abbr){
   if (pick === 'colors' || pick === 'segments') body.mode = pick;
   else if (pick && pick.value !== undefined){ body.mode = 'scene'; body.scene = pick; }
   else if (cfg.goveeMode === 'scene') body.mode = 'colors';   // default with nothing set
+  gvLog.unshift({at:Date.now(), team:abbr || '?', mode:body.mode,
+                 scene:(body.scene && body.scene.name) || ''});
+  if (gvLog.length > 4) gvLog.pop();
   fetch(gvBase() + '/flash', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(body)
