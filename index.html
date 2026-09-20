@@ -314,6 +314,14 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Field goals <input type="checkbox" id="sFG"></label>
   <label>Turnovers <input type="checkbox" id="sTO"></label>
   <label>Close game &amp; overtime <input type="checkbox" id="sClose"></label>
+  <label>…inside the last <select id="sCloseMin">
+      <option value="2">2:00</option><option value="4">4:00</option>
+      <option value="6">6:00</option><option value="8">8:00</option>
+    </select> of Q4</label>
+  <label>…and within <select id="sCloseMargin">
+      <option value="3">3 points</option><option value="8">8 points (one score)</option>
+      <option value="16">16 points (two scores)</option>
+    </select></label>
   <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
   <label>Dim the team that is behind <input type="checkbox" id="sDim"></label>
@@ -404,7 +412,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20h \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20i \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -414,9 +422,11 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   yards:35, dur:12, minShow:4, order:'kick', fav:'', today:false, scale:1, delay:0,
-  deep:true, smooth:true, govee:true,
+  deep:true,
+  govee:false,                  // never on by default: another copy of this page
+  smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, strips:true, liveOnly:false, close:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -427,8 +437,15 @@ var cfg = load();
 if (cfg.gvSeed !== 1){
   cfg.goveeUrl = 'https://small-silence-9112.antpanella.workers.dev';
   cfg.goveeKey = 'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY';
-  cfg.govee = true;
-  cfg.gvSeed = 1;
+  cfg.gvSeed = 1;               // the relay details, but NOT the on switch
+  try { localStorage.setItem('sundayBoard', JSON.stringify(cfg)); } catch(e){}
+}
+
+/* Close-game alerts shipped switched off in an early build and the setting is
+   sticky, so this turns them on once for boards still carrying that value. */
+if (cfg.seed2 !== 1){
+  cfg.close = true;
+  cfg.seed2 = 1;
   try { localStorage.setItem('sundayBoard', JSON.stringify(cfg)); } catch(e){}
 }
 
@@ -845,12 +862,14 @@ function clockSecs(c){
   return m ? (+m[1]) * 60 + (+m[2]) : null;
 }
 // one-score game, final two minutes of regulation, or any overtime
+/* "Close" means: fourth quarter, inside the chosen amount of clock, with the
+   margin at or under the chosen number of points. Overtime always counts. */
 function tight(g){
   if (g.state !== 'in') return false;
   if (g.period > 4) return true;
   var s = clockSecs(g.clock);
-  return g.period === 4 && s !== null && s <= 120 &&
-         Math.abs(g.home.score - g.away.score) <= 8;
+  return g.period === 4 && s !== null && s <= (cfg.closeMin || 2) * 60 &&
+         Math.abs(g.home.score - g.away.score) <= (cfg.closeMargin || 8);
 }
 
 /* Player names for the alert rail. ESPN's live feed normally carries a structured
@@ -1505,6 +1524,14 @@ function diagnose(live){
     '<div>odds block: ' + yn(g.odds) + '</div>' +
     '<div>fantasy roster loaded: ' + yn(FAN.ready) +
       (FAN.ready ? ' (' + FAN.roster.length + ')' : '') + '</div>' +
+    '<div>close-game watch: ' +
+      (function(){
+        var w = (window.__games || []).filter(function(x){ return tight(x); })
+          .map(function(x){ return x.away.abbr + '-' + x.home.abbr; });
+        return w.length ? '<b>' + esc(w.join(', ')) + '</b>'
+          : 'nothing qualifies yet (Q4 inside ' + (cfg.closeMin || 2) + ':00, within ' +
+            (cfg.closeMargin || 8) + ' points)';
+      })() + '</div>' +
     '<div>chimes: <b>' + toneOk + '</b> played, <b>' + toneMiss + '</b> recovered' +
       (audio ? ', context ' + audio.state : ', no context') +
       (toneWhy ? ' \u2014 ' + esc(toneWhy) : '') + '</div>' +
@@ -2442,6 +2469,7 @@ bind('sInterval','interval','num'); bind('sSound','sound','bool');
 bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
 bind('sFinal','final','bool'); bind('sYards','yards','num'); bind('sDur','dur','num');
 bind('sMinShow','minShow','num'); bind('sOrder','order','str');
+bind('sCloseMin','closeMin','num'); bind('sCloseMargin','closeMargin','num');
 bind('sFav','fav','str'); bind('sToday','today','bool'); bind('sScale','scale','num');
 bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
