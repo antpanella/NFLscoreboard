@@ -67,11 +67,21 @@ header h1 em{font-style:normal;color:var(--flag)}
 .hdrbtn:hover{color:var(--chalk)}
 
 /* ---------- alert rail ---------- */
+/* The banner wears the same diagonal split as the card it came from, so the eye
+   can jump straight to the right box. Type is carried by the accent colour — the
+   left bar, the headline and the tag — not by the background. */
 #alert{flex:none;display:none;align-items:center;gap:1.2rem;padding:.55rem 1.2rem;
-  background:var(--flag);color:#0A1410;overflow:hidden}
+  background:var(--flag);color:#F2F5F0;overflow:hidden;position:relative;
+  border-left:calc(.5 * var(--su)) solid var(--accent,var(--flag))}
+#alert.split{background-image:linear-gradient(107deg,
+  var(--ca,var(--turf)) 0 46.2%, rgba(255,255,255,.14) 46.2% 47.4%,
+  var(--cb,var(--turf)) 47.4% 100%)}
+#alert.split .kind,#alert.split .who,#alert.split .body,#alert.split .score{
+  text-shadow:0 1px 4px rgba(0,0,0,.65)}
+#alert.split{box-shadow:inset 0 0 0 calc(.12 * var(--su)) var(--accent,var(--flag))}
 #alert.show{display:flex}
 #alert .kind{font-weight:700;font-size:calc(2.1 * var(--su));letter-spacing:.02em;
-  white-space:nowrap;line-height:1}
+  white-space:nowrap;line-height:1;color:var(--accent,inherit)}
 #alert .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:.12em}
 #alert .who{font-weight:700;font-size:calc(1.65 * var(--su));line-height:1.05;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -80,7 +90,8 @@ header h1 em{font-style:normal;color:var(--flag)}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
 #alert .score{font-weight:700;font-size:calc(1.75 * var(--su));white-space:nowrap;line-height:1}
 #alert .tag{font-weight:700;font-size:calc(.8 * var(--su));letter-spacing:.12em;
-  white-space:nowrap;border:2px solid currentColor;padding:.2em .5em;line-height:1}
+  white-space:nowrap;padding:.22em .55em;line-height:1;
+  background:var(--accent,var(--flag));color:#0A1410;border:0}
 #alert .tag:empty{display:none}
 #alert img{height:calc(2.4 * var(--su));width:auto;flex:none}
 @keyframes rail{from{transform:translateY(-100%)}to{transform:translateY(0)}}
@@ -170,13 +181,16 @@ body.nofan .fanrow{display:none}
 
 /* Fourth row: who of mine is in this game. Violet matches the fantasy banner.
    The star and count are pinned; only the names scroll past them. */
-.fanrow{display:flex;gap:calc(.22 * var(--u));align-items:baseline;
-  font-size:calc(.38 * var(--u2));font-weight:600;line-height:1.1;
-  color:var(--fantasy);white-space:nowrap;overflow:hidden;margin-top:calc(.03 * var(--u))}
-.fanrow>.fc{flex:none}
-.fantasy{flex:1 1 auto;min-width:0;overflow:hidden}
-.fantasy .track{display:flex;align-items:baseline;width:max-content;flex:0 0 auto;
-  gap:calc(.3 * var(--u));will-change:transform}
+.fanrow{display:flex;gap:calc(.22 * var(--u));align-items:flex-start;
+  font-size:calc(.38 * var(--u2));font-weight:600;line-height:1.15;
+  color:var(--fantasy);overflow:hidden;margin-top:calc(.03 * var(--u))}
+.fanrow>.fc{flex:none;white-space:nowrap}
+/* two lines of names, wrapped; only a roster that still won't fit scrolls, and
+   then it creeps vertically rather than sideways */
+.fantasy{flex:1 1 auto;min-width:0;overflow:hidden;height:2.3em}  /* 2 x line-height */
+.fantasy .track{display:flex;flex-wrap:wrap;align-items:baseline;
+  column-gap:calc(.3 * var(--u));row-gap:0;will-change:transform}
+.fantasy .fp{white-space:nowrap}
 .fantasy .fc{font-weight:700}
 .fantasy .fp b{font-weight:700;color:var(--chalk)}
 .fantasy .fp i{font-style:normal;font-weight:600;color:var(--fantasy);opacity:.85}
@@ -390,7 +404,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20e \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20g \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -981,6 +995,16 @@ function detect(was, now){
   }
 }
 
+/* One colour per kind of news, used for the bar, the headline and the tag. */
+function accentFor(kind, mine, hot){
+  if (mine) return 'var(--fantasy)';
+  if (hot) return 'var(--hot)';
+  if (/TOUCHDOWN|FIELD GOAL|SAFETY|2-PT|2 POINTS|SCORE/.test(kind)) return 'var(--flag)';
+  if (/INTERCEPT|TURNOVER|FUMBLE/.test(kind)) return 'var(--redzone)';
+  if (/FINAL/.test(kind)) return '#9FB3A6';
+  return '#FFFFFF';                       // long plays and everything else
+}
+
 function push(game, kind, body, quiet, team, hot, whoList){
   // GO WATCH THIS and OVERTIME are once-per-game states. A cover flip can happen
   // several times in a fourth quarter, so it dedupes on the scoreline instead.
@@ -1007,6 +1031,16 @@ function push(game, kind, body, quiet, team, hot, whoList){
     score: game.away.abbr + ' ' + game.away.score + '  ' + game.home.abbr + ' ' + game.home.score,
     color: team ? team.color : '',
     logo: team ? team.logo : '',
+    // the card's own two colours, so banner and box read as one thing
+    /* The banner runs brighter than the card so it still grabs the room, and the
+       half belonging to the team the play happened to goes brighter still. */
+    ca: game.away && game.away.color
+      ? tint(game.away.color, game.away.alt,
+             team && team.abbr === game.away.abbr ? 0.30 : 0.17) : '',
+    cb: game.home && game.home.color
+      ? tint(game.home.color, game.home.alt,
+             team && team.abbr === game.home.abbr ? 0.30 : 0.17) : '',
+    accent: accentFor(kind, !!hit, !!hot && !hit),
     mine: hit ? hit.name : '',
     hot: !!hot && !hit,
     // only scores light the room; turnovers and long plays do not
@@ -1048,19 +1082,26 @@ function next(){
   showing = true;
   shownAt = Date.now();
 
-  if (a.mine){
-    box.style.background = 'var(--fantasy)';
-    box.style.color = '#FFFFFF';
-  } else if (a.hot){
-    box.style.background = 'var(--hot)';
-    box.style.color = '#04252B';
+  var split = !!(a.ca && a.cb);
+  box.style.setProperty('--accent', a.accent || 'var(--flag)');
+  if (split){
+    box.style.setProperty('--ca', a.ca);
+    box.style.setProperty('--cb', a.cb);
+    // backgroundColor, never the shorthand: the shorthand would wipe the
+    // gradient the .split class paints
+    box.style.backgroundColor = 'var(--turf)';
+    box.style.backgroundImage = '';
+    box.style.color = '#F2F5F0';
   } else {
+    // a test banner or a game with no colours in the feed: fall back to flat
     var bg = a.color && contrastOK(a.color) ? a.color : '';
-    box.style.background = bg || 'var(--flag)';
-    box.style.color = bg ? (light(bg) ? '#0A1410' : '#FFFFFF') : '#0A1410';
+    box.style.backgroundColor = bg || 'var(--turf-hi)';
+    box.style.backgroundImage = 'none';
+    box.style.color = bg ? (light(bg) ? '#0A1410' : '#FFFFFF') : '#F2F5F0';
   }
   document.getElementById('alertTag').textContent =
-    a.mine ? 'YOUR ROSTER' : (a.hot ? 'RIGHT NOW' : '');
+    a.mine ? 'YOUR ROSTER' : (a.hot ? 'RIGHT NOW' :
+      (/INTERCEPT|TURNOVER|FUMBLE/.test(a.kind) ? 'TURNOVER' : ''));
 
   var img = document.getElementById('alertLogo');
   if (a.logo){ img.src = a.logo; img.hidden = false; } else { img.hidden = true; }
@@ -1068,7 +1109,7 @@ function next(){
   document.getElementById('alertWho').textContent = a.who || '';
   document.getElementById('alertBody').textContent = a.body;
   document.getElementById('alertScore').textContent = a.score;
-  box.className = 'show';
+  box.className = 'show' + (split ? ' split' : '');
   tones(a.sound);
   if (a.flash) gvFlash(a.flash, a.flashAlt, a.flashTeam);
 
@@ -1245,7 +1286,8 @@ function lum(c){
   return .2126 * f[0] + .7152 * f[1] + .0722 * f[2];
 }
 var TINT_L = 0.14;            // white on this still clears 5:1
-function tint(hex, alt){
+function tint(hex, alt, target){
+  var t = target || TINT_L;
   var c = readHex(hex);
   if (!c || Math.max(c[0], c[1], c[2]) < 34) c = readHex(alt) || c;   // near-black jersey
   if (!c) return 'var(--turf)';
@@ -1253,7 +1295,7 @@ function tint(hex, alt){
   if (L > 0){
     // scale toward black until the luminance target is met, keeping the hue
     var s = 1, i = 0;
-    while (lum(c.map(function(v){ return v * s; })) > TINT_L && i++ < 60) s -= .025;
+    while (lum(c.map(function(v){ return v * s; })) > t && i++ < 60) s -= .025;
     c = c.map(function(v){ return Math.round(v * Math.max(.1, s)); });
   }
   // a little of the board's own green keeps the cards reading as one set
@@ -1948,7 +1990,7 @@ function unitNeeds(){
   // the fantasy row only costs height when there is a roster to show
   var fan = cfg.fanRow !== false && FAN.ready && cfg.scale < 1.12;
   return {w: 5.9 + (rec ? 1.4 : 0),
-          h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.5 : 0),
+          h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0),
           rec:rec, meta:meta, info:info, fan:fan};
 }
 function fit(cols, rows){
@@ -2026,14 +2068,17 @@ function collectTickers(){
   for (var i = 0; i < rows.length; i++){
     var row = rows[i], track = row.firstElementChild;
     if (!track) continue;
-    var dx = track.scrollWidth - row.clientWidth;
-    if (cfg.tick) dx = Math.max(dx, 40);   // scroll test: prove the mechanism runs
+    var vert = row.classList.contains('fantasy');
+    var dx = vert ? (track.scrollHeight - row.clientHeight)
+                  : (track.scrollWidth - row.clientWidth);
+    if (cfg.tick && !vert) dx = Math.max(dx, 40);   // scroll test: prove the mechanism runs
     if (dx > 2){
       var key = row.getAttribute('data-k') || ('r' + i);
       if (!TICK[key]) TICK[key] = {x:0, dir:1, hold:1.6};
       TICK[key].seen = 1;
-      TICKERS.push({el:track, key:key, dx:dx});
-      track.style.transform = 'translateX(' + (-TICK[key].x).toFixed(1) + 'px)';
+      TICKERS.push({el:track, key:key, dx:dx, vert:vert, page:row.clientHeight});
+      track.style.transform = (vert ? 'translateY(' : 'translateX(') +
+        (-TICK[key].x).toFixed(1) + 'px)';
     } else {
       track.style.transform = '';
     }
@@ -2048,6 +2093,25 @@ function tickFrame(ts){
   for (var i = 0; i < TICKERS.length; i++){
     var t = TICKERS[i], st = TICK[t.key];
     if (!st) continue;
+    if (t.vert){
+      /* More names than two lines hold: page down a screenful at a time, with a
+         pause on each page. Creeping continuously would leave half-cut names. */
+      if (st.anim === undefined) st.anim = -1;
+      if (st.anim >= 0){
+        st.anim += dt / 0.45;
+        var k = st.anim >= 1 ? 1 : (1 - Math.pow(1 - st.anim, 3));
+        st.x = st.from + (st.to - st.from) * k;
+        if (st.anim >= 1){ st.x = st.to; st.anim = -1; st.hold = 3.2; }
+      } else if (st.hold > 0){ st.hold -= dt; }
+      else {
+        st.from = st.x;
+        st.to = st.x >= t.dx - 1 ? 0 : Math.min(t.dx, st.x + (t.page || 1));
+        st.anim = 0;
+      }
+      if (st.x > t.dx) st.x = t.dx;
+      t.el.style.transform = 'translateY(' + (-st.x).toFixed(1) + 'px)';
+      continue;
+    }
     if (st.hold > 0){ st.hold -= dt; }
     else {
       st.x += st.dir * 34 * dt;                 // px per second
@@ -2055,7 +2119,8 @@ function tickFrame(ts){
       else if (st.x <= 0){ st.x = 0; st.dir = 1; st.hold = 1.8; }
     }
     if (st.x > t.dx) st.x = t.dx;               // card narrowed under us
-    t.el.style.transform = 'translateX(' + (-st.x).toFixed(1) + 'px)';
+    t.el.style.transform = (t.vert ? 'translateY(' : 'translateX(') +
+      (-st.x).toFixed(1) + 'px)';
   }
   if (TICKERS.length) requestAnimationFrame(tickFrame);
   else ticking = false;
