@@ -294,6 +294,7 @@ body.nostrip .strip{display:none}
   <label><button id="sGvLoad" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Find lights</button>
     <button id="sGvTest" style="color:var(--sideline);font-size:1rem">Test flash</button>
     <button id="sGvStop" style="color:var(--redzone);font-size:1rem;font-weight:600">Stop</button></label>
+  <label><button id="sGvAuto" style="color:var(--sideline);font-size:1rem">Match scenes to teams by name</button></label>
   <label>Light <select id="sGvDev"><option value="">none</option></select></label>
   <label>Default animation <select id="sGvMode">
       <option value="colors">Team colours</option>
@@ -1829,12 +1830,61 @@ function gvDevices(){
         return '<option value="' + esc(d.device + '|' + d.sku + '|' + (d.segments || 0)) +
           '">' + esc(d.name) + (d.segments ? ' (' + d.segments + ' segments)' : '') + '</option>';
       }).join('');
-      if (cfg.goveeDev) sel.value = cfg.goveeDev + '|' + cfg.goveeSku;
+      var pre = [].slice.call(sel.options).filter(function(o){
+        return cfg.goveeDev && o.value.indexOf(cfg.goveeDev + '|') === 0; })[0];
+      if (pre) { sel.value = pre.value; return gvScenes(); }
       gvNote(list.length + ' light' + (list.length === 1 ? '' : 's') + ' found — pick one.');
     })
     .catch(function(){
       gvNote('Bridge unreachable at ' + gvBase() + ' — check the URL.');
     });
+}
+
+/* Scenes named after a team ("Bills", "Go Jets", "Niners TD") get that team
+   automatically. Only unambiguous names count; a pick you made yourself wins. */
+var TEAM_ALIASES = {
+  ARI:['cardinals','arizona','cards'], ATL:['falcons','atlanta'], BAL:['ravens','baltimore'],
+  BUF:['bills','buffalo'], CAR:['panthers','carolina'], CHI:['bears','chicago'],
+  CIN:['bengals','cincinnati','cincy'], CLE:['browns','cleveland'], DAL:['cowboys','dallas'],
+  DEN:['broncos','denver'], DET:['lions','detroit'], GB:['packers','green bay','greenbay','pack'],
+  HOU:['texans','houston'], IND:['colts','indianapolis','indy'], JAX:['jaguars','jacksonville','jags'],
+  KC:['chiefs','kansas city','kansascity'], LV:['raiders','las vegas','lasvegas','vegas'],
+  LAC:['chargers','bolts'], LAR:['rams'], MIA:['dolphins','miami','fins','phins'],
+  MIN:['vikings','minnesota','vikes'], NE:['patriots','new england','newengland','pats'],
+  NO:['saints','new orleans','neworleans'], NYG:['giants','nyg'], NYJ:['jets','nyj'],
+  PHI:['eagles','philadelphia','philly','birds'], PIT:['steelers','pittsburgh'],
+  SF:['49ers','niners','san francisco','sanfrancisco','sf49'], SEA:['seahawks','seattle','hawks'],
+  TB:['buccaneers','bucs','tampa bay','tampa'], TEN:['titans','tennessee'],
+  WSH:['commanders','washington','commies']
+};
+function sceneTeam(name){
+  var n = ' ' + String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+  var hits = [];
+  Object.keys(TEAM_ALIASES).forEach(function(t){
+    var ok = TEAM_ALIASES[t].some(function(a){ return n.indexOf(' ' + a + ' ') >= 0; }) ||
+             (t.length >= 2 && n.indexOf(' ' + t.toLowerCase() + ' ') >= 0 &&
+              ['no','ne','ind','min','ten','den','sea','car','chi','det','was','la','lv'].indexOf(t.toLowerCase()) < 0);
+    if (ok) hits.push(t);
+  });
+  return hits.length === 1 ? hits[0] : null;
+}
+function gvAutoMatch(announce){
+  var map = gvMap(), got = [], skip = [];
+  (window.__gvScenes || []).forEach(function(x){
+    if (/\(built-in\)$/.test(x.name)) return;
+    var t = sceneTeam(x.name);
+    if (!t) { skip.push(x.name); return; }
+    if (map[t] && !(map[t].auto)) return;          // you picked something — leave it
+    map[t] = {name:x.name, value:x.value, instance:x.instance, auto:true};
+    got.push(t + ' ← ' + x.name);
+  });
+  cfg.goveeScenes = JSON.stringify(map); save();
+  gvTeamRows();
+  if (announce || got.length) gvNote(got.length ? 'Matched ' + got.length + ' scene' +
+    (got.length === 1 ? '' : 's') + ' to teams: ' + got.join(', ') +
+    (skip.length ? '. No team in: ' + skip.join(', ') : '')
+    : 'No scene names matched a team' + (skip.length ? ' (' + skip.join(', ') + ')' : '') + '.');
+  return got.length;
 }
 
 function gvMap(){ try { return JSON.parse(cfg.goveeScenes || '{}'); } catch(e){ return {}; } }
@@ -1854,9 +1904,8 @@ function gvScenes(){
       window.__gvScenes = diy.concat(dyn.map(function(x){
         return {name:x.name + ' (built-in)', value:x.value, instance:x.instance};
       }));
-      gvTeamRows();
-      gvNote(diy.length + ' of your own scenes, ' + dyn.length +
-        ' built in — now selectable per team below.');
+      if (!gvAutoMatch(false)) gvNote(diy.length + ' of your own scenes, ' + dyn.length +
+        ' built in — none named after a team, so pick per team below.');
     })
     .catch(function(){
       gvTeamRows();
@@ -1899,7 +1948,7 @@ function gvTeamRows(){
   [].slice.call(box.querySelectorAll('select')).forEach(function(el){
     el.addEventListener('change', function(){
       var t = el.getAttribute('data-team'), v = el.value, map = gvMap();
-      if (!v) delete map[t];
+      if (!v) map[t] = 'default';                 // explicit, so auto-match leaves it alone
       else if (v === 'colors' || v === 'segments') map[t] = v;
       else {
         var raw = v.slice(2);
@@ -1908,8 +1957,8 @@ function gvTeamRows(){
       }
       cfg.goveeScenes = JSON.stringify(map); save();
       el.parentNode.className = 'tr' + (v ? ' set' : '');
-      gvNote(Object.keys(map).length + ' team' +
-        (Object.keys(map).length === 1 ? '' : 's') + ' set: ' + Object.keys(map).join(', '));
+      var set = Object.keys(map).filter(function(k){ return map[k] !== 'default'; });
+      gvNote(set.length + ' team' + (set.length === 1 ? '' : 's') + ' set: ' + set.join(', '));
     });
   });
 }
@@ -2030,6 +2079,11 @@ document.getElementById('sGvDev').addEventListener('change', function(){
 });
 gvTeamRows();
 document.getElementById('sGvStop').addEventListener('click', gvStop);
+document.getElementById('sGvAuto').addEventListener('click', function(){
+  if (window.__gvScenes) gvAutoMatch(true); else gvScenes();
+});
+// pull scene names once on load so new team scenes are picked up with no clicks
+if (cfg.govee && cfg.goveeDev && cfg.goveeKey) setTimeout(gvScenes, 1500);
 document.getElementById('sGvTest').addEventListener('click', function(){
   if (!cfg.goveeDev) return gvNote('Pick a light first.');
   gvLast = 0;
