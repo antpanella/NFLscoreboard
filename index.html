@@ -248,6 +248,12 @@ body.nofan .fanrow{display:none}
   font-size:calc(.38 * var(--u2));font-weight:600;line-height:1.15;
   color:var(--fantasy);overflow:hidden;margin-top:calc(.03 * var(--u))}
 .fanrow>.fc{flex:none;white-space:nowrap}
+/* stacked totals: mine on top, my opponent's underneath, then the difference */
+.fanrow>.fc.two{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.fanrow .fc .them{color:#E06A60;font-weight:700}
+.fanrow .fc .them b{margin-left:.4em;font-weight:700}
+.fanrow .fc .them b.good{color:var(--live)}
+.fanrow .fc .them b.bad{color:var(--redzone)}
 /* two lines of names, wrapped; only a roster that still won't fit scrolls, and
    then it creeps vertically rather than sideways */
 .fantasy{flex:1 1 auto;min-width:0;overflow:hidden;height:2.3em}  /* 2 x line-height */
@@ -504,7 +510,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20z \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-21a \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2156,12 +2162,14 @@ function fanLine(g){
   if (cfg.fanRow === false) return '';
   var list = fanIn(g);
   if (!list.length) return '';
-  var sum = 0, any = false;
+  var sum = 0, foeSum = 0, any = false;
   var out = list.map(function(e){
     var tag = e.pos === 'DEF' ? '' : ' <i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i>';
     var num = e.num ? '<i class="jn">#' + esc(e.num) + '</i> ' : '';
     var v = fanPts(e), pts = '';
-    if (v !== null){ any = true; if (e.starter && e.side !== 'opp') sum += v;
+    if (v !== null){ any = true;
+      if (e.starter && e.side === 'opp') foeSum += v;
+      else if (e.starter) sum += v;
       pts = ' <u>' + fmtPts(v) + '</u>'; }
     return '<span class="fp' + (e.starter ? '' : ' bench') +
       (e.side === 'opp' ? ' foe' : '') + '">' + num + '<b>' +
@@ -2169,9 +2177,16 @@ function fanLine(g){
   });
   var mineN = list.filter(function(e){ return e.side !== 'opp'; }).length;
   var foeN = list.length - mineN;
-  return '<div class="fanrow"><span class="fc">\u2605 ' + mineN +
-    (any ? ' \u00b7 ' + fmtPts(sum) : '') +
-    (foeN ? '<em>vs ' + foeN + '</em>' : '') + '</span>' +
+  /* With both rosters shown the chip stacks: mine above, theirs below, and the
+     difference between them — the net swing this game is worth to the matchup. */
+  var net = sum - foeSum;
+  var chip = '<span class="me">\u2605 ' + mineN + (any ? ' \u00b7 ' + fmtPts(sum) : '') + '</span>';
+  if (foeN){
+    chip += '<span class="them">vs ' + foeN + (any ? ' \u00b7 ' + fmtPts(foeSum) : '') +
+      (any ? '<b class="' + (net >= 0 ? 'good' : 'bad') + '">' +
+        (net >= 0 ? '+' : '\u2212') + fmtPts(Math.abs(net)) + '</b>' : '') + '</span>';
+  }
+  return '<div class="fanrow"><span class="fc' + (foeN ? ' two' : '') + '">' + chip + '</span>' +
     '<span class="fantasy" data-k="' + esc(g.id) + ':f"><span class="track">' +
     out.join('') + '</span></span></div>';
 }
