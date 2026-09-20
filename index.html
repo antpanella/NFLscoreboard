@@ -89,6 +89,8 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .play .star{color:var(--live)}
 #fanBar .play .pts{color:var(--live)}
 #fanBar .play .jn{color:var(--fantasy);font-weight:700}
+#fanBar .pj{color:var(--sideline);font-weight:600}
+#fanBar .up .pj{color:var(--chalk);opacity:.8}
 #fanBar .play.theirs .star,#fanBar .play.theirs .pts{color:var(--redzone)}
 #fanBar .play.theirs .nm{color:var(--sideline)}
 #status{flex:none;white-space:nowrap;display:flex;align-items:center;gap:.5rem;
@@ -389,6 +391,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
+  <label>Projected totals <input type="checkbox" id="sFanProj"></label>
   <label>Hide title, week and status <input type="checkbox" id="sSlim"></label>
   <label>Fantasy points refresh <select id="sFanEvery">
       <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
@@ -484,7 +487,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20v \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20w \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -498,7 +501,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, fanProj:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -545,7 +548,7 @@ var wake = null;
 var logLines = [];
 var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
            week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{},
-           seen:{}, plays:[], flip:false};
+           seen:{}, plays:[], flip:false, proj:{}, projAt:0, season:''};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -1927,6 +1930,7 @@ function sleeperConnect(){
     return sget('/state/nfl');
   }).then(function(st){
     FAN.week = st.display_week || st.week || 0;      // live scoring is per week
+    FAN.season = st.league_season || st.season || '';
     return sget('/user/' + cfg.sleeperId + '/leagues/nfl/' + (st.league_season || st.season));
   }).then(function(lgs){
     if (!lgs || !lgs.length) throw new Error('no leagues');
@@ -2157,6 +2161,67 @@ function learnPlayers(ids){
     .then(function(){ learning = false; });
 }
 
+/* Sleeper's weekly projections, in the league's own flavour of scoring. They do
+   not change during the afternoon, so this is pulled twice an hour at most. */
+function fanProjections(){
+  if (!FAN.season || !FAN.week || FAN.projAt > Date.now() - 1800000) return;
+  FAN.projAt = Date.now();
+  sget('/projections/nfl/regular/' + FAN.season + '/' + FAN.week)
+    .then(function(all){
+      var lg = (FAN.leagues || [])[0] || {};
+      var sc = lg.scoring_settings || {};
+      var rec = typeof sc.rec === 'number' ? sc.rec : 1;
+      var key = rec >= 0.75 ? 'pts_ppr' : (rec >= 0.25 ? 'pts_half_ppr' : 'pts_std');
+      var out = {};
+      for (var id in all){
+        var row = all[id] || {};
+        var st = row.stats || row;
+        var v = st[key];
+        if (typeof v !== 'number') v = st.pts_ppr;
+        if (typeof v === 'number') out[id] = v;
+      }
+      FAN.proj = out;
+      paintFanBar();
+    })
+    .catch(function(){ FAN.proj = FAN.proj || {}; });
+}
+
+/* How much of a player's game is still to come: all of it before kickoff, none
+   of it once final, and the share of the clock left while it is being played. */
+function shareLeft(abbr){
+  var g = gameFor(abbr);
+  if (!g) return 0;                                   // bye, or not on today's board
+  if (g.state === 'pre') return 1;
+  if (g.state !== 'in') return 0;
+  if (g.period > 4) return 0.04;                      // overtime: a few snaps
+  var left = (4 - (g.period || 1)) * 900 + (clockSecs(g.clock) || 0);
+  return Math.max(0, Math.min(1, left / 3600));
+}
+function gameFor(abbr){
+  if (!abbr) return null;
+  var out = null;
+  (window.__games || []).forEach(function(x){
+    if (x.away.abbr === abbr || x.home.abbr === abbr ||
+        x.away.abbr === ALIAS[abbr] || x.home.abbr === ALIAS[abbr]) out = x;
+  });
+  return out;
+}
+
+/* Where a team lands if the rest of the day goes to projection: what each
+   starter has already banked, plus his projection for the part still to play. */
+function projectedTotal(startersList, pts){
+  var map = (pcache().map) || {}, total = 0;
+  (startersList || []).forEach(function(id){
+    if (!id || id === '0') return;
+    var got = typeof pts[id] === 'number' ? pts[id] : 0;
+    var ab = isTeamId(id) ? id : (map[id] && map[id].t);
+    var share = shareLeft(ab);
+    var proj = (FAN.proj && FAN.proj[id]) || 0;
+    total += got + proj * share;
+  });
+  return total;
+}
+
 /* Which NFL team is this player on, and has that team finished? Starters whose
    game has not gone final are the ones still to come. */
 function leftToPlay(startersList){
@@ -2284,10 +2349,14 @@ function matchupOf(rows, m){
   }
   var names = FAN.owner[m.league] || {};
   learnPlayers((mine.starters || []).concat((opp && opp.starters) || []));
+  fanProjections();
   var side = function(r){
-    return r ? {name: names[r.roster_id] || ('roster ' + r.roster_id),
-                pts: Number(r.points) || 0,
-                left: leftToPlay(r.starters)} : null;
+    if (!r) return null;
+    var pts = pointsOf(r);
+    return {name: names[r.roster_id] || ('roster ' + r.roster_id),
+            pts: Number(r.points) || 0,
+            left: leftToPlay(r.starters),
+            proj: projectedTotal(r.starters, pts)};
   };
   return {me: side(mine), opp: side(opp)};
 }
@@ -2313,9 +2382,11 @@ function playChip(p){
 function scoreChips(m){
   var side = function(x, up){
     if (!x) return '<span class="side down"><b class="nm">no opponent</b></span>';
+    var proj = (cfg.fanProj !== false && x.proj > x.pts)
+      ? '<i class="pj">/ ' + fmtPts(x.proj) + '</i>' : '';
     return '<span class="side ' + (up ? 'up' : 'down') + '">' +
       '<b class="nm">' + esc(x.name) + '</b>' +
-      '<span class="pts">' + fmtPts(x.pts) + '</span>' +
+      '<span class="pts">' + fmtPts(x.pts) + '</span>' + proj +
       '<i>' + x.left + ' left</i></span>';
   };
   var lead = m.opp ? m.me.pts >= m.opp.pts : true;
@@ -2948,7 +3019,7 @@ bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
-bind('sSlim','slim','bool');
+bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
