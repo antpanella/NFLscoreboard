@@ -61,8 +61,9 @@ header h1 em{font-style:normal;color:var(--flag)}
 #weekLabel{color:var(--sideline);font-size:calc(.92 * var(--su));font-weight:500;
   flex:none;white-space:nowrap}
 /* the fantasy matchup, in the gap between the week and the status light */
-#fanBar .track{display:flex;align-items:baseline;gap:.5rem;width:max-content;
+#fanBar .track{display:flex;align-items:baseline;gap:0;width:max-content;
   flex:0 0 auto;will-change:transform}
+#fanBar .unit{display:flex;align-items:baseline;gap:.5rem;padding-right:.5rem;flex:none}
 #fanBar.rolling{justify-content:flex-start}
 #fanBar .dot{color:var(--line);font-weight:700;flex:none}
 /* with the title and clock out of the way the ticker gets the whole row */
@@ -392,6 +393,16 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
   <label>Projected totals <input type="checkbox" id="sFanProj"></label>
+  <label>Fantasy point banners <select id="sFanAlerts">
+      <option value="both">both teams</option><option value="mine">my team only</option>
+      <option value="off">off</option>
+    </select></label>
+  <label>…for swings of at least <select id="sFanMin">
+      <option value="0.1">any change</option><option value="1">1 point</option>
+      <option value="2">2 points</option><option value="4">4 points</option>
+      <option value="6">6 points (a TD)</option>
+    </select></label>
+  <label>Scroll the ticker <input type="checkbox" id="sFanRoll"></label>
   <label>Hide title, week and status <input type="checkbox" id="sSlim"></label>
   <label>Fantasy points refresh <select id="sFanEvery">
       <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
@@ -487,7 +498,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20w \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20y \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -501,7 +512,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, fanProj:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -570,6 +581,7 @@ function bind(id, key, kind){
     cfg[key] = (kind === 'bool') ? el.checked : (kind === 'num' ? Number(el.value) : el.value);
     save();
     if (key === 'tint' || key === 'dimLose' || key === 'slim'){ paintFlags(); paintFanBar(); }
+    if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
     if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|order|timeouts)$/.test(key)) render();
@@ -633,6 +645,7 @@ var SOUNDS = {
   TURNOVER: [[740,0,.11],[554,.12,.11],[415,.24,.3]],
   'BIG PLAY': [[698,0,.2]],
   FANTASY: [[587,0,.1],[784,.11,.1],[988,.22,.12],[1175,.34,.4]],
+  AGAINST: [[494,0,.12],[415,.13,.12],[330,.27,.32]],
   HOT: [[880,0,.12],[880,.16,.12],[880,.32,.12],[1319,.48,.42]],
   FINAL: [[440,0,.16],[349,.18,.3]]
 };
@@ -1136,6 +1149,9 @@ function accentFor(kind, mine, hot){
   if (mine) return 'var(--fantasy)';
   if (hot) return 'var(--hot)';
   if (/TOUCHDOWN|FIELD GOAL|SAFETY|2-PT|2 POINTS|SCORE/.test(kind)) return 'var(--flag)';
+  if (/^FANTASY/.test(kind)) return 'var(--fantasy)';
+  // a lighter red than the red-zone one: the headline often sits on a red card
+  if (/^AGAINST/.test(kind)) return '#FF7A6E';
   if (/INTERCEPT|TURNOVER|FUMBLE/.test(kind)) return 'var(--redzone)';
   if (/FINAL/.test(kind)) return '#9FB3A6';
   return '#FFFFFF';                       // long plays and everything else
@@ -1191,9 +1207,10 @@ function push(game, kind, body, quiet, team, hot, whoList){
              ? team.color : '',
     flashAlt: team ? team.alt : '',
     flashTeam: team ? team.abbr : '',
-    sound: hit ? SOUNDS.FANTASY
+    sound: /^AGAINST/.test(kind) ? SOUNDS.AGAINST
+         : (hit ? SOUNDS.FANTASY
          : (hot ? SOUNDS.HOT
-                : (SOUNDS[kind.split(' — ')[0]] || SOUNDS['BIG PLAY']))
+                : (SOUNDS[kind.split(' — ')[0]] || SOUNDS['BIG PLAY'])))
   });
   /* During a scoring flurry the queue is trimmed rather than run minutes behind,
      but a fantasy or close-game alert is the whole point of the board — drop the
@@ -1251,6 +1268,7 @@ function next(){
     box.style.color = bg ? (light(bg) ? '#0A1410' : '#FFFFFF') : '#F2F5F0';
   }
   document.getElementById('alertTag').textContent =
+    /^AGAINST/.test(a.kind) ? 'AGAINST YOU' :
     a.mine ? 'YOUR ROSTER' : (a.hot ? 'RIGHT NOW' :
       (/INTERCEPT|TURNOVER|FUMBLE/.test(a.kind) ? 'TURNOVER' : ''));
 
@@ -2264,12 +2282,34 @@ function noteMoves(pp, side){
     var d = pp[id] - was;
     if (d < 0.05) continue;
     var e = map[id] || {};
-    FAN.plays.unshift({at:Date.now(), side:side, id:id, delta:d,
+    var play = {at:Date.now(), side:side, id:id, delta:d,
       name: isTeamId(id) ? id + ' D/ST' : shortName(e.d || 'someone'),
+      full: isTeamId(id) ? (id + ' defense') : (e.d || ''),
       num: e.j || '', team: isTeamId(id) ? id : (e.t || ''),
-      what: playWords(isTeamId(id) ? id : (e.t || ''), e.d || '')});
+      what: playWords(isTeamId(id) ? id : (e.t || ''), e.d || '')};
+    FAN.plays.unshift(play);
+    fanBanner(play);
   }
   if (FAN.plays.length > 8) FAN.plays.length = 8;
+}
+
+/* A banner raised off the points themselves rather than off the play-by-play:
+   whenever a starter's total moves, on either roster. The NFL feed drives its
+   own scoring alerts, so these cover only the fantasy side of the afternoon. */
+function fanBanner(play){
+  var want = cfg.fanAlerts || 'both';
+  if (want === 'off' || (want === 'mine' && play.side !== 'me')) return;
+  if (play.delta < (Number(cfg.fanMin) || 2)) return;
+
+  var g = gameFor(play.team) || {id:'fan-' + play.team, who:[],
+    away:{id:'fa', abbr:play.team || '??', score:0},
+    home:{id:'fh', abbr:'', score:0}};
+  var kind = (play.side === 'me' ? 'FANTASY +' : 'AGAINST YOU +') + fmtPts(play.delta);
+  var body = (play.num ? '#' + play.num + ' ' : '') + play.name +
+    (play.what ? ' \u00b7 ' + play.what : '') +
+    (play.team ? ' \u00b7 ' + play.team : '') +
+    (play.side === 'me' ? '' : ' \u2014 your opponent');
+  push(g, kind, body, false, null, false, play.full ? [play.full] : []);
 }
 
 /* "B.Purdy pass short right to D.Samuel for 21 yards" -> "21 yd catch". Only
@@ -2407,26 +2447,32 @@ function paintFanBar(){
       if (Date.now() - FAN.plays[i].at < 1800000) items.push(playChip(FAN.plays[i]));
     }
   }
-  var run = items.join('<span class="dot">·</span>');
+  var unit = '<span class="unit">' + items.join('<span class="dot">\u00b7</span>') +
+    '<span class="dot">\u00b7</span></span>';
   el.hidden = false;
 
-  // lay it out once to find out whether it even needs to move
-  el.innerHTML = '<span class="track">' + run + '</span>';
+  /* Measure one copy, then lay down as many as it takes to cover the row twice
+     over. It rolls even when the content would fit — a ticker sitting still
+     looks broken — and wraps after exactly one copy, so the loop is invisible. */
+  el.innerHTML = '<span class="track">' + unit + '</span>';
   var track = el.firstChild;
-  if (track.scrollWidth <= el.clientWidth){
+  var unitW = track.firstChild.getBoundingClientRect().width;
+  var still = cfg.fanRoll === false || (items.length < 2 && unitW <= el.clientWidth);
+  if (still || unitW < 8){
     el.classList.remove('rolling');
     track.style.transform = '';
     fanRun = false;
     return;
   }
   el.classList.add('rolling');
-  el.innerHTML = '<span class="track">' + run +
-    '<span class="dot">·</span>' + run + '</span>';
+  var copies = Math.max(2, Math.ceil(el.clientWidth / unitW) + 1), html = '';
+  for (var c = 0; c < copies; c++) html += unit;
+  el.innerHTML = '<span class="track">' + html + '</span>';
   track = el.firstChild;
-  fanHalf = track.scrollWidth / 2;
-  if (fanX > fanHalf) fanX = 0;
+  fanHalf = unitW;                                   // wrap after one copy
+  if (fanX > fanHalf) fanX = fanX % fanHalf;
   track.style.transform = 'translateX(' + (-fanX).toFixed(1) + 'px)';
-  if (!fanRun){ fanRun = true; requestAnimationFrame(fanRoll); }
+  if (!fanRun){ fanRun = true; fanLast = 0; requestAnimationFrame(fanRoll); }
 }
 
 var fanLast = 0;
@@ -3020,6 +3066,8 @@ bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
+bind('sFanRoll','fanRoll','bool');
+bind('sFanAlerts','fanAlerts','str'); bind('sFanMin','fanMin','num');
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
