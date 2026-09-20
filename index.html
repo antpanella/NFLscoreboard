@@ -53,12 +53,32 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #start:hover{background:#ffc63d}
 
 /* ---------- header rail ---------- */
-header{display:flex;align-items:baseline;gap:1.5rem;padding:.5rem 1.2rem;
-  border-bottom:1px solid var(--line);flex:none}
+header{display:flex;align-items:baseline;gap:1rem;padding:.5rem 1.2rem;
+  border-bottom:1px solid var(--line);flex:none;flex-wrap:nowrap}
+header h1{flex:none}
 header h1{font-size:calc(1.15 * var(--su));font-weight:700;letter-spacing:.04em}
 header h1 em{font-style:normal;color:var(--flag)}
-#weekLabel{color:var(--sideline);font-size:calc(.92 * var(--su));font-weight:500}
-#status{margin-left:auto;display:flex;align-items:center;gap:.5rem;
+#weekLabel{color:var(--sideline);font-size:calc(.92 * var(--su));font-weight:500;
+  flex:none;white-space:nowrap}
+/* the fantasy matchup, in the gap between the week and the status light */
+#fanBar{flex:1 1 auto;min-width:0;justify-content:center;
+  display:flex;align-items:baseline;gap:.5rem;
+  font-size:calc(.95 * var(--su));font-weight:600;color:var(--sideline);
+  white-space:nowrap;overflow:hidden}
+#fanBar .star{color:var(--fantasy)}
+#fanBar b{font-weight:700}
+#fanBar .pts{font-weight:700}
+#fanBar .up b{color:var(--chalk)}
+#fanBar .up .pts{color:var(--flag)}
+#fanBar .down b,#fanBar .down .pts{color:var(--sideline)}
+#fanBar .down{opacity:.85}
+#fanBar i{font-style:normal;font-weight:500;font-size:calc(.8 * var(--su))}
+#fanBar .vs{color:var(--sideline);font-weight:600;opacity:.8}
+/* only the team name gives way; the score and the count always stay whole */
+#fanBar .side{display:flex;align-items:baseline;gap:.35rem;min-width:0}
+#fanBar .side .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fanBar .pts,#fanBar i,#fanBar .star,#fanBar .vs{flex:none}
+#status{flex:none;white-space:nowrap;display:flex;align-items:center;gap:.5rem;
   font-size:calc(.86 * var(--su));color:var(--sideline);font-weight:500}
 #dot{width:.6em;height:.6em;border-radius:50%;background:var(--live)}
 #dot.stale{background:var(--flag)}
@@ -303,6 +323,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 <header>
   <h1>SUNDAY<em>BOARD</em></h1>
   <span id="weekLabel">loading</span>
+  <span id="fanBar" hidden></span>
   <div id="status">
     <span id="dot"></span><span id="statusText">connecting</span>
     <button class="hdrbtn" id="gear" title="Settings (S)">SETTINGS</button>
@@ -353,6 +374,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
     </select></label>
   <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
+  <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Dim the team that is behind <input type="checkbox" id="sDim"></label>
   <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
   <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
@@ -443,7 +465,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20q \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20r \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -457,7 +479,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -503,7 +525,7 @@ var audio = null;
 var wake = null;
 var logLines = [];
 var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
-           week:0, mine:[], pts:{}, ptsAt:0};
+           week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{}};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -972,6 +994,7 @@ function ingest(data){
   overlay(games);
   var wk = data && data.week && data.week.number;
   var sn = data && data.season;
+  paintFanBar();
   document.getElementById('weekLabel').textContent =
     wk ? ('Week ' + wk + (sn && sn.year ? '  ·  ' + sn.year : '')) : '';
 
@@ -1901,10 +1924,21 @@ function loadRoster(){
   fanNote('Loading your roster…');
 
   var ids = Object.create(null), starters = Object.create(null);
-  FAN.mine = [];
+  FAN.mine = []; FAN.owner = {}; FAN.team = {};
   return Promise.all(pick.map(function(l){
-    return sget('/league/' + l.league_id + '/rosters').then(function(rs){
-      (rs || []).forEach(function(r){
+    // rosters give every team in the league, users give what they call themselves
+    return Promise.all([
+      sget('/league/' + l.league_id + '/rosters'),
+      sget('/league/' + l.league_id + '/users').catch(function(){ return []; })
+    ]).then(function(both){
+      var rs = both[0] || [], us = both[1] || [], names = {};
+      us.forEach(function(u){
+        names[u.user_id] = (u.metadata && u.metadata.team_name) || u.display_name || 'team';
+      });
+      FAN.owner[l.league_id] = {};
+      rs.forEach(function(r){
+        FAN.owner[l.league_id][r.roster_id] = names[r.owner_id] ||
+          ('roster ' + r.roster_id);
         if (String(r.owner_id) !== String(cfg.sleeperId)) return;
         FAN.mine.push({league:l.league_id, roster:r.roster_id});
         (r.players || []).forEach(function(x){ if (x) ids[x] = 1; });
@@ -2066,11 +2100,60 @@ function fanLine(g){
 /* Live fantasy points. Sleeper's matchups call returns points already scored by
    the league's own rules, so custom scoring is handled for free — no need to run
    raw stats through a scoring table here. */
+/* The cached player list only covers my own roster, so an opponent's starters
+   are strangers — and a stranger has no NFL team, which would make "left to
+   play" read zero. This pulls the list once more to learn them. */
+var learning = false;
+function learnPlayers(ids){
+  var map = (pcache().map) || {};
+  var missing = (ids || []).filter(function(id){
+    return id && id !== '0' && !isTeamId(id) && !map[id];
+  });
+  if (!missing.length || learning) return;
+  learning = true;
+  fetch(SLEEP + '/players/nfl?active=true')
+    .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
+    .then(function(all){
+      missing.forEach(function(id){
+        var pl = all[id];
+        if (!pl) return;
+        map[id] = {n: pl.search_full_name || '', d: ((pl.first_name || '') + ' ' +
+          (pl.last_name || '')).trim(), t: pl.team || '', p: pl.position || '',
+          j: String(pl.number != null ? pl.number : '')};
+      });
+      var c = pcache();
+      pcache({at: c.at || Date.now(), map: map});
+      paintFanBar();
+    })
+    .catch(function(){})
+    .then(function(){ learning = false; });
+}
+
+/* Which NFL team is this player on, and has that team finished? Starters whose
+   game has not gone final are the ones still to come. */
+function leftToPlay(startersList){
+  var map = (pcache().map) || {}, n = 0;
+  var byAbbr = Object.create(null);
+  (window.__games || []).forEach(function(g){
+    byAbbr[g.away.abbr] = g; byAbbr[g.home.abbr] = g;
+  });
+  (startersList || []).forEach(function(id){
+    if (!id || id === '0') return;
+    var ab = isTeamId(id) ? id : (map[id] && map[id].t);
+    if (!ab) return;
+    var g = byAbbr[ab] || byAbbr[ALIAS[ab]];
+    if (g && g.state !== 'post') n++;
+  });
+  return n;
+}
+
 function fanPoints(){
   if (!FAN.ready || !FAN.week || !FAN.mine.length) return;
   Promise.all(FAN.mine.map(function(m){
     return sget('/league/' + m.league + '/matchups/' + FAN.week)
       .then(function(rows){
+        // the head-to-head for the first league, for the bar across the top
+        if (m === FAN.mine[0]) FAN.match = matchupOf(rows, m);
         (rows || []).forEach(function(r){
           if (String(r.roster_id) !== String(m.roster)) return;
           var pp = r.players_points;
@@ -2086,9 +2169,56 @@ function fanPoints(){
       }).catch(function(){});
   })).then(function(){
     FAN.ptsAt = Date.now();
+    paintFanBar();
     render();
   });
 }
+/* My row and my opponent's row out of the week's matchup list. */
+function matchupOf(rows, m){
+  rows = rows || [];
+  var mine = null;
+  for (var i = 0; i < rows.length; i++){
+    if (String(rows[i].roster_id) === String(m.roster)) mine = rows[i];
+  }
+  if (!mine) return null;
+  var opp = null;
+  if (mine.matchup_id !== undefined && mine.matchup_id !== null){
+    for (var k = 0; k < rows.length; k++){
+      if (rows[k] !== mine && String(rows[k].matchup_id) === String(mine.matchup_id)) opp = rows[k];
+    }
+  }
+  var names = FAN.owner[m.league] || {};
+  learnPlayers((mine.starters || []).concat((opp && opp.starters) || []));
+  var side = function(r){
+    return r ? {name: names[r.roster_id] || ('roster ' + r.roster_id),
+                pts: Number(r.points) || 0,
+                left: leftToPlay(r.starters)} : null;
+  };
+  return {me: side(mine), opp: side(opp)};
+}
+
+function paintFanBar(){
+  var el = document.getElementById('fanBar');
+  if (!el) return;
+  var m = FAN.match;
+  if (!cfg.fanBar || !m || !m.me){ el.hidden = true; return; }
+  var side = function(x, up){
+    if (!x) return '<span class="side down"><b class="nm">no opponent</b></span>';
+    return '<span class="side ' + (up ? 'up' : 'down') + '">' +
+      '<b class="nm">' + esc(x.name) + '</b>' +
+      '<span class="pts">' + fmtPts(x.pts) + '</span>' +
+      '<i>' + x.left + ' left</i></span>';
+  };
+  var lead = m.opp ? m.me.pts >= m.opp.pts : true;
+  el.innerHTML = '<span class="star">\u2605</span>' + side(m.me, lead) +
+    '<span class="vs">vs</span>' + side(m.opp, m.opp ? !lead : false);
+  el.hidden = false;
+}
+function shorten(s, n){
+  s = String(s || '');
+  return s.length > n ? s.slice(0, n - 1) + '\u2026' : s;
+}
+
 function fanPts(e){
   var v = e && e.id !== undefined ? FAN.pts[e.id] : undefined;
   return (typeof v === 'number') ? v : null;
@@ -2626,7 +2756,7 @@ bind('sRecs','recs','bool');
 bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
-bind('sFanRow','fanRow','bool');
+bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
