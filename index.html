@@ -168,10 +168,14 @@ body.tint .row.lose img{opacity:.8}
 
 .meta{display:flex;gap:calc(.28 * var(--u));align-items:baseline;
   font-size:calc(.42 * var(--u2));
-  color:var(--sideline);font-weight:500;line-height:1.1;margin-top:calc(.05 * var(--u));
-  white-space:nowrap;overflow:hidden}
-.meta .track,.info .track{display:flex;align-items:baseline;width:max-content;
-  flex:0 0 auto;will-change:transform}
+  color:var(--sideline);font-weight:500;line-height:1.15;margin-top:calc(.05 * var(--u));
+  overflow:hidden}
+.meta>span>*{white-space:nowrap}
+/* These two rows wrap instead of scrolling sideways. Wrapping is what lets the
+   type keep growing into the empty lower half of a card: a second line costs
+   height, which the card has, rather than width, which it does not. */
+.meta .track,.info .track{display:flex;align-items:baseline;flex-wrap:wrap;
+  width:auto;row-gap:0}
 .meta .track{gap:calc(.28 * var(--u))}
 .info .track{gap:calc(.3 * var(--u))}
 /* if motion is unwelcome, fall back to clipping rather than scrolling */
@@ -183,8 +187,9 @@ body.norec .row .rec{display:none}
 body.nometa .meta{display:none}
 body.noinfo .info{display:none}
 .info{display:flex;gap:calc(.3 * var(--u));align-items:baseline;
-  font-size:calc(.38 * var(--u2));font-weight:600;line-height:1.1;
-  color:var(--sideline);white-space:nowrap;overflow:hidden;margin-top:calc(.03 * var(--u))}
+  font-size:calc(.38 * var(--u2));font-weight:600;line-height:1.15;
+  color:var(--sideline);overflow:hidden;margin-top:calc(.03 * var(--u))}
+.info>span>*{white-space:nowrap}
 .info .mk{color:var(--chalk)}
 .info .mk i{font-style:normal;color:var(--sideline);font-weight:500}
 .info .set{color:var(--sideline)}
@@ -208,7 +213,9 @@ body.nofan .fanrow{display:none}
 .fantasy{flex:1 1 auto;min-width:0;overflow:hidden;height:2.3em}  /* 2 x line-height */
 .fantasy .track{display:flex;flex-wrap:wrap;align-items:baseline;
   column-gap:calc(.3 * var(--u));row-gap:0;will-change:transform}
-.fantasy .fp{white-space:nowrap}
+/* a single entry may break between the name and its tag rather than be clipped */
+.fantasy .fp{white-space:normal}
+.fantasy .fp > *{white-space:nowrap}
 .fantasy .fc{font-weight:700}
 .fantasy .fp b{font-weight:700;color:var(--chalk)}
 .fantasy .fp i{font-style:normal;font-weight:600;color:var(--fantasy);opacity:.85}
@@ -432,7 +439,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20n \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20p \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2173,46 +2180,78 @@ function fit(cols, rows){
   // score can't outgrow the panel
   document.documentElement.style.setProperty('--u', u.toFixed(2) + 'px');
 
-  /* The status and info rows can be far wider than the team rows, and they clip
-     inside themselves — which the loop above cannot see, because the card's own
-     scrollWidth never grows. They get their own unit so a long down-and-distance
-     string shrinks that line instead of the scores. */
+  /* The information rows carry their own unit, so a long down-and-distance line
+     changes their size rather than the scores'. */
   var u2 = u;
-  document.documentElement.style.setProperty('--u2', u2.toFixed(2) + 'px');
-  for (var pass = 0; pass < 5; pass++){
-    var worst = 1, rows = box.querySelectorAll('.meta, .info');
-    for (var r = 0; r < rows.length; r++){
-      var el = rows[r];
-      if (el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0){
-        worst = Math.min(worst, el.clientWidth / el.scrollWidth);
-      }
-    }
-    if (worst > 0.999) break;
-    // 0.98 of the measured ratio, so a pass lands just inside rather than just outside
-    // only a gentle reduction now — anything still too wide scrolls instead of
-    // being shrunk into illegibility
-    u2 = Math.max(u * 0.72, u2 * worst * 0.98);
-    document.documentElement.style.setProperty('--u2', u2.toFixed(2) + 'px');
+  setU2(u2);
+  // wrapped rows overflow downward now, so this pulls back on height, not width
+  for (var pass = 0; pass < 6 && u2 > u * 0.6 && spills(box); pass++){
+    u2 *= 0.93;
+    setU2(u2);
   }
 
   /* Whatever height is left over after the scores have taken their share goes to
      the three information rows, a step at a time, until something would spill.
      This is what closes the gap at the bottom of a card on a short slate. */
-  var cap = u * 1.15;
-  for (var gp = 0; gp < 8 && u2 < cap; gp++){
-    var next2 = Math.min(cap, u2 * 1.07);
-    document.documentElement.style.setProperty('--u2', next2.toFixed(2) + 'px');
-    if (spills(box)){
-      document.documentElement.style.setProperty('--u2', u2.toFixed(2) + 'px');
-      break;
-    }
+  var cap = u * 1.45;
+  for (var gp = 0; gp < 14 && u2 < cap; gp++){
+    var next2 = Math.min(cap, u2 * 1.05);
+    setU2(next2);
+    if (spills(box)){ setU2(u2); break; }
     u2 = next2;
   }
+
+  fillCards(box, u2);
+}
+
+/* The loop above has to stop at whichever card fills up first — usually one
+   carrying a fantasy line — which left every other card with a band of empty
+   space under its last row. So each card then gets its own unit for the small
+   rows: measure what it is actually using, hand it the slack, verify. */
+function fillCards(box, u2){
+  var cards = box.children, want = [];
+  for (var i = 0; i < cards.length; i++){
+    var c = cards[i];
+    c.style.removeProperty('--u2');
+    var kids = c.children;
+    if (!kids.length) continue;
+    var small = 0, total = 0;
+    for (var k = 0; k < kids.length; k++){
+      var hgt = kids[k].offsetHeight;
+      total += hgt;
+      if (!kids[k].classList.contains('row')) small += hgt;
+    }
+    var style = getComputedStyle(c);
+    var inner = c.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    var slack = inner - total - (kids.length - 1) * parseFloat(style.rowGap || 0);
+    if (small < 1 || slack < 2){ want.push(0); continue; }
+    // 0.9 of the slack, so the verification pass below rarely has to claw back
+    want.push(Math.min(u2 * 1.5, u2 * (small + slack * 0.9) / small));
+  }
+  for (var i2 = 0; i2 < cards.length; i2++){
+    if (want[i2]) cards[i2].style.setProperty('--u2', want[i2].toFixed(2) + 'px');
+  }
+  for (var i3 = 0; i3 < cards.length; i3++){
+    var c3 = cards[i3], v = want[i3];
+    for (var t3 = 0; t3 < 4 && v && (c3.scrollHeight > c3.clientHeight + 0.5 ||
+                                     rowsSpill(c3)); t3++){
+      v *= 0.93;
+      c3.style.setProperty('--u2', v.toFixed(2) + 'px');
+    }
+  }
+}
+function rowsSpill(card){
+  var rows = card.querySelectorAll('.meta, .info');
+  for (var r = 0; r < rows.length; r++){
+    if (rows[r].scrollHeight > rows[r].clientHeight + 0.5) return true;
+  }
+  return false;
 }
 
 /* True when any card is taller or wider than its slot, or when one of the
    information rows has been squeezed past what it can show. */
 var FITC = {sig:'', tw:1};
+function setU2(v){ document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px'); }
 function setU(v){
   document.documentElement.style.setProperty('--u', v.toFixed(2) + 'px');
   document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px');
@@ -2225,7 +2264,7 @@ function spills(box){
   }
   var rows = box.querySelectorAll('.meta, .info');
   for (var r = 0; r < rows.length; r++){
-    if (rows[r].scrollWidth > rows[r].clientWidth + 1) return true;
+    if (rows[r].scrollHeight > rows[r].clientHeight + 0.5) return true;
   }
   return false;
 }
@@ -2239,7 +2278,7 @@ var STILL = window.matchMedia && window.matchMedia('(prefers-reduced-motion:redu
 function collectTickers(){
   TICKERS = [];
   if (STILL) return;
-  var rows = document.getElementById('live').querySelectorAll('.meta, .info, .fantasy');
+  var rows = document.getElementById('live').querySelectorAll('.fantasy');
   for (var i = 0; i < rows.length; i++){
     var row = rows[i], track = row.firstElementChild;
     if (!track) continue;
