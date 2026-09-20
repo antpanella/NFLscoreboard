@@ -305,6 +305,13 @@ body.nostrip .strip{display:none}
   <label>Pulses <input type="number" id="sGvPulses" min="1" max="4" step="1"></label>
   <label>Scene runs for <input type="number" id="sGvHold" min="2" max="60" step="1"> sec</label>
   <label>Min seconds between <input type="number" id="sGvGap" min="5" max="120" step="5"></label>
+  <label>When the show ends <select id="sGvRestMode">
+      <option value="color">Go to this colour</option>
+      <option value="off">Turn the strip off</option>
+    </select></label>
+  <label>Resting colour <input type="color" id="sGvRest" style="width:3.2rem;height:1.6rem;background:var(--turf);border:1px solid var(--line);border-radius:2px;padding:0">
+    <button id="sGvRestNow" style="color:var(--sideline);font-size:1rem">Set now</button></label>
+  <label>Resting brightness <input type="number" id="sGvRestBri" min="1" max="100" step="5"> %</label>
   <p id="gvNote" class="note" style="margin-top:.4rem">Govee blocks browsers directly, so this needs a relay. Either a Cloudflare Worker (paste its https URL above and your ACCESS_TOKEN below), or <kbd>node govee-bridge.mjs</kbd> on this laptop (then paste your real Govee key). With the Worker, the board never holds your Govee key.</p>
 
   <div id="diag"><h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">WHAT THE FEED IS SENDING</h3><div id="diagItems" style="font-size:1rem;color:var(--sideline);line-height:1.5"></div></div>
@@ -335,7 +342,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   yards:35, dur:12, fav:'', today:false, scale:1, delay:0,
   deep:true, smooth:true, govee:true,
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', recs:false, strips:true, liveOnly:false, close:true, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -1965,19 +1972,29 @@ function gvTeamRows(){
 
 // Ends whatever is running now, and reports which Worker version answered so a
 // stale deploy is obvious rather than looking like a bug.
-function gvStop(){
-  fetch(gvBase(), {cache:'no-store'})
+/* What the strip should land on once a flash or scene finishes. Without this the
+   relay guesses at the state it read beforehand, which is wrong whenever a scene
+   was already running — that is why the lights came back different or dark. */
+function gvRest(){
+  if (cfg.gvRestMode === 'off') return {power:0};
+  return {color:cfg.gvRest || '#ffb46b',
+          brightness:Math.max(1, Math.min(100, Number(cfg.gvRestBri) || 50)), power:1};
+}
+
+function gvStop(quiet){
+  if (!quiet) fetch(gvBase(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
     .then(function(j){
       var v = j.version || 0;
       gvNote('Relay version ' + (v || 'unknown — old code, needs redeploy') +
-        (v >= 5 ? ' (current)' : ' — scenes will not stop until you redeploy'));
+        (v >= 6 ? ' (current)' : ' — redeploy the Worker for the resting colour to hold'));
     })
     .catch(function(){});
   if (!cfg.goveeDev) return;
   fetch(gvBase() + '/stop', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku})
+    body: JSON.stringify({key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku,
+      after:gvRest()})
   }).catch(function(){});
 }
 
@@ -1987,7 +2004,7 @@ function gvFlash(hex, alt, abbr){
   gvLast = Date.now();
   var body = {key:cfg.goveeKey, device:cfg.goveeDev, sku:cfg.goveeSku,
     color:hex, alt:alt, pulses:cfg.goveePulses, mode:cfg.goveeMode,
-    segments:cfg.goveeSeg, hold:cfg.goveeHold};
+    segments:cfg.goveeSeg, hold:cfg.goveeHold, after:gvRest()};
   var pick = gvMap()[abbr || ''];            // this team's own choice wins
   if (pick === 'colors' || pick === 'segments') body.mode = pick;
   else if (pick && pick.value !== undefined){ body.mode = 'scene'; body.scene = pick; }
@@ -2063,7 +2080,15 @@ bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
-bind('sGvMode','goveeMode','str'); bind('sGvHold','goveeHold','num'); bind('sTickClock','smooth','bool');
+bind('sGvMode','goveeMode','str'); bind('sGvHold','goveeHold','num');
+bind('sGvRest','gvRest','str'); bind('sGvRestBri','gvRestBri','num');
+bind('sGvRestMode','gvRestMode','str');
+document.getElementById('sGvRestNow').addEventListener('click', function(){
+  if (!cfg.goveeDev) return gvNote('Pick a light first.');
+  gvStop(true);
+  gvNote(cfg.gvRestMode === 'off' ? 'Strip off — that is where it will land after each show.'
+       : 'Set to ' + cfg.gvRest + ' at ' + (Number(cfg.gvRestBri) || 50) + '% — where it lands after each show.');
+}); bind('sTickClock','smooth','bool');
 bind('sLiveOnly','liveOnly','bool');
 document.getElementById('sUser').value = cfg.sleeperUser || '';
 document.getElementById('sConnect').addEventListener('click', sleeperConnect);
