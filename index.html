@@ -108,17 +108,21 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
   padding:calc(.18 * var(--u)) calc(.28 * var(--u));
   display:flex;flex-direction:column;justify-content:center;gap:calc(.06 * var(--u));
   min-height:0;overflow:hidden}
-.game.rz{border-left-color:var(--redzone);background:var(--turf-hi);
-  box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,59,48,.9),
+.game.rz{border-left-color:var(--redzone);background:var(--turf-hi)}
+/* The glow hangs off rzon, not rz: a game can be inside the twenty AND be a
+   close one or in overtime, and the close-game styling used to win, which is why
+   an overtime goal-line snap showed no red at all. */
+.game.rzon{box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,59,48,.9),
              inset 0 0 calc(2.4 * var(--u)) rgba(255,59,48,.5);
   animation:rzpulse 1.9s ease-in-out infinite}
+.game.hot.rzon{border-left-color:var(--redzone)}
 @keyframes rzpulse{
   0%,100%{box-shadow:inset 0 0 0 calc(.05 * var(--u)) rgba(255,59,48,.65),
                      inset 0 0 calc(1.8 * var(--u)) rgba(255,59,48,.35)}
   50%    {box-shadow:inset 0 0 0 calc(.08 * var(--u)) rgba(255,59,48,1),
                      inset 0 0 calc(3.2 * var(--u)) rgba(255,59,48,.62)}
 }
-@media (prefers-reduced-motion:reduce){ .game.rz{animation:none} }
+@media (prefers-reduced-motion:reduce){ .game.rzon{animation:none} }
 .game.fav{border-left-color:var(--flag)}
 .game.flash{background:#2A3A2A}
 
@@ -128,7 +132,7 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
 body.tint .game{background-image:linear-gradient(107deg,
   var(--ca,var(--turf)) 0 46.2%, rgba(255,255,255,.14) 46.2% 47.4%,
   var(--cb,var(--turf)) 47.4% 100%)}
-body.tint .game.rz{background-color:var(--turf)}
+body.tint .game.rz,body.tint .game.rzon{background-color:var(--turf)}
 body.tint .game.flash{box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,255,255,.55)}
 body.tint .row .abbr,body.tint .row .pts,body.tint .row .rec{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 body.tint .meta,body.tint .info{color:#C7D6CC}
@@ -439,7 +443,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20p \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20q \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
