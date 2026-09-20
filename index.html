@@ -299,6 +299,41 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .strip .w{font-weight:700}
 .strip .l{opacity:.55}
 #finals .items>span{color:var(--sideline)}
+/* bets: one chip per bet, in-danger first */
+#bets h2 .sum{letter-spacing:.04em;font-weight:500;margin-left:.6em;color:var(--sideline)}
+#bets h2 .sum .up{color:var(--live)} #bets h2 .sum .dn{color:var(--redzone)}
+#bets .betrow{display:flex;flex-wrap:wrap;gap:.35rem 1.4rem;align-items:baseline}
+#bets .bet{display:inline-flex;gap:.45rem;align-items:center;white-space:nowrap}
+#bets .bet b{font-weight:700;color:var(--chalk)}
+#bets .bet i{font-style:normal;color:var(--sideline);font-weight:600}
+#bets .bet em{font-style:normal;font-weight:700}
+#bets .bet.s-live.good i,#bets .bet.s-live.good .bar>span{color:var(--live);background:var(--live)}
+#bets .bet.s-live.good i{background:none}
+#bets .bet.s-live.bad i{color:#FFB020}
+#bets .bet.s-won em,#bets .bet.s-won b{color:var(--live)}
+#bets .bet.s-lost{opacity:.5} #bets .bet.s-lost em{color:var(--redzone)}
+#bets .bet.s-pending b{color:var(--sideline)}
+#bets .bet .amt{color:var(--flag)}
+/* parlays: a thin rule boxing the legs together */
+#bets .pbox{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.2rem 1rem;
+  border:2px solid rgba(255,255,255,.28);border-radius:.4em;padding:.12em .6em .16em;
+  position:relative}
+#bets .pbox .phead{font-size:.7em;font-weight:700;letter-spacing:.1em;color:var(--sideline)}
+#bets .pbox.s-live.good{border-color:var(--live)}
+#bets .pbox.s-live.bad,#bets .pbox.s-pending{border-color:#FFB020}
+#bets .pbox.s-won{border-color:var(--live)} #bets .pbox.s-won .phead{color:var(--live)}
+#bets .pbox.s-lost{border-color:var(--redzone);opacity:.55}
+#bets .pbox .bet.s-lost{opacity:.6}
+#bets .bar{display:inline-block;width:3.2em;height:.42em;border-radius:.21em;
+  background:rgba(255,255,255,.14);overflow:hidden;vertical-align:middle}
+#bets .bar>span{display:block;height:100%;background:#FFB020}
+#bets .bet.s-won .bar>span{background:var(--live)}
+.meta .betm{color:var(--flag);font-weight:700}
+#betPreview .ok{color:var(--live)} #betPreview .bad{color:var(--redzone)}
+#betList .bl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
+  padding:.2rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
+#betList .bl i{font-style:normal;color:var(--sideline);margin-left:.4em}
+#betList button{color:var(--redzone);font-size:1.1rem;font-weight:700}
 #finals .w{color:var(--chalk)}
 
 /* ---------- settings ---------- */
@@ -373,6 +408,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <div id="empty" hidden></div>
   <section class="strip" id="upcoming" hidden><h2>KICKING OFF LATER</h2><div class="items"></div></section>
   <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
+  <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
 </main>
 
 <div id="scrim"></div>
@@ -453,6 +489,18 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Final scores strip <input type="checkbox" id="sStripFin"></label>
   <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
 
+  <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">MY BETS</h3>
+  <p class="note" style="margin:.2rem 0 .5rem">One bet per line, pasted from DraftKings or typed. Stake and odds are optional. Join parlay legs with <kbd>+</kbd>.<br>
+    <span style="opacity:.8">BUF -3.5 $20 -110 &nbsp;·&nbsp; KC ML &nbsp;·&nbsp; BUF/HOU o44.5 &nbsp;·&nbsp; Josh Allen o249.5 pass yds &nbsp;·&nbsp; Kincaid 5+ receptions &nbsp;·&nbsp; James Cook anytime TD &nbsp;·&nbsp; Parlay: BUF ML + Allen o1.5 pass TDs $10 +260</span></p>
+  <textarea id="sBetText" rows="4" style="width:100%;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.4em .5em;font:inherit;font-size:.95rem;border-radius:2px"></textarea>
+  <div id="betPreview" class="note" style="margin:.3rem 0"></div>
+  <label><button id="sBetAdd" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Add bets</button>
+    <button id="sBetClear" style="color:var(--sideline);font-size:1rem">Clear settled</button></label>
+  <div id="betList"></div>
+  <label>Bets strip <input type="checkbox" id="sStripBets"></label>
+  <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
+  <label>Show stakes and payouts <input type="checkbox" id="sBetMoney"></label>
+
   <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">FANTASY ROSTER</h3>
   <label>Sleeper username <input type="text" id="sUser" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:1rem;border-radius:2px"></label>
   <label><button id="sConnect" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Connect</button>
@@ -510,7 +558,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21a \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-21c \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -524,7 +572,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -596,7 +644,7 @@ function bind(id, key, kind){
     if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts)$/.test(key)) render();
+    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts)$/.test(key)) render();
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -658,6 +706,9 @@ var SOUNDS = {
   'BIG PLAY': [[698,0,.2]],
   FANTASY: [[587,0,.1],[784,.11,.1],[988,.22,.12],[1175,.34,.4]],
   AGAINST: [[494,0,.12],[415,.13,.12],[330,.27,.32]],
+  CASH: [[660,0,.09],[880,.1,.09],[1320,.2,.35]],
+  BUST: [[311,0,.18],[233,.2,.4]],
+  SWEAT: [[740,0,.08],[740,.14,.08]],
   HOT: [[880,0,.12],[880,.16,.12],[880,.32,.12],[1319,.48,.42]],
   FINAL: [[440,0,.16],[349,.18,.3]]
 };
@@ -778,7 +829,11 @@ function readSummary(j){
 function fetchDetail(id){
   return fetch(SUM + '?event=' + encodeURIComponent(id) + '&_=' + Date.now(), {cache:'no-store'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(j){ DEEP[id] = readSummary(j); deepOk++; deepAt = Date.now(); })
+    .then(function(j){
+      DEEP[id] = readSummary(j); deepOk++; deepAt = Date.now();
+      captureBox(id, j);
+      if (BETS.length) evaluateBets();
+    })
     .catch(function(){ deepFail++; });
 }
 
@@ -788,8 +843,11 @@ function deepTick(){
   clearTimeout(deepTimer);
   var games = window.__games || [];
   var ids = [];
-  for (var i = 0; i < games.length; i++) if (games[i].state === 'in') ids.push(games[i].id);
-  if (!cfg.deep || !ids.length){ deepTimer = setTimeout(deepTick, 4000); return; }
+  var need = betGameIds();
+  for (var i = 0; i < games.length; i++){
+    if (games[i].state === 'in' && (cfg.deep || need[games[i].id])) ids.push(games[i].id);
+  }
+  if (!ids.length){ deepTimer = setTimeout(deepTick, 4000); return; }
   if (!deepQ.length) deepQ = ids.slice();
   var id = deepQ.shift();
   var gap = Math.max(1200, Math.round(20000 / ids.length));
@@ -1057,6 +1115,8 @@ function ingest(data){
   window.__games = games;
   render();
   paintStatus();
+  evaluateBets();
+  finalBoxes();
 }
 
 function detect(was, now){
@@ -1161,6 +1221,9 @@ function accentFor(kind, mine, hot){
   if (mine) return 'var(--fantasy)';
   if (hot) return 'var(--hot)';
   if (/TOUCHDOWN|FIELD GOAL|SAFETY|2-PT|2 POINTS|SCORE/.test(kind)) return 'var(--flag)';
+  if (/CASHED|^LEG HIT/.test(kind)) return 'var(--live)';
+  if (/^BUSTED|^PARLAY DEAD/.test(kind)) return 'var(--redzone)';
+  if (/^SWEATING/.test(kind)) return '#FFB020';
   if (/^FANTASY/.test(kind)) return 'var(--fantasy)';
   // a lighter red than the red-zone one: the headline often sits on a red card
   if (/^AGAINST/.test(kind)) return '#FF7A6E';
@@ -1219,7 +1282,10 @@ function push(game, kind, body, quiet, team, hot, whoList){
              ? team.color : '',
     flashAlt: team ? team.alt : '',
     flashTeam: team ? team.abbr : '',
-    sound: /^AGAINST/.test(kind) ? SOUNDS.AGAINST
+    sound: /CASHED|^LEG HIT/.test(kind) ? SOUNDS.CASH
+         : /^BUSTED|^PARLAY DEAD/.test(kind) ? SOUNDS.BUST
+         : /^SWEATING/.test(kind) ? SOUNDS.SWEAT
+         : /^AGAINST/.test(kind) ? SOUNDS.AGAINST
          : (hit ? SOUNDS.FANTASY
          : (hot ? SOUNDS.HOT
                 : (SOUNDS[kind.split(' — ')[0]] || SOUNDS['BIG PLAY'])))
@@ -1281,6 +1347,7 @@ function next(){
   }
   document.getElementById('alertTag').textContent =
     /^AGAINST/.test(a.kind) ? 'AGAINST YOU' :
+    /CASHED|^LEG HIT|^BUSTED|^PARLAY DEAD|^SWEATING/.test(a.kind) ? 'MY BET' :
     a.mine ? 'YOUR ROSTER' : (a.hot ? 'RIGHT NOW' :
       (/INTERCEPT|TURNOVER|FUMBLE/.test(a.kind) ? 'TURNOVER' : ''));
 
@@ -1349,6 +1416,10 @@ function dayRows(list, cell){
 }
 
 function render(){
+  inRender = true;
+  try { renderBoard(); } finally { inRender = false; }
+}
+function renderBoard(){
   var games = window.__games || [];
   if (cfg.today) games = games.filter(function(g){ return isToday(g.date); });
 
@@ -1388,6 +1459,8 @@ function render(){
     return '<span><span class="' + (aw ? 'w' : 'l') + '">' + esc(g.away.abbr) + ' ' + g.away.score + '</span>' +
       '<span class="' + (hw ? 'w' : 'l') + '">' + esc(g.home.abbr) + ' ' + g.home.score + '</span></span>';
   });
+
+  paintBets();
 
   var empty = document.getElementById('empty');
   if (!live.length){
@@ -1526,6 +1599,7 @@ function card(g){
       '<span class="clock" data-c="' + esc(g.id) + '" data-q="' + esc(qLabel(g)) + '">' +
         esc(quarter(g)) + '</span>' +
       (g.dd ? '<span class="dd">' + esc(g.redzone ? 'RZ  ' + g.dd : g.dd) + '</span>' : '') +
+      betBadge(g) +
     '</span></div>' + infoLine(g) + fanLine(g) + '</article>';
 }
 
@@ -3043,6 +3117,521 @@ function gvFlash(hex, alt, abbr){
   }).catch(function(){});
 }
 
+/* ---------------- bet tracking ----------------
+   DraftKings has no public API for a person's own bets, so they come in as text:
+   one bet per line, pasted from the app or typed. Everything after that — the
+   score, the box score, whether a leg has hit — comes from the feeds the board
+   already reads. Settlement is DraftKings' job; this is a live read of where
+   each bet stands, not an official result. */
+
+var BETS = loadBets();
+var BOX = Object.create(null);           // gameId -> normName -> stat record
+var BOXFINAL = Object.create(null);      // games whose final box has been fetched
+var BETSEEN = null;                      // last state per leg/bet, for transitions
+
+function loadBets(){
+  try { return JSON.parse(localStorage.getItem('sundayBoardBets') || '[]') || []; }
+  catch(e){ return []; }
+}
+function saveBets(){
+  try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+}
+
+/* Stat words as bettors and sportsbooks write them, mapped to ESPN's box keys. */
+var STAT_WORDS = [
+  [/rush(ing)?\s*\+\s*rec(eiving)?\s*(yds|yards)|rush\s*&\s*rec/i, 'rushRecYards', 'rush+rec yds'],
+  [/pass(ing)?\s*(yds|yards|yd)/i,            'passingYards',       'pass yds'],
+  [/rush(ing)?\s*(yds|yards|yd)/i,            'rushingYards',       'rush yds'],
+  [/rec(eiving)?\s*(yds|yards|yd)/i,          'receivingYards',     'rec yds'],
+  [/pass(ing)?\s*(tds?|touchdowns?)/i,        'passingTouchdowns',  'pass TDs'],
+  [/pass(ing)?\s*att(empt)?s?/i,              'passingAttempts',    'pass att'],
+  [/completions?|\bcmp\b/i,                   'completions',        'completions'],
+  [/rush(ing)?\s*att(empt)?s?|carries/i,      'rushingAttempts',    'carries'],
+  [/receptions?|catches|\brec\b(?!\w)/i,      'receptions',         'rec'],
+  [/interceptions?\s*thrown|\bints?\b/i,      'interceptions',      'INTs'],
+  [/(longest|long)\s*(reception|rec)/i,       'longReception',      'long rec'],
+  [/(longest|long)\s*(rush|run)/i,            'longRushing',        'long rush']
+];
+
+function teamsIn(text){
+  var out = [], n = ' ' + String(text || '').toLowerCase().replace(/[^a-z0-9@]+/g, ' ') + ' ';
+  var raw = ' ' + String(text || '').replace(/[^A-Za-z0-9]+/g, ' ') + ' ';
+  TEAMS.forEach(function(t){
+    // bare abbreviations only when written in capitals, so "no" and "min" stay words
+    if (raw.indexOf(' ' + t + ' ') >= 0 && out.indexOf(t) < 0) out.push(t);
+  });
+  Object.keys(TEAM_ALIASES).forEach(function(t){
+    if (out.indexOf(t) >= 0) return;
+    if (TEAM_ALIASES[t].some(function(a){ return a.length >= 4 && n.indexOf(' ' + a + ' ') >= 0; })) out.push(t);
+  });
+  // keep the order they were written in
+  return out.sort(function(a, b){ return posOf(text, a) - posOf(text, b); });
+}
+function posOf(text, t){
+  var s = String(text || '').toLowerCase(), best = 1e9;
+  [t.toLowerCase()].concat(TEAM_ALIASES[t] || []).forEach(function(a){
+    var i = s.indexOf(a); if (i >= 0 && i < best) best = i;
+  });
+  return best;
+}
+
+/* One line in, one bet out — or null with a reason. */
+function parseBet(line){
+  var src = String(line || '').trim();
+  if (!src) return null;
+  var text = ' ' + src + ' ';
+  var stake = null, odds = null;
+
+  var m = /\$\s*(\d+(?:\.\d{1,2})?)/.exec(text);
+  if (m){ stake = parseFloat(m[1]); text = text.replace(m[0], ' '); }
+  // American odds: a signed three- or four-digit whole number standing alone
+  m = /(?:^|\s)([+\-−]\d{3,4})(?=\s|$)/.exec(text);
+  if (m){ odds = parseInt(m[1].replace('−', '-'), 10); text = text.replace(m[1], ' '); }
+
+  var parts = [text], isParlay = false;
+  if (/\bparlay\b|\bsgp\b|same.?game/i.test(text) || / \+ | \| |;/.test(text)){
+    parts = text.replace(/\b(same.?game\s*)?parlay\b|\bsgp\b|\(\s*\d+\s*legs?\s*\)|\d+\s*legs?\s*:?/gi, ' ')
+                .split(/ \+ | \| |;/);
+    isParlay = parts.length > 1;
+  }
+  var legs = [], bad = [];
+  parts.forEach(function(p){
+    if (!p.trim()) return;
+    var leg = parseLeg(p);
+    if (leg) legs.push(leg); else bad.push(p.trim());
+  });
+  if (!legs.length || bad.length) return {error: 'could not read ' + (bad[0] || src)};
+  return {id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          src: src, stake: stake, odds: odds, legs: legs, parlay: isParlay,
+          added: Date.now()};
+}
+
+function parseLeg(p){
+  var t = ' ' + p.replace(/\s+/g, ' ').trim() + ' ';
+  var low = t.toLowerCase();
+  var teams = teamsIn(t);
+
+  // anytime touchdown scorer
+  if (/any\s*time\s*(td|touchdown)|\btd\s*scorer|to score a (td|touchdown)|\batd\b/i.test(t)){
+    var who = t.replace(/\(.*?\)/g, ' ')
+      .replace(/any\s*time\s*(td|touchdown)(\s*scorer)?|\btd\s*scorer|to score a (td|touchdown)|\batd\b/ig, ' ')
+      .replace(/\b(yes|to score)\b/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    if (!who) return null;
+    return {type:'td', player:who, team:teams[0] || '', label: shortName(who) + ' anytime TD'};
+  }
+
+  // player props: a stat word decides it
+  for (var i = 0; i < STAT_WORDS.length; i++){
+    if (!STAT_WORDS[i][0].test(t)) continue;
+    var stat = STAT_WORDS[i][1], statLabel = STAT_WORDS[i][2];
+    var side = null, line = null, mm;
+    if ((mm = /\b(o|over)\s*(\d+(?:\.\d+)?)/i.exec(t))){ side = 'over'; line = +mm[2]; }
+    else if ((mm = /\b(u|under)\s*(\d+(?:\.\d+)?)/i.exec(t))){ side = 'under'; line = +mm[2]; }
+    else if ((mm = /(\d+(?:\.\d+)?)\s*\+/.exec(t))){ side = 'over'; line = +mm[1] - 0.5; }   // "250+" means 250 or more
+    else if ((mm = /\b(\d+(?:\.\d+)?)\b/.exec(t))){ side = 'over'; line = +mm[1]; }
+    if (line === null) return null;
+    var name = t.slice(0, mm.index).replace(/\(.*?\)/g, ' ')
+      .replace(new RegExp(STAT_WORDS[i][0].source, 'ig'), ' ')
+      .replace(/\b(o|u|over|under|alt|alternate)\b/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    if (!name){
+      // "Over 249.5 passing yards — Josh Allen"
+      name = t.slice(mm.index + mm[0].length).replace(new RegExp(STAT_WORDS[i][0].source, 'ig'), ' ')
+        .replace(/\(.*?\)|[-–—:]/g, ' ').trim();
+    }
+    if (!name) return null;
+    return {type:'prop', player:name, team:teams[0] || '', stat:stat, side:side, line:line,
+            label: shortName(name) + ' ' + (side === 'over' ? 'o' : 'u') + line + ' ' + statLabel};
+  }
+
+  // game totals
+  var tm = /\b(o|u|over|under)\s*(\d+(?:\.\d+)?)/i.exec(t);
+  if (tm && teams.length){
+    var sd = /^o/i.test(tm[1]) ? 'over' : 'under';
+    return {type:'total', team:teams[0], side:sd, line:+tm[2],
+            label: (teams[1] ? teams[0] + '/' + teams[1] : teams[0]) + ' ' + (sd === 'over' ? 'o' : 'u') + tm[2]};
+  }
+  if (!teams.length) return null;
+
+  // moneyline
+  if (/\b(ml|moneyline|money line|to win|win)\b/i.test(low)){
+    return {type:'ml', team:teams[0], label: teams[0] + ' ML'};
+  }
+  // spread: a signed number, or pick'em
+  var sm = /([+\-−]\s*\d+(?:\.\d+)?)/.exec(t);
+  if (sm){
+    var ln = parseFloat(sm[1].replace(/\s/g, '').replace('−', '-'));
+    return {type:'spread', team:teams[0], line:ln, label: teams[0] + ' ' + (ln > 0 ? '+' : '') + ln};
+  }
+  if (/\b(pk|pick|pick.?em)\b/i.test(low)) return {type:'spread', team:teams[0], line:0, label: teams[0] + ' PK'};
+  return null;
+}
+
+/* ---- box scores ----
+   ESPN's summary lists, per team, categories (passing, rushing, receiving ...)
+   with a keys array and each player's stats in the same order. Combined cells
+   like "24/35" (completions/attempts) are split into both keys. */
+function captureBox(id, j){
+  var bp = j && j.boxscore && j.boxscore.players;
+  if (!bp || !bp.length) return;
+  var out = Object.create(null);
+  bp.forEach(function(side){
+    var ab = side.team && side.team.abbreviation;
+    (side.statistics || []).forEach(function(cat){
+      var keys = cat.keys || [];
+      (cat.athletes || []).forEach(function(a){
+        var ath = a.athlete || {};
+        var nm = ath.displayName || ath.shortName;
+        if (!nm) return;
+        var k = norm(nm);
+        var rec = out[k] || (out[k] = {name:nm, short:ath.shortName || '', team:ab});
+        (a.stats || []).forEach(function(v, i){
+          var key = keys[i];
+          if (!key) return;
+          var ks = key.split(/[\/-]/), vs = String(v).split(/[\/-]/);
+          if (ks.length > 1 && vs.length === ks.length){
+            ks.forEach(function(kk, ii){ rec[kk] = parseFloat(vs[ii]) || 0; });
+          } else rec[key] = parseFloat(v) || 0;
+        });
+      });
+    });
+  });
+  BOX[id] = out;
+}
+
+/* Find the player a bet names, in whichever game he is playing. */
+function findPlayer(name, teamHint){
+  var want = norm(name), last = surnameOf(name);
+  var hit = null, byLast = [];
+  for (var gid in BOX){
+    var g = gameById(gid);
+    if (teamHint && g && g.away.abbr !== teamHint && g.home.abbr !== teamHint) continue;
+    var box = BOX[gid];
+    if (box[want]) return {gid:gid, rec:box[want]};
+    for (var k in box){
+      var r = box[k];
+      if (last && surnameOf(r.name) && surnameOf(r.name).toLowerCase() === last.toLowerCase()){
+        // "J. Allen" against "Josh Allen": the initial has to agree too
+        var ini = String(name).trim().charAt(0).toLowerCase();
+        if (r.name.charAt(0).toLowerCase() === ini) byLast.push({gid:gid, rec:r});
+      }
+    }
+  }
+  return byLast.length === 1 ? byLast[0] : hit;
+}
+function gameById(id){
+  var gs = window.__games || [];
+  for (var i = 0; i < gs.length; i++) if (String(gs[i].id) === String(id)) return gs[i];
+  return null;
+}
+
+/* ---- where each leg stands ----
+   state: pending | live | won | lost | push; good: winning right now;
+   cur/line for the progress bar on props. */
+function legState(leg){
+  if (leg.type === 'prop' || leg.type === 'td'){
+    var f = findPlayer(leg.player, leg.team);
+    if (!f){
+      var g0 = leg.team ? gameFor(leg.team) : null;
+      return {state: g0 && g0.state === 'post' ? 'push' : 'pending', cur:0, g:g0};
+    }
+    var g = gameById(f.gid), r = f.rec;
+    var done = g && g.state === 'post';
+    if (leg.type === 'td'){
+      var tds = (r.rushingTouchdowns || 0) + (r.receivingTouchdowns || 0);
+      if (tds >= 1) return {state:'won', good:true, cur:tds, g:g};
+      return {state: done ? 'lost' : (g && g.state === 'in' ? 'live' : 'pending'), good:false, cur:0, g:g};
+    }
+    var v = leg.stat === 'rushRecYards' ? (r.rushingYards || 0) + (r.receivingYards || 0) : (r[leg.stat] || 0);
+    if (leg.side === 'over'){
+      if (v > leg.line) return {state:'won', good:true, cur:v, g:g};           // an over can cash early
+      if (done) return {state: v === leg.line ? 'push' : 'lost', cur:v, g:g};
+      return {state: g && g.state === 'in' ? 'live' : 'pending', good:false, cur:v, g:g};
+    }
+    if (v > leg.line) return {state:'lost', good:false, cur:v, g:g};          // an under can bust early
+    if (done) return {state: v === leg.line ? 'push' : 'won', good:true, cur:v, g:g};
+    return {state: g && g.state === 'in' ? 'live' : 'pending', good:true, cur:v, g:g};
+  }
+
+  var gm = gameFor(leg.team);
+  if (!gm) return {state:'pending'};
+  var mine = gm.home.abbr === leg.team || gm.home.abbr === ALIAS[leg.team] ? gm.home : gm.away;
+  var them = mine === gm.home ? gm.away : gm.home;
+  var st = gm.state === 'pre' ? 'pending' : (gm.state === 'post' ? 'final' : 'live');
+  var margin;
+  if (leg.type === 'total'){
+    var sum = gm.home.score + gm.away.score;
+    margin = leg.side === 'over' ? sum - leg.line : leg.line - sum;
+    if (leg.side === 'over' && sum > leg.line) return {state:'won', good:true, cur:sum, margin:margin, g:gm};
+    if (leg.side === 'under' && sum > leg.line) return {state:'lost', good:false, cur:sum, margin:margin, g:gm};
+  } else if (leg.type === 'ml'){
+    margin = mine.score - them.score;
+  } else {
+    margin = mine.score - them.score + leg.line;
+  }
+  if (st === 'final') return {state: margin > 0 ? 'won' : (margin < 0 ? 'lost' : 'push'), good:margin > 0, margin:margin, g:gm};
+  return {state:st, good:margin > 0, margin:margin, g:gm,
+          cur: leg.type === 'total' ? gm.home.score + gm.away.score : null};
+}
+
+function betState(b){
+  var legs = b.legs.map(legState);
+  var lost = legs.some(function(s){ return s.state === 'lost'; });
+  var open = legs.filter(function(s){ return s.state === 'live' || s.state === 'pending'; }).length;
+  var hit = legs.filter(function(s){ return s.state === 'won'; }).length;
+  var state = lost ? 'lost' : (open ? (legs.some(function(s){ return s.state === 'live'; }) ? 'live' : 'pending')
+                                    : (hit ? 'won' : 'push'));
+  var good = legs.every(function(s){ return s.state === 'won' || s.state === 'push' || s.good; });
+  return {state:state, good:good, legs:legs, hit:hit, n:b.legs.length};
+}
+
+function decimalOdds(o){ return o > 0 ? 1 + o / 100 : 1 + 100 / Math.abs(o); }
+function money(v){ return (v < 0 ? '−$' : '$') + Math.abs(v).toFixed(Math.abs(v) >= 100 ? 0 : 2).replace(/\.00$/, ''); }
+
+/* ---- the moments worth a banner ----
+   Each leg's state is remembered; only a change raises anything, and the first
+   pass after loading just records where things stand. */
+function evaluateBets(){
+  if (!BETS.length) { paintBets(); return; }
+  var first = BETSEEN === null;
+  if (first) BETSEEN = Object.create(null);
+  BETS.forEach(function(b){
+    var s = betState(b);
+    b.legs.forEach(function(leg, i){
+      var ls = s.legs[i], key = b.id + ':' + i, was = BETSEEN[key];
+      BETSEEN[key] = ls.state;
+      if (first || !cfg.betAlerts) return;
+      if (b.parlay && ls.state === 'won' && was !== 'won' && s.state !== 'won'){
+        betBanner(b, leg, ls, 'LEG HIT ' + s.hit + '/' + s.n, 'good');
+      }
+      if (b.parlay && ls.state === 'lost' && was !== 'lost'){
+        betBanner(b, leg, ls, 'PARLAY DEAD', 'bad');
+      }
+      // a sweat: live and close, told once per leg
+      var sk = key + ':sweat';
+      if (ls.state === 'live' && !BETSEEN[sk] && sweating(leg, ls)){
+        BETSEEN[sk] = 1;
+        betBanner(b, leg, ls, 'SWEATING', 'warn');
+      }
+    });
+    var bk = b.id + ':bet', bw = BETSEEN[bk];
+    BETSEEN[bk] = s.state;
+    if (first || !cfg.betAlerts || bw === s.state) return;
+    if (s.state === 'won') betBanner(b, b.legs[b.legs.length - 1], s.legs[s.legs.length - 1],
+                                     b.parlay ? 'PARLAY CASHED' : 'CASHED', 'good');
+    if (s.state === 'lost' && !b.parlay) betBanner(b, b.legs[0], s.legs[0], 'BUSTED', 'bad');
+  });
+  paintBets();
+}
+
+function sweating(leg, ls){
+  var g = ls.g;
+  if (leg.type === 'prop'){
+    if (!leg.line) return false;
+    return ls.cur >= leg.line * 0.85 && ls.cur <= leg.line;          // within 15% of the number
+  }
+  if (leg.type === 'spread' || leg.type === 'total' || leg.type === 'ml'){
+    return g && g.period >= 4 && ls.margin !== undefined && Math.abs(ls.margin) <= 3;
+  }
+  return false;
+}
+
+function betBanner(b, leg, ls, kind, tone){
+  var g = (ls && ls.g) || gameFor(leg.team) || {id:'bet-' + b.id, who:[],
+    away:{id:'x', abbr:leg.team || '', score:0}, home:{id:'y', abbr:'', score:0}};
+  var body = leg.label + legDetail(leg, ls);
+  if (b.parlay) body += ' · ' + b.legs.length + '-leg parlay';
+  // money only on the moments that settle something — a leg hitting pays nothing yet
+  if (cfg.betMoney && b.stake && /CASHED|BUSTED|PARLAY DEAD/.test(kind)){
+    if (tone === 'good' && b.odds) body += ' · +' + money(b.stake * (decimalOdds(b.odds) - 1));
+    if (tone === 'bad') body += ' · ' + money(-b.stake);
+  }
+  push(g, kind, body, false, null, false, leg.player ? [leg.player] : []);
+}
+
+function legDetail(leg, ls){
+  if (!ls) return '';
+  if (leg.type === 'prop') return ' · ' + (ls.cur || 0) + ' so far';
+  if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined) return ' · ' + ls.cur + ' scored';
+  if ((leg.type === 'spread' || leg.type === 'ml') && ls.margin !== undefined)
+    return ' · ' + (ls.margin > 0 ? 'covering by ' + ls.margin : (ls.margin < 0 ? 'short by ' + (-ls.margin) : 'on the number'));
+  return '';
+}
+
+/* ---- the strip ---- */
+/* One leg as it reads on the strip: its label, where it stands, a bar for props. */
+function legChip(leg, ls){
+  var cls = 'bet s-' + ls.state + (ls.state === 'live' ? (ls.good ? ' good' : ' bad') : '');
+  var inner = '<b>' + esc(leg.label) + '</b>';
+  if (leg.type === 'prop' && ls.state !== 'pending'){
+    var pct = Math.max(0, Math.min(1, (ls.cur || 0) / (leg.line || 1)));
+    inner += ' <i>' + (ls.cur || 0) + '</i><span class="bar"><span style="width:' +
+      (pct * 100).toFixed(0) + '%"></span></span>';
+  } else if ((leg.type === 'spread' || leg.type === 'ml') && ls.margin !== undefined && ls.state !== 'pending'){
+    inner += ' <i>' + (ls.margin > 0 ? '+' : '') + ls.margin + '</i>';
+  } else if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined && ls.state !== 'pending'){
+    inner += ' <i>' + ls.cur + '</i>';
+  }
+  var mark = ls.state === 'won' ? '\u2713' : (ls.state === 'lost' ? '\u2717' : (ls.state === 'push' ? '=' : ''));
+  return '<span class="' + cls + '">' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
+}
+
+function betChip(b){
+  var s = betState(b);
+  var cls = 'bet s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
+  var inner;
+  if (b.parlay){
+    /* A parlay is drawn as a box around its own legs, each showing where it
+       stands, with the parlay's overall state in the box's corner. */
+    var head = '<span class="phead">' + b.legs.length + '-LEG ' + s.hit + '/' + s.n +
+      (cfg.betMoney && b.stake ? ' \u00b7 ' + money(b.stake) +
+        (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') : '') + '</span>';
+    var gcls = 'pbox s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
+    return '<span class="' + gcls + '">' + head +
+      b.legs.map(function(leg, i){ return legChip(leg, s.legs[i]); }).join('') + '</span>';
+  } else {
+    var leg = b.legs[0], ls = s.legs[0];
+    inner = '<b>' + esc(leg.label) + '</b>';
+    if (leg.type === 'prop' && ls.state !== 'pending'){
+      var pct = Math.max(0, Math.min(1, (ls.cur || 0) / (leg.line || 1)));
+      inner += ' <i>' + (ls.cur || 0) + '</i><span class="bar"><span style="width:' +
+        (pct * 100).toFixed(0) + '%"></span></span>';
+    } else if ((leg.type === 'spread' || leg.type === 'ml') && ls.margin !== undefined && ls.state !== 'pending'){
+      inner += ' <i>' + (ls.margin > 0 ? '+' : '') + ls.margin + '</i>';
+    } else if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined && ls.state !== 'pending'){
+      inner += ' <i>' + ls.cur + '</i>';
+    }
+  }
+  var mark = s.state === 'won' ? '✓' : (s.state === 'lost' ? '✗' : (s.state === 'push' ? '=' : ''));
+  if (cfg.betMoney && b.stake) inner += ' <i class="amt">' + money(b.stake) +
+    (b.odds ? ' → ' + money(b.stake * decimalOdds(b.odds)) : '') + '</i>';
+  return '<span class="' + cls + '">' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
+}
+
+var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
+function paintBets(){
+  var el = document.getElementById('bets');
+  if (!el) return;
+  var fresh = BETS.filter(function(b){ return Date.now() - (b.added || 0) < 5 * 86400000; });
+  if (!cfg.stripBets || !fresh.length){ el.hidden = true; refitIfMoved(el); return; }
+  var rows = fresh.map(function(b){ return {b:b, s:betState(b)}; });
+  rows.sort(function(x, y){
+    return (BET_ORDER[x.s.state] - BET_ORDER[y.s.state]) ||
+           ((x.s.good ? 1 : 0) - (y.s.good ? 1 : 0));          // live and losing first
+  });
+  var n = function(st){ return rows.filter(function(r){ return r.s.state === st; }).length; };
+  var sum = [n('live') + ' live', n('pending') + ' to come', n('won') + ' won', n('lost') + ' lost']
+    .filter(function(x){ return !/^0 /.test(x); }).join(' · ');
+  if (cfg.betMoney){
+    var net = 0;
+    rows.forEach(function(r){
+      if (!r.b.stake) return;
+      if (r.s.state === 'won' && r.b.odds) net += r.b.stake * (decimalOdds(r.b.odds) - 1);
+      if (r.s.state === 'lost') net -= r.b.stake;
+    });
+    if (net) sum += ' · <b class="' + (net > 0 ? 'up' : 'dn') + '">' + (net > 0 ? '+' : '') + money(net) + '</b>';
+  }
+  el.querySelector('h2').innerHTML = 'MY BETS <span class="sum">' + sum + '</span>';
+  el.querySelector('.items').innerHTML = '<div class="betrow">' + rows.map(function(r){ return betChip(r.b); }).join('') + '</div>';
+  el.hidden = false;
+  refitIfMoved(el);
+}
+/* The strip is repainted between board renders, when a box score lands. If
+   that changes its height the cards were sized against the wrong space, so
+   size them again — once, never from inside a render. */
+var betH = -1, inRender = false;
+function refitIfMoved(el){
+  var h = el.hidden ? 0 : el.offsetHeight;
+  if (h !== betH){ betH = h; if (!inRender) render(); }
+}
+
+/* a small marker on any card carrying money */
+function betBadge(g){
+  if (!BETS.length) return '';
+  var n = 0;
+  BETS.forEach(function(b){
+    b.legs.forEach(function(leg){
+      var t = leg.team;
+      if (!t && (leg.type === 'prop' || leg.type === 'td')){
+        var f = findPlayer(leg.player, '');
+        if (f && String(f.gid) === String(g.id)) n++;
+        return;
+      }
+      if (t && (g.away.abbr === t || g.home.abbr === t)) n++;
+    });
+  });
+  return n ? '<span class="betm">' + n + (n === 1 ? ' bet' : ' bets') + '</span>' : '';
+}
+
+/* ---- settings ---- */
+function paintBetList(){
+  var box = document.getElementById('betList');
+  if (!box) return;
+  box.innerHTML = BETS.length ? BETS.map(function(b){
+    var s = betState(b);
+    return '<div class="bl"><span>' + esc(b.parlay ? b.legs.map(function(l){ return l.label; }).join(' + ') : b.legs[0].label) +
+      (b.stake ? ' · ' + money(b.stake) : '') + (b.odds ? ' @ ' + (b.odds > 0 ? '+' : '') + b.odds : '') +
+      ' <i>' + s.state + '</i></span><button data-bet="' + esc(b.id) + '">×</button></div>';
+  }).join('') : '<p class="note">No bets yet.</p>';
+  [].slice.call(box.querySelectorAll('button[data-bet]')).forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-bet');
+      BETS = BETS.filter(function(b){ return b.id !== id; });
+      saveBets(); paintBetList(); evaluateBets(); render();
+    });
+  });
+}
+function previewBets(){
+  var ta = document.getElementById('sBetText'), out = document.getElementById('betPreview');
+  if (!ta || !out) return;
+  var lines = ta.value.split(/\n/).filter(function(l){ return l.trim(); });
+  out.innerHTML = lines.map(function(l){
+    var b = parseBet(l);
+    if (!b || b.error) return '<div class="bad">✗ ' + esc(b && b.error ? b.error : l) + '</div>';
+    return '<div class="ok">✓ ' + esc(b.legs.map(function(x){ return x.label; }).join(' + ')) +
+      (b.stake ? ' · ' + money(b.stake) : '') + (b.odds ? ' @ ' + (b.odds > 0 ? '+' : '') + b.odds : '') + '</div>';
+  }).join('');
+}
+function addBets(){
+  var ta = document.getElementById('sBetText');
+  var lines = ta.value.split(/\n/).filter(function(l){ return l.trim(); });
+  var keep = [];
+  lines.forEach(function(l){
+    var b = parseBet(l);
+    if (b && !b.error) BETS.push(b); else keep.push(l);      // unreadable lines stay put to fix
+  });
+  saveBets();
+  ta.value = keep.join('\n');
+  previewBets(); paintBetList(); evaluateBets(); render();
+}
+
+/* games the bets depend on get their box score fetched even with detail off */
+function betGameIds(){
+  var ids = Object.create(null);
+  BETS.forEach(function(b){
+    b.legs.forEach(function(leg){
+      var g = leg.team ? gameFor(leg.team) : null;
+      if (g) ids[g.id] = 1;
+      else if (leg.type === 'prop' || leg.type === 'td'){
+        // no team given: any live game could be his, so watch them all
+        (window.__games || []).forEach(function(x){ if (x.state === 'in') ids[x.id] = 1; });
+      }
+    });
+  });
+  return ids;
+}
+/* one last box score once a game with a prop on it goes final */
+function finalBoxes(){
+  var ids = betGameIds();
+  (window.__games || []).forEach(function(g){
+    if (g.state === 'post' && ids[g.id] && !BOXFINAL[g.id]){
+      BOXFINAL[g.id] = 1;
+      fetchDetail(g.id).then(evaluateBets);
+    }
+  });
+}
+
 /* ---------------- chrome ---------------- */
 function togglePanel(force){
   var p = document.getElementById('panel');
@@ -3116,6 +3705,14 @@ bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
 bind('sFanRoll','fanRoll','bool');
 bind('sFanAlerts','fanAlerts','str'); bind('sFanMin','fanMin','num');
+bind('sStripBets','stripBets','bool'); bind('sBetAlerts','betAlerts','bool'); bind('sBetMoney','betMoney','bool');
+document.getElementById('sBetText').addEventListener('input', previewBets);
+document.getElementById('sBetAdd').addEventListener('click', addBets);
+document.getElementById('sBetClear').addEventListener('click', function(){
+  BETS = BETS.filter(function(b){ var st = betState(b).state; return st === 'live' || st === 'pending'; });
+  saveBets(); paintBetList(); evaluateBets(); render();
+});
+paintBetList();
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
