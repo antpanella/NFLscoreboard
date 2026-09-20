@@ -78,6 +78,11 @@ header h1 em{font-style:normal;color:var(--flag)}
 #fanBar .side{display:flex;align-items:baseline;gap:.35rem;min-width:0}
 #fanBar .side .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #fanBar .pts,#fanBar i,#fanBar .star,#fanBar .vs{flex:none}
+#fanBar .play .star{color:var(--live)}
+#fanBar .play .pts{color:var(--live)}
+#fanBar .play .jn{color:var(--fantasy);font-weight:700}
+#fanBar .play.theirs .star,#fanBar .play.theirs .pts{color:var(--redzone)}
+#fanBar .play.theirs .nm{color:var(--sideline)}
 #status{flex:none;white-space:nowrap;display:flex;align-items:center;gap:.5rem;
   font-size:calc(.86 * var(--su));color:var(--sideline);font-weight:500}
 #dot{width:.6em;height:.6em;border-radius:50%;background:var(--live)}
@@ -375,6 +380,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
+  <label>Alternate with the last scoring play <input type="checkbox" id="sFanPlays"></label>
   <label>Fantasy points refresh <select id="sFanEvery">
       <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
       <option value="30">every 30 sec</option><option value="60">every minute</option>
@@ -469,7 +475,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20t \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20u \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -483,7 +489,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -529,7 +535,8 @@ var audio = null;
 var wake = null;
 var logLines = [];
 var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
-           week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{}};
+           week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{},
+           seen:{}, plays:[], flip:false};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -2158,13 +2165,80 @@ function leftToPlay(startersList){
   return n;
 }
 
+/* Sleeper hands back a total per player, never a play. So a play is inferred:
+   whichever player's number went up since the last poll did something, and the
+   size of the rise is what it was worth. The description comes from the NFL
+   feed's last play for that player's game, when it names him. */
+function pointsOf(r){
+  if (!r) return {};
+  var pp = r.players_points;
+  if (!pp && r.starters && r.starters_points){
+    pp = {};
+    r.starters.forEach(function(id, i){
+      if (id && id !== '0' && typeof r.starters_points[i] === 'number') pp[id] = r.starters_points[i];
+    });
+  }
+  return pp || {};
+}
+function noteMoves(pp, side){
+  var map = (pcache().map) || {};
+  for (var id in pp){
+    var was = FAN.seen[id];
+    FAN.seen[id] = pp[id];
+    if (was === undefined) continue;                 // first sight is not a play
+    var d = pp[id] - was;
+    if (d < 0.05) continue;
+    var e = map[id] || {};
+    FAN.plays.unshift({at:Date.now(), side:side, id:id, delta:d,
+      name: isTeamId(id) ? id + ' D/ST' : shortName(e.d || 'someone'),
+      num: e.j || '', team: isTeamId(id) ? id : (e.t || ''),
+      what: playWords(isTeamId(id) ? id : (e.t || ''), e.d || '')});
+  }
+  if (FAN.plays.length > 8) FAN.plays.length = 8;
+}
+
+/* "B.Purdy pass short right to D.Samuel for 21 yards" -> "21 yd catch". Only
+   used when the play text actually names the player who scored the points. */
+function playWords(abbr, full){
+  if (!abbr) return '';
+  var g = null;
+  (window.__games || []).forEach(function(x){
+    if (x.away.abbr === abbr || x.home.abbr === abbr ||
+        x.away.abbr === ALIAS[abbr] || x.home.abbr === ALIAS[abbr]) g = x;
+  });
+  var txt = (g && g.lastPlay) || '';
+  if (!txt) return '';
+  var last = surnameOf(full || '');
+  if (last && txt.toLowerCase().indexOf(last.toLowerCase()) < 0) return '';
+  var yd = /for (\d+) yards?/i.exec(txt);
+  var n = yd ? yd[1] + ' yd ' : '';
+  if (/touchdown|\bTD\b/i.test(txt)) return n + 'TD';
+  if (/field goal/i.test(txt)) return n + 'FG';
+  if (/\bpass\b|complete/i.test(txt)) return n + 'catch';
+  if (/run|rush|scramble/i.test(txt)) return n + 'run';
+  if (/intercept/i.test(txt)) return 'interception';
+  if (/fumble/i.test(txt)) return 'fumble';
+  return n ? n.trim() : '';
+}
+
 function fanPoints(){
   if (!FAN.ready || !FAN.week || !FAN.mine.length) return;
   Promise.all(FAN.mine.map(function(m){
     return sget('/league/' + m.league + '/matchups/' + FAN.week)
       .then(function(rows){
         // the head-to-head for the first league, for the bar across the top
-        if (m === FAN.mine[0]) FAN.match = matchupOf(rows, m);
+        if (m === FAN.mine[0]){
+          FAN.match = matchupOf(rows, m);
+          var mineRow = null, oppRow = null;
+          (rows || []).forEach(function(r){
+            if (String(r.roster_id) === String(m.roster)) mineRow = r;
+          });
+          (rows || []).forEach(function(r){
+            if (mineRow && r !== mineRow && String(r.matchup_id) === String(mineRow.matchup_id)) oppRow = r;
+          });
+          noteMoves(pointsOf(mineRow), 'me');
+          noteMoves(pointsOf(oppRow), 'opp');
+        }
         (rows || []).forEach(function(r){
           if (String(r.roster_id) !== String(m.roster)) return;
           var pp = r.players_points;
@@ -2208,11 +2282,35 @@ function matchupOf(rows, m){
   return {me: side(mine), opp: side(opp)};
 }
 
+function fanFlip(){
+  FAN.flip = !FAN.flip;
+  paintFanBar();
+}
+function latestPlay(){
+  var p = FAN.plays[0];
+  if (!p) return null;
+  return (Date.now() - p.at) < 180000 ? p : null;      // three minutes, then it is old news
+}
+
 function paintFanBar(){
   var el = document.getElementById('fanBar');
   if (!el) return;
   var m = FAN.match;
   if (!cfg.fanBar || !m || !m.me){ el.hidden = true; return; }
+
+  var play = cfg.fanPlays === false ? null : latestPlay();
+  if (play && FAN.flip){
+    el.innerHTML = '<span class="side up play' + (play.side === 'opp' ? ' theirs' : '') + '">' +
+      '<span class="star">\u25b2</span>' +
+      (play.num ? '<i class="jn">#' + esc(play.num) + '</i>' : '') +
+      '<b class="nm">' + esc(play.name) + '</b>' +
+      (play.what ? '<i>' + esc(play.what) + '</i>' : '') +
+      (play.team ? '<i>' + esc(play.team) + '</i>' : '') +
+      '<span class="pts">+' + fmtPts(play.delta) + '</span>' +
+      (play.side === 'opp' ? '<i>theirs</i>' : '') + '</span>';
+    el.hidden = false;
+    return;
+  }
   var side = function(x, up){
     if (!x) return '<span class="side down"><b class="nm">no opponent</b></span>';
     return '<span class="side ' + (up ? 'up' : 'down') + '">' +
@@ -2800,7 +2898,7 @@ bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
-bind('sFanEvery','fanEvery','num');
+bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
@@ -2853,6 +2951,7 @@ document.getElementById('sTest').addEventListener('click', function(){
 ['buildS','buildG'].forEach(function(id){
   var el = document.getElementById(id); if (el) el.textContent = BUILD;
 });
+setInterval(fanFlip, 7000);            // score, then the last play, then back
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
 paintFlags();
 paintLog();
