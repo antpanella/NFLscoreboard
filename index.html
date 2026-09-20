@@ -263,6 +263,11 @@ body.nofan .fanrow{display:none}
 .fantasy .fp u{text-decoration:none;font-weight:700;color:var(--flag)}
 .fantasy .fp.bench u{opacity:.7}
 .fantasy .fp.bench b{opacity:.65;font-weight:600}
+/* the opponent's players: same row, read as the other side */
+.fantasy .fp.foe b{color:#FFB3AC}
+.fantasy .fp.foe i{color:#E06A60}
+.fantasy .fp.foe u{color:#E06A60}
+.fanrow .fc em{font-style:normal;color:#E06A60;font-weight:700;margin-left:.35em}
 body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .meta .clock{color:var(--chalk);font-weight:600}
 .meta .fan{color:var(--fantasy);font-weight:700}
@@ -390,6 +395,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
     </select></label>
   <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
+  <label>…include my opponent's players <input type="checkbox" id="sFanFoes"></label>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
   <label>Projected totals <input type="checkbox" id="sFanProj"></label>
@@ -498,7 +504,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20y \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20z \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -512,7 +518,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -559,7 +565,7 @@ var wake = null;
 var logLines = [];
 var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
            week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{},
-           seen:{}, plays:[], flip:false, proj:{}, projAt:0, season:''};
+           seen:{}, plays:[], flip:false, proj:{}, projAt:0, season:'', foes:[]};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -584,7 +590,7 @@ function bind(id, key, kind){
     if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|order|timeouts)$/.test(key)) render();
+    if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts)$/.test(key)) render();
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -2111,18 +2117,37 @@ function shortName(n){
 }
 var POS_ORDER = {QB:1, RB:2, WR:3, TE:4, K:5, DEF:6};
 /* Everyone of mine playing in this game, away side first, then by position. */
+/* The opponent's starters, in the same shape as my own roster entries, so the
+   card rows can treat both the same way. */
+function rosterFrom(ids){
+  var map = (pcache().map) || {};
+  return (ids || []).filter(function(id){ return id && id !== '0'; })
+    .map(function(id){
+      var e = map[id] || {};
+      return {id:id, side:'opp', starter:true,
+              name: isTeamId(id) ? (id + ' defense') : (e.d || 'player'),
+              team: isTeamId(id) ? id : (e.t || ''),
+              pos:  isTeamId(id) ? 'DEF' : (e.p || ''),
+              num:  e.j || ''};
+    });
+}
+
 function fanIn(g){
   if (!FAN.ready) return [];
   var side = Object.create(null);
   [[g.away.abbr, 0], [g.home.abbr, 1]].forEach(function(x){
     side[x[0]] = x[1]; if (ALIAS[x[0]]) side[ALIAS[x[0]]] = x[1];
   });
-  var out = FAN.roster.filter(function(e){
+  var pool = FAN.roster.slice();
+  if (cfg.fanFoes) pool = pool.concat(FAN.foes || []);
+  var out = pool.filter(function(e){
     if (cfg.starterOnly && !e.starter) return false;
     return e.team && side[e.team] !== undefined;
   });
   return out.sort(function(a, b){
-    return (side[a.team] - side[b.team]) ||
+    // mine first, then by which team they play for, then by position
+    return ((a.side === 'opp' ? 1 : 0) - (b.side === 'opp' ? 1 : 0)) ||
+           (side[a.team] - side[b.team]) ||
            ((POS_ORDER[a.pos] || 9) - (POS_ORDER[b.pos] || 9)) ||
            a.name.localeCompare(b.name);
   });
@@ -2136,13 +2161,17 @@ function fanLine(g){
     var tag = e.pos === 'DEF' ? '' : ' <i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i>';
     var num = e.num ? '<i class="jn">#' + esc(e.num) + '</i> ' : '';
     var v = fanPts(e), pts = '';
-    if (v !== null){ any = true; if (e.starter) sum += v;
+    if (v !== null){ any = true; if (e.starter && e.side !== 'opp') sum += v;
       pts = ' <u>' + fmtPts(v) + '</u>'; }
-    return '<span class="fp' + (e.starter ? '' : ' bench') + '">' + num + '<b>' +
+    return '<span class="fp' + (e.starter ? '' : ' bench') +
+      (e.side === 'opp' ? ' foe' : '') + '">' + num + '<b>' +
       esc(shortName(e.name)) + '</b>' + tag + pts + '</span>';
   });
-  return '<div class="fanrow"><span class="fc">\u2605 ' + list.length +
-    (any ? ' \u00b7 ' + fmtPts(sum) : '') + '</span>' +
+  var mineN = list.filter(function(e){ return e.side !== 'opp'; }).length;
+  var foeN = list.length - mineN;
+  return '<div class="fanrow"><span class="fc">\u2605 ' + mineN +
+    (any ? ' \u00b7 ' + fmtPts(sum) : '') +
+    (foeN ? '<em>vs ' + foeN + '</em>' : '') + '</span>' +
     '<span class="fantasy" data-k="' + esc(g.id) + ':f"><span class="track">' +
     out.join('') + '</span></span></div>';
 }
@@ -2390,6 +2419,7 @@ function matchupOf(rows, m){
   var names = FAN.owner[m.league] || {};
   learnPlayers((mine.starters || []).concat((opp && opp.starters) || []));
   fanProjections();
+  FAN.foes = rosterFrom(opp && opp.starters);
   var side = function(r){
     if (!r) return null;
     var pts = pointsOf(r);
@@ -2509,7 +2539,9 @@ function fanSchedule(){
 }
 
 function fanPts(e){
-  var v = e && e.id !== undefined ? FAN.pts[e.id] : undefined;
+  if (!e || e.id === undefined) return null;
+  var v = FAN.pts[e.id];
+  if (typeof v !== 'number') v = FAN.seen[e.id];     // the opponent's side
   return (typeof v === 'number') ? v : null;
 }
 function fmtPts(v){ return (Math.round(v * 10) / 10).toFixed(1); }
@@ -3064,6 +3096,7 @@ bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
+bind('sFanFoes','fanFoes','bool');
 bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
 bind('sFanRoll','fanRoll','bool');
