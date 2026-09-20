@@ -404,7 +404,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20g \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20h \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -481,6 +481,10 @@ function bind(id, key, kind){
 }
 
 /* ---------------- audio ---------------- */
+// the screen coming back, or the laptop waking, both land here
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden) unlockAudio();
+});
 function unlockAudio(){
   try {
     var AC = window.AudioContext || window.webkitAudioContext;
@@ -488,8 +492,29 @@ function unlockAudio(){
     if (audio && audio.state === 'suspended') audio.resume();
   } catch(e){}
 }
+var toneOk = 0, toneMiss = 0, toneWhy = '';
+/* Chrome parks an AudioContext when the machine sleeps, the audio device
+   changes, or the tab sits in the background — and a parked context accepts
+   every call and plays nothing. So check the state on every alert, wake it, and
+   replay once it is running rather than dropping the chime on the floor. */
 function tones(list){
-  if (!cfg.sound || !audio) return;
+  if (!cfg.sound){ toneWhy = 'sound switched off'; return; }
+  if (!audio){
+    unlockAudio();
+    if (!audio){ toneMiss++; toneWhy = 'no audio context'; return; }
+  }
+  if (audio.state !== 'running'){
+    toneMiss++; toneWhy = 'context was ' + audio.state + ', woke it';
+    try {
+      audio.resume().then(function(){ blow(list); }).catch(function(){});
+    } catch(e){}
+    return;
+  }
+  blow(list);
+}
+function blow(list){
+  if (!audio) return;
+  toneOk++; toneWhy = '';
   var t0 = audio.currentTime + 0.02;
   list.forEach(function(n, i){
     var o = audio.createOscillator(), g = audio.createGain();
@@ -1010,6 +1035,13 @@ function push(game, kind, body, quiet, team, hot, whoList){
   // several times in a fourth quarter, so it dedupes on the scoreline instead.
   var once = /^(GO WATCH THIS|OVERTIME)/.test(kind);
   var key = game.id + '|' + kind + (once ? '' : '|' + game.away.score + '-' + game.home.score);
+  /* Two turnovers, or two long plays of the same length, at the same scoreline
+     used to collide on this key and the second one was swallowed. Scoring plays
+     still dedupe on the scoreline alone, since the same score can arrive twice
+     by different routes — once from the score change, once from the play text. */
+  if (!once && !/TOUCHDOWN|FIELD GOAL|SAFETY|2-PT|2 POINTS|FINAL|COVER/.test(kind)){
+    key += '|' + String(body || '').slice(0, 44);
+  }
   if (fired[key]) return;
   fired[key] = 1;
   if (quiet) return;
@@ -1052,8 +1084,16 @@ function push(game, kind, body, quiet, team, hot, whoList){
          : (hot ? SOUNDS.HOT
                 : (SOUNDS[kind.split(' — ')[0]] || SOUNDS['BIG PLAY']))
   });
-  // during a 1:00 scoring flurry, drop the stalest rather than run minutes behind
-  while (queue.length > 5) queue.shift();
+  /* During a scoring flurry the queue is trimmed rather than run minutes behind,
+     but a fantasy or close-game alert is the whole point of the board — drop the
+     oldest ordinary one first and only touch those if nothing else is left. */
+  while (queue.length > 6){
+    var drop = -1;
+    for (var qi = 0; qi < queue.length; qi++){
+      if (!queue[qi].mine && !queue[qi].hot){ drop = qi; break; }
+    }
+    queue.splice(drop < 0 ? 0 : drop, 1);
+  }
   logLines.unshift({kind:kind, who:who, body:body, mine:hit ? hit.name : '', at:new Date()});
   if (logLines.length > 12) logLines.pop();
   paintLog();
@@ -1465,6 +1505,9 @@ function diagnose(live){
     '<div>odds block: ' + yn(g.odds) + '</div>' +
     '<div>fantasy roster loaded: ' + yn(FAN.ready) +
       (FAN.ready ? ' (' + FAN.roster.length + ')' : '') + '</div>' +
+    '<div>chimes: <b>' + toneOk + '</b> played, <b>' + toneMiss + '</b> recovered' +
+      (audio ? ', context ' + audio.state : ', no context') +
+      (toneWhy ? ' \u2014 ' + esc(toneWhy) : '') + '</div>' +
     '<div>live fantasy points: ' + yn(Object.keys(FAN.pts).length) +
       (FAN.ptsAt ? ' (' + Object.keys(FAN.pts).length + ' players, ' +
         Math.round((Date.now() - FAN.ptsAt) / 1000) + 's ago, week ' + FAN.week + ')'
