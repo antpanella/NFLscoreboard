@@ -136,18 +136,31 @@ body.tint .info .mk i,body.tint .meta .dd{color:#A9BCAF}
 body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{opacity:1}
 
 .row{display:flex;align-items:center;gap:calc(.16 * var(--u));line-height:1;flex-wrap:nowrap}
+/* Nothing inside a card may shrink: a squeezed row clips its own text silently,
+   and then the sizing passes never learn that the card is too full. */
+.game > *{flex:0 0 auto}
 .row .abbr,.row .rec,.row .pts{white-space:nowrap}
 .row .poss{width:calc(.17 * var(--u));height:calc(.17 * var(--u));border-radius:50%;background:var(--flag);flex:none;visibility:hidden}
 .row.has .poss{visibility:visible}
-.row img{height:calc(.9 * var(--u));width:calc(.9 * var(--u));object-fit:contain;flex:none}
-.row .abbr{font-weight:700;font-size:var(--u);letter-spacing:.01em;flex:0 0 auto}
+.row img{height:calc(.9 * var(--tw,1) * var(--u));width:calc(.9 * var(--tw,1) * var(--u));
+  object-fit:contain;flex:none}
+.row .abbr{font-weight:700;font-size:calc(var(--tw,1) * var(--u));letter-spacing:.01em;flex:0 0 auto}
 /* The record is the one thing on the row allowed to give way. It clips itself
    rather than pushing the card over, which used to drag the whole board's type
    size down by a fifth the moment records were switched on. */
 .row .rec{font-size:calc(.34 * var(--u));color:var(--sideline);font-weight:500;
   flex:0 1 auto;min-width:0;overflow:hidden}
 .row .pts{flex:0 0 auto}
-.row .pts{margin-left:auto;font-weight:700;font-size:calc(1.18 * var(--u));
+.row .tos{display:flex;gap:calc(.055 * var(--u));align-items:center;flex:none;
+  margin-left:calc(.1 * var(--u))}
+.row .tos i{width:calc(.17 * var(--u));height:calc(.17 * var(--u));border-radius:50%;
+  border:calc(.028 * var(--u)) solid var(--sideline);background:transparent;opacity:.75}
+.row .tos i.on{opacity:1}
+.row .tos i.on{background:var(--chalk);border-color:var(--chalk)}
+body.tint .row .tos i{border-color:rgba(255,255,255,.5)}
+body.tint .row .tos i.on{background:#fff;border-color:#fff}
+body.noto .row .tos{display:none}
+.row .pts{margin-left:auto;font-weight:700;font-size:calc(1.18 * var(--tw,1) * var(--u));
   min-width:1.7em;text-align:right}
 .row.lose .abbr,.row.lose .pts,.row.lose img{opacity:.55}
 body.tint .row.lose .abbr,body.tint .row.lose .pts{opacity:.72}
@@ -181,7 +194,7 @@ body.noinfo .info{display:none}
 .game.hot .meta .clock{color:var(--hot)}
 .game.hot .meta .dd,.game.rz .meta .dd{color:var(--sideline)}
 .game.rzon .meta .dd{color:var(--redzone);font-weight:600}
-body.nostrip .strip{display:none}
+
 body.nofan .fanrow{display:none}
 
 /* Fourth row: who of mine is in this game. Violet matches the fantasy banner.
@@ -334,7 +347,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
   <label>Cover flips (4th qtr) <input type="checkbox" id="sCover"></label>
   <label>Live odds &amp; drive detail <input type="checkbox" id="sDeep"></label>
-  <label>Final scores <input type="checkbox" id="sFinal"></label>
+  <label>Final score alerts <input type="checkbox" id="sFinal"></label>
   <label>Long plays over <input type="number" id="sYards" min="0" max="99" step="5"> yds</label>
   <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
   <label>Alert stays up <select id="sDur">
@@ -357,7 +370,9 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
       <option value="1.25">huge</option><option value="1.4">max</option>
     </select></label>
   <label>Show team records <input type="checkbox" id="sRecs"></label>
-  <label>Show later / final strips <input type="checkbox" id="sStrips"></label>
+  <label>Timeouts left <input type="checkbox" id="sTimeouts"></label>
+  <label>Kicking-off-later strip <input type="checkbox" id="sStripUp"></label>
+  <label>Final scores strip <input type="checkbox" id="sStripFin"></label>
   <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
 
   <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">FANTASY ROSTER</h3>
@@ -417,7 +432,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20j \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20n \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -431,7 +446,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, strips:true, liveOnly:false, close:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:25, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -450,6 +465,11 @@ if (cfg.gvSeed !== 1){
    sticky, so this turns them on once for boards still carrying that value. */
 if (cfg.seed2 !== 1){
   cfg.close = true;
+  // the two strips used to share one switch — keep whatever it was set to
+  try {
+    var old = JSON.parse(localStorage.getItem('sundayBoard') || '{}');
+    if (old.strips === false){ cfg.stripUp = false; cfg.stripFin = false; }
+  } catch(e){}
   cfg.seed2 = 1;
   try { localStorage.setItem('sundayBoard', JSON.stringify(cfg)); } catch(e){}
 }
@@ -495,7 +515,7 @@ function bind(id, key, kind){
     save();
     if (key === 'tint' || key === 'dimLose') paintFlags();
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|strips|liveOnly|odds|tick|tint|dimLose|fanRow|order)$/.test(key)) render();
+    if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|order|timeouts)$/.test(key)) render();
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -652,6 +672,8 @@ function readSummary(j){
     out.dd = String(sit.downDistanceText || sit.shortDownDistanceText || '')
                .replace(/\s+at\s+/i, ' ');
     out.redzone = !!sit.isRedZone;
+    var th = numOr(sit.homeTimeouts, null), ta = numOr(sit.awayTimeouts, null);
+    if (th !== null || ta !== null) out.tos = {home: th, away: ta};
     if (sit.lastPlay){
       out.lastPlay = sit.lastPlay.text || '';
       out.lastPlayId = sit.lastPlay.id || out.lastPlay;
@@ -754,6 +776,8 @@ function parse(data){
       dd: String(sit.downDistanceText || sit.shortDownDistanceText || '')
             .replace(/\s+at\s+/i, ' '),
       redzone: !!sit.isRedZone,
+      // timeouts remaining; the feed leaves these out before kickoff
+      tos: {home: numOr(sit.homeTimeouts, null), away: numOr(sit.awayTimeouts, null)},
       neutral: !!comp.neutralSite,
       odds: pinned,        // closing line, pinned locally — drives the cover-flip alerts
       live: cur,           // whatever the payload says right now, may be null
@@ -909,6 +933,11 @@ function fromText(t){
   });
   return out;
 }
+function numOr(v, dflt){
+  var n = parseInt(v, 10);
+  return isFinite(n) ? n : dflt;
+}
+
 function side(c){
   var t = c.team || {};
   var rec = '';
@@ -1248,13 +1277,13 @@ function render(){
   if (cfg.order !== 'heat') live = holdOrder(live);
   // soon/done are ordered inside dayRows, which buckets them by calendar day first
 
-  document.body.classList.toggle('nostrip', !cfg.strips || (cfg.liveOnly && live.length > 0));
+  var hideBoth = cfg.liveOnly && live.length > 0;
 
   // Strips are laid out FIRST. They're flex:none, so they claim their height before
   // the live area is measured — otherwise fit() sizes cards against a live area that
   // the finals strip is about to shrink, which is what broke late in the day.
   var up = document.getElementById('upcoming');
-  up.hidden = !soon.length;
+  up.hidden = !soon.length || hideBoth || !cfg.stripUp;
   up.querySelector('.items').innerHTML = dayRows(soon, function(g){
     return '<span><b class="t">' + kickoff(g.date) + '</b>' +
       esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) +
@@ -1265,7 +1294,7 @@ function render(){
   });
 
   var fin = document.getElementById('finals');
-  fin.hidden = !done.length;
+  fin.hidden = !done.length || hideBoth || !cfg.stripFin;
   fin.querySelector('.items').innerHTML = dayRows(done, function(g){
     var aw = g.away.score > g.home.score, hw = g.home.score > g.away.score;
     return '<span><span class="' + (aw ? 'w' : 'l') + '">' + esc(g.away.abbr) + ' ' + g.away.score + '</span>' +
@@ -1400,8 +1429,10 @@ function card(g){
   }
 
   return '<article class="' + cls + '"' + style + ' data-g="' + esc(g.id) + '">' +
-    team(g.away, g.possession === g.away.id, lead === 'home') +
-    team(g.home, g.possession === g.home.id, lead === 'away') +
+    team(g.away, g.possession === g.away.id, lead === 'home',
+         g.state === 'in' && g.tos ? g.tos.away : null) +
+    team(g.home, g.possession === g.home.id, lead === 'away',
+         g.state === 'in' && g.tos ? g.tos.home : null) +
     '<div class="meta" data-k="' + esc(g.id) + ':m"><span class="track">' +
       '<span class="clock" data-c="' + esc(g.id) + '" data-q="' + esc(qLabel(g)) + '">' +
         esc(quarter(g)) + '</span>' +
@@ -1443,12 +1474,22 @@ function infoLine(g){
     : '';
 }
 
-function team(t, hasBall, losing){
+/* Three pips, one per timeout, filled while it is still in hand. They sit beside
+   the record, so the card carries that kind of detail in one place. */
+function timeouts(n){
+  if (!cfg.timeouts || n === null || n === undefined) return '';
+  var out = '';
+  for (var i = 0; i < 3; i++) out += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+  return '<span class="tos" title="' + n + ' timeouts left">' + out + '</span>';
+}
+
+function team(t, hasBall, losing, tos){
   return '<div class="row' + (hasBall ? ' has' : '') + (losing ? ' lose' : '') + '">' +
     '<span class="poss"></span>' +
     (t.logo ? '<img src="' + esc(t.logo) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '') +
     '<span class="abbr">' + esc(t.abbr) + '</span>' +
     (t.rec ? '<span class="rec">' + esc(t.rec) + '</span>' : '') +
+    timeouts(tos) +
     '<span class="pts">' + t.score + '</span></div>';
 }
 
@@ -1519,6 +1560,9 @@ function diagnose(live){
     '<div>' + esc(g.away.abbr) + ' at ' + esc(g.home.abbr) +
       ' — state <b>' + esc(g.state) + '</b>, period ' + g.period + ', clock ' + esc(g.clock) + '</div>' +
     '<div>situation block: ' + yn(sit) + '</div>' +
+    '<div>timeouts in feed: ' + yn(g.tos && (g.tos.home !== null || g.tos.away !== null)) +
+      (g.tos && g.tos.away !== null ? ' (' + g.away.abbr + ' ' + g.tos.away + ', ' +
+        g.home.abbr + ' ' + g.tos.home + ')' : '') + '</div>' +
     '<div>possession: ' + yn(sit && sit.possession) + '</div>' +
     '<div>down &amp; distance: ' + yn(sit && sit.downDistanceText) + '</div>' +
     '<div>last play text: ' + yn(sit && sit.lastPlay && sit.lastPlay.text) + '</div>' +
@@ -1725,7 +1769,10 @@ function demoPayload(){
       // rough logistic on margin and time remaining, purely so the demo shows a number
       var mg = g.hs - g.as, left = Math.max(0.02, 1 - (simMin - g.kick) / 185);
       var hp = 1 / (1 + Math.exp(-(mg * 0.16) / Math.sqrt(left)));
+      // the demo burns a timeout roughly every quarter so the pips have something to show
       comp.situation = {possession:g.poss, downDistanceText:g.dd, isRedZone:g.rz,
+        homeTimeouts:Math.max(0, 3 - Math.floor((simMin - g.kick) / 55)),
+        awayTimeouts:Math.max(0, 3 - Math.floor((simMin - g.kick) / 70)),
         lastPlay:{id:g.id + '-' + g.playId, text:g.play,
           probability:{homeWinPercentage:hp, awayWinPercentage:1 - hp},
           athletesInvolved:(g.cast || []).map(function(n){ return {displayName:n}; })}};
@@ -2067,7 +2114,8 @@ function unitNeeds(){
   /* Records get a small reserve rather than a full column's worth: the row has
      slack between the abbreviation and the score, and the record clips itself if
      a card really has none. Reserving for the worst case shrank every card. */
-  return {w: 5.9 + (rec ? 0.62 : 0),
+  var tos = cfg.timeouts && cfg.scale < 1.3;
+  return {w: 5.9 + (rec ? 0.62 : 0) + (tos ? 0.55 : 0), tos: tos,
           h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0),
           rec:rec, meta:meta, info:info, fan:fan};
 }
@@ -2086,29 +2134,44 @@ function fit(cols, rows){
   document.body.classList.toggle('nometa', !need.meta);
   document.body.classList.toggle('noinfo', !need.info);
   document.body.classList.toggle('nofan', !need.fan);
+  document.body.classList.toggle('noto', !need.tos);
 
   var gap = Math.max(4, Math.round(Math.min(w, h) * 0.012));
   document.documentElement.style.setProperty('--gap', gap + 'px');
 
-  var u = Math.min((w - gap * (cols - 1)) / cols / need.w,
-                   (h - gap * (rows - 1)) / rows / need.h) * (cfg.scale || 1);
+  /* A six-game board leaves each card far wider than its rows need, which is what
+     left the middle of every box empty. The team row gets a size multiplier of its
+     own — and rather than trusting a formula for how much fits (the formula was
+     wrong, and cards were quietly clipping), each candidate multiplier is laid out
+     and measured. The winner is whichever makes the scores biggest with everything
+     still fitting. */
+  var cw = (w - gap * (cols - 1)) / cols, ch = (h - gap * (rows - 1)) / rows;
+  var fixedW = 0.9 + (need.tos ? 0.55 : 0), scaleW = 5.0 + (need.rec ? 0.62 : 0);
+  var fixedH = 0.55 + (need.meta ? 0.55 : 0) + (need.info ? 0.5 : 0) + (need.fan ? 0.95 : 0);
+  var scaleH = 2.45, scale = cfg.scale || 1;
+
+  /* Laying out four candidates costs four reflows per card, which is wasteful
+     every five seconds when nothing about the shape of the board has changed.
+     The chosen multiplier is cached against that shape; the fitting below still
+     runs every time, so a longer play description still gets its own pass. */
+  var sig = [cols, rows, box.children.length, w, h, need.rec, need.meta, need.info,
+             need.fan, cfg.scale].join(':');
+  var tw = 1, u = 11, best = -1;
+  var CAND = (FITC.sig === sig) ? [FITC.tw] : [1, 1.15, 1.3, 1.45];
+  for (var ci = 0; ci < CAND.length; ci++){
+    var k = CAND[ci];
+    document.documentElement.style.setProperty('--tw', k.toFixed(2));
+    var uk = Math.min(cw / (fixedW + scaleW * k), ch / (fixedH + scaleH * k)) * scale;
+    uk = Math.max(11, Math.min(uk, window.innerHeight / 3.4));
+    setU(uk);
+    for (var t = 0; t < 14 && uk > 11 && spills(box); t++){ uk *= 0.95; setU(uk); }
+    if (uk * k > best){ best = uk * k; tw = k; u = uk; }
+  }
+  document.documentElement.style.setProperty('--tw', tw.toFixed(2));
+  FITC.sig = sig; FITC.tw = tw;
   // with one or two games a card is enormous; cap against screen height so the
   // score can't outgrow the panel
-  u = Math.max(11, Math.min(u, window.innerHeight / 3.4));
   document.documentElement.style.setProperty('--u', u.toFixed(2) + 'px');
-
-  // measured correction — pull back until the real cards stop overflowing
-  for (var i = 0; i < 6; i++){
-    var over = false, c = box.children;
-    for (var k = 0; k < c.length; k++){
-      if (c[k].scrollWidth > c[k].clientWidth + 1 || c[k].scrollHeight > c[k].clientHeight + 1){
-        over = true; break;
-      }
-    }
-    if (!over) break;
-    u *= 0.94;
-    document.documentElement.style.setProperty('--u', u.toFixed(2) + 'px');
-  }
 
   /* The status and info rows can be far wider than the team rows, and they clip
      inside themselves — which the loop above cannot see, because the card's own
@@ -2131,6 +2194,40 @@ function fit(cols, rows){
     u2 = Math.max(u * 0.72, u2 * worst * 0.98);
     document.documentElement.style.setProperty('--u2', u2.toFixed(2) + 'px');
   }
+
+  /* Whatever height is left over after the scores have taken their share goes to
+     the three information rows, a step at a time, until something would spill.
+     This is what closes the gap at the bottom of a card on a short slate. */
+  var cap = u * 1.15;
+  for (var gp = 0; gp < 8 && u2 < cap; gp++){
+    var next2 = Math.min(cap, u2 * 1.07);
+    document.documentElement.style.setProperty('--u2', next2.toFixed(2) + 'px');
+    if (spills(box)){
+      document.documentElement.style.setProperty('--u2', u2.toFixed(2) + 'px');
+      break;
+    }
+    u2 = next2;
+  }
+}
+
+/* True when any card is taller or wider than its slot, or when one of the
+   information rows has been squeezed past what it can show. */
+var FITC = {sig:'', tw:1};
+function setU(v){
+  document.documentElement.style.setProperty('--u', v.toFixed(2) + 'px');
+  document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px');
+}
+
+function spills(box){
+  var c = box.children;
+  for (var k = 0; k < c.length; k++){
+    if (c[k].scrollWidth > c[k].clientWidth + 0.5 || c[k].scrollHeight > c[k].clientHeight + 0.5) return true;
+  }
+  var rows = box.querySelectorAll('.meta, .info');
+  for (var r = 0; r < rows.length; r++){
+    if (rows[r].scrollWidth > rows[r].clientWidth + 1) return true;
+  }
+  return false;
 }
 /* Rows too wide for their card scroll instead of clipping. The board replaces its
    card HTML on every poll, so a CSS animation would restart every 15s and never
@@ -2478,10 +2575,12 @@ bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
 bind('sFinal','final','bool'); bind('sYards','yards','num'); bind('sDur','dur','num');
 bind('sMinShow','minShow','num'); bind('sOrder','order','str');
 bind('sCloseMin','closeMin','num'); bind('sCloseMargin','closeMargin','num');
+bind('sTimeouts','timeouts','bool');
 bind('sFav','fav','str'); bind('sToday','today','bool'); bind('sScale','scale','num');
 bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
-bind('sRecs','recs','bool'); bind('sStrips','strips','bool');
+bind('sRecs','recs','bool');
+bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool');
