@@ -375,6 +375,10 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
+  <label>Fantasy points refresh <select id="sFanEvery">
+      <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
+      <option value="30">every 30 sec</option><option value="60">every minute</option>
+    </select></label>
   <label>Dim the team that is behind <input type="checkbox" id="sDim"></label>
   <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
   <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
@@ -465,7 +469,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-20s \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-20t \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -479,7 +483,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanBar:true, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -547,6 +551,7 @@ function bind(id, key, kind){
     cfg[key] = (kind === 'bool') ? el.checked : (kind === 'num' ? Number(el.value) : el.value);
     save();
     if (key === 'tint' || key === 'dimLose') paintFlags();
+    if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
     if (/^(scale|recs|stripUp|stripFin|liveOnly|odds|tick|tint|dimLose|fanRow|order|timeouts)$/.test(key)) render();
     if (key === 'interval') schedule();
@@ -2019,8 +2024,8 @@ function applyRoster(list, starters, map, leagues){
   for (var d in dupes) delete FAN.last[d];
   FAN.ready = FAN.roster.length > 0;
   // live points refresh on their own clock; the board redraws when they land
-  if (FAN.ready && !FAN.ptsTimer){ FAN.ptsTimer = setInterval(fanPoints, 45000); }
   if (FAN.ready) fanPoints();
+  fanSchedule();
   FAN.label = leagues.length === 1 ? (leagues[0].name || 'my league') : leagues.length + ' leagues';
 
   var unresolved = list.length - FAN.roster.length;
@@ -2223,6 +2228,20 @@ function paintFanBar(){
 function shorten(s, n){
   s = String(s || '');
   return s.length > n ? s.slice(0, n - 1) + '\u2026' : s;
+}
+
+/* One small request per league per tick. Sleeper's own scoring lags the play by
+   a minute or two, so polling faster than that buys nothing — but between games,
+   or overnight, there is nothing to ask about at all, so it backs right off. */
+function fanSchedule(){
+  clearTimeout(FAN.ptsTimer);
+  if (!FAN.ready || !FAN.mine.length) return;
+  var live = (window.__games || []).some(function(g){ return g.state === 'in'; });
+  var every = Math.max(10, Number(cfg.fanEvery) || 20);
+  FAN.ptsTimer = setTimeout(function(){
+    fanPoints();
+    fanSchedule();
+  }, (live ? every : 300) * 1000);
 }
 
 function fanPts(e){
@@ -2781,6 +2800,7 @@ bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
 bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
+bind('sFanEvery','fanEvery','num');
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
