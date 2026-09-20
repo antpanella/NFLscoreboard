@@ -97,7 +97,17 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
   padding:calc(.18 * var(--u)) calc(.28 * var(--u));
   display:flex;flex-direction:column;justify-content:center;gap:calc(.06 * var(--u));
   min-height:0;overflow:hidden}
-.game.rz{border-left-color:var(--redzone);background:var(--turf-hi)}
+.game.rz{border-left-color:var(--redzone);background:var(--turf-hi);
+  box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,59,48,.9),
+             inset 0 0 calc(2.4 * var(--u)) rgba(255,59,48,.5);
+  animation:rzpulse 1.9s ease-in-out infinite}
+@keyframes rzpulse{
+  0%,100%{box-shadow:inset 0 0 0 calc(.05 * var(--u)) rgba(255,59,48,.65),
+                     inset 0 0 calc(1.8 * var(--u)) rgba(255,59,48,.35)}
+  50%    {box-shadow:inset 0 0 0 calc(.08 * var(--u)) rgba(255,59,48,1),
+                     inset 0 0 calc(3.2 * var(--u)) rgba(255,59,48,.62)}
+}
+@media (prefers-reduced-motion:reduce){ .game.rz{animation:none} }
 .game.fav{border-left-color:var(--flag)}
 .game.flash{background:#2A3A2A}
 
@@ -107,8 +117,7 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
 body.tint .game{background-image:linear-gradient(107deg,
   var(--ca,var(--turf)) 0 46.2%, rgba(255,255,255,.14) 46.2% 47.4%,
   var(--cb,var(--turf)) 47.4% 100%)}
-body.tint .game.rz{background-color:var(--turf);
-  box-shadow:inset 0 0 calc(1.4 * var(--u)) rgba(255,59,48,.35)}
+body.tint .game.rz{background-color:var(--turf)}
 body.tint .game.flash{box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,255,255,.55)}
 body.tint .row .abbr,body.tint .row .pts,body.tint .row .rec{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 body.tint .meta,body.tint .info{color:#C7D6CC}
@@ -242,6 +251,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <p>Every game on one screen, with a shout when something big happens. Click to start — this also turns on sound and keeps the laptop awake.</p>
   <button id="start">Start the board</button>
   <button id="demo" style="color:var(--sideline);font-size:1.1rem;font-weight:500;text-decoration:underline">Run a demo Sunday instead</button>
+  <p id="buildG" style="color:var(--sideline);font-size:.85rem;opacity:.75;margin-top:1.2rem"></p>
 </div>
 
 <header>
@@ -273,7 +283,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 <div id="scrim"></div>
 <aside id="panel">
-  <div class="phead"><h2>Settings</h2><button id="sClose">Done</button></div>
+  <div class="phead"><h2>Settings</h2><span id="buildS" class="note" style="margin-left:.8rem;flex:1"></span><button id="sClose">Done</button></div>
   <label>Refresh every
     <select id="sInterval">
       <option value="2">2 sec</option><option value="3">3 sec</option>
@@ -366,6 +376,10 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 <script>
 (function(){
 'use strict';
+
+/* Bump on every change. Shown on the start screen and in Settings so you can
+   tell at a glance whether the browser is running the file you just uploaded. */
+var BUILD = 'build 2026-09-20 \u00b7 fantasy row, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2266,6 +2280,9 @@ document.getElementById('sTest').addEventListener('click', function(){
        'TOUCHDOWN \u2014 BUF',
        'Josh Allen 8 yd touchdown pass to Khalil Shakir, extra point good',
        false, {abbr:'BUF', color:'#00338d', logo:''});
+});
+['buildS','buildG'].forEach(function(id){
+  var el = document.getElementById(id); if (el) el.textContent = BUILD;
 });
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
 paintFlags();
