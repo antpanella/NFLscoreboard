@@ -377,7 +377,13 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets h2 .sum{letter-spacing:.04em;font-weight:500;margin-left:.6em;color:var(--sideline)}
 #bets h2 .sum .up{color:var(--live)} #bets h2 .sum .dn{color:var(--redzone)}
 #bets .betrow{display:flex;flex-wrap:wrap;gap:.35rem 1.4rem;align-items:baseline}
-#bets .items{max-height:calc(6.4 * var(--su));padding-bottom:4px}
+#bets .items{max-height:none;overflow:hidden;display:flex;flex-direction:column;gap:.35rem;padding:2px 0 4px}
+/* fixed height, parlay box or not, so the cards above never re-fit as bets come and go */
+#bets .brow{overflow:hidden;white-space:nowrap;height:calc(2.3 * var(--su));display:flex;align-items:center}
+#bets .btrack{display:flex;align-items:center;column-gap:1.2rem;width:max-content;will-change:transform}
+#bets .bunit{display:flex;align-items:center;column-gap:1.2rem;padding-right:1.2rem;flex:none}
+#bets .btrack>*,#bets .bunit>*{flex:none}
+#bets .pbox{flex-wrap:nowrap}
 #bets h2 .more{color:#FFB020;margin-left:.6em}
 #bets .byw{display:inline-flex;align-items:center;gap:.35rem}
 #bets .by{font-size:.62em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0A1410;
@@ -826,7 +832,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21y';
+var BUILD = 'build 2026-09-21z';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -4667,23 +4673,56 @@ function paintBets(){
     if (net) sum += ' · <b class="' + (net > 0 ? 'up' : 'dn') + '">' + (net > 0 ? '+' : '') + money(net) + '</b>';
   }
   el.querySelector('h2').innerHTML = 'MY BETS <span class="sum">' + sum + '</span>';
-  el.querySelector('.items').innerHTML = '<div class="betrow">' + rows.map(function(r){ return betChip(r.b); }).join('') + '</div>';
   el.hidden = false;
+  layBets(el.querySelector('.items'), rows.map(function(r){ return betChip(r.b); }));
   skinChips(el);
-  trimBets(el);
   refitIfMoved(el);
 }
-/* The strip has a height limit so bets can't crowd out the games. What doesn't
-   fit is dropped whole, from the end of the list (the settled and safest ones),
-   and counted in the heading — a chip sliced through its bottom edge helps nobody. */
-function trimBets(el){
-  var box = el.querySelector('.items'), row = el.querySelector('.betrow');
-  if (!box || !row) return;
-  var kids = [].slice.call(row.children), hid = 0;
-  for (var i = kids.length - 1; i > 0 && box.scrollHeight > box.clientHeight + 0.5; i--){
-    kids[i].style.display = 'none'; hid++;
+/* Two rows, however many bets. Chips are dealt out in priority order (live and
+   losing first) to whichever row is shorter, so the two stay about the same
+   length. A row too long for the screen scrolls on a loop — the chips are laid
+   down twice and the row slides by exactly one copy, so the wrap is invisible.
+   The board repaints this on every poll; each row's scroll position is kept by
+   index so a repaint doesn't send it back to the start. */
+var BROW = {x:[0, 0], half:[0, 0], els:[null, null], run:false, last:0};
+function layBets(box, chips){
+  box.innerHTML = '<div class="brow"><div class="btrack">' + chips.join('') + '</div></div>';
+  var kids = box.querySelector('.btrack').children, gap = parseFloat(getComputedStyle(box.querySelector('.btrack')).columnGap) || 16;
+  var rowsIdx = [[], []], len = [0, 0];
+  for (var i = 0; i < kids.length; i++){
+    var r = len[0] <= len[1] ? 0 : 1;
+    rowsIdx[r].push(i); len[r] += kids[i].offsetWidth + gap;
   }
-  if (hid) el.querySelector('h2').insertAdjacentHTML('beforeend', '<span class="more">+' + hid + ' more</span>');
+  var full = box.clientWidth;
+  box.innerHTML = rowsIdx.map(function(idx, r){
+    if (!idx.length) return '<div class="brow"></div>';
+    var unit = '<span class="bunit">' + idx.map(function(i){ return chips[i]; }).join('') + '</span>';
+    var rolls = !STILL && len[r] > full;
+    return '<div class="brow' + (rolls ? ' rolling' : '') + '"><div class="btrack">' + unit + (rolls ? unit : '') + '</div></div>';
+  }).join('');
+  var tracks = box.querySelectorAll('.btrack');
+  for (var k = 0; k < 2; k++){
+    var t = tracks[k], rolling = t && t.parentNode.classList.contains('rolling');
+    BROW.els[k] = rolling ? t : null;
+    BROW.half[k] = rolling ? t.firstChild.offsetWidth : 0;
+    if (!rolling){ BROW.x[k] = 0; if (t) t.style.transform = ''; continue; }
+    if (BROW.x[k] >= BROW.half[k]) BROW.x[k] = BROW.x[k] % BROW.half[k];
+    t.style.transform = 'translateX(' + (-BROW.x[k]).toFixed(1) + 'px)';
+  }
+  if ((BROW.els[0] || BROW.els[1]) && !BROW.run){ BROW.run = true; BROW.last = 0; requestAnimationFrame(betRoll); }
+}
+function betRoll(ts){
+  if (!BROW.els[0] && !BROW.els[1]){ BROW.run = false; return; }
+  var dt = BROW.last ? Math.min(0.05, (ts - BROW.last) / 1000) : 0;
+  BROW.last = ts;
+  for (var k = 0; k < 2; k++){
+    var t = BROW.els[k];
+    if (!t || !t.isConnected || !BROW.half[k]) continue;
+    BROW.x[k] += (k ? 36 : 42) * dt;          // a touch apart, so the rows don't move as one block
+    if (BROW.x[k] >= BROW.half[k]) BROW.x[k] -= BROW.half[k];
+    t.style.transform = 'translateX(' + (-BROW.x[k]).toFixed(1) + 'px)';
+  }
+  requestAnimationFrame(betRoll);
 }
 /* The strip is repainted between board renders, when a box score lands. If
    that changes its height the cards were sized against the wrong space, so
