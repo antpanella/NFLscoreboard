@@ -374,6 +374,11 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .betrow{display:flex;flex-wrap:wrap;gap:.35rem 1.4rem;align-items:baseline}
 #bets .items{max-height:calc(6.4 * var(--su));padding-bottom:4px}
 #bets h2 .more{color:#FFB020;margin-left:.6em}
+#bets .byw{display:inline-flex;align-items:center;gap:.35rem}
+#bets .by{font-size:.62em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0A1410;
+  background:#C9A0FF;border-radius:.3em;padding:.12em .45em;white-space:nowrap}
+#bets .pbox .by{margin-right:.2rem}
+.bl .byl{color:#C9A0FF}
 #bets .bet{display:inline-flex;gap:.45rem;align-items:center;white-space:nowrap}
 #bets .bet b{font-weight:700;color:var(--chalk)}
 #bets .bet i{font-style:normal;color:var(--sideline);font-weight:600}
@@ -410,7 +415,9 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .meta .betm{color:var(--flag);font-weight:700}
 #betPreview .ok{color:var(--live)} #betPreview .bad{color:var(--redzone)}
 #betHelp{font-size:.88rem;line-height:1.5;color:var(--sideline);margin-bottom:.5rem}
-#phoneQR{display:flex;justify-content:center;margin:.6rem 0 .2rem}
+#phoneQR,.qrbox{display:flex;justify-content:center;margin:.6rem 0 .2rem}
+.qrbox svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
+#remoteQR svg{box-shadow:0 0 0 3px #FFB020}
 #phoneQR svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
 #phoneQR.secret svg{box-shadow:0 0 0 3px #FFB020}
 #qrNote{text-align:center}
@@ -424,6 +431,25 @@ body.phone>*:not(#phone){display:none !important}
 #phone h4{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--flag);
   font-weight:700;margin:1.2rem 0 .45rem}
 #phone .tvonly{display:none}
+/* the remote: the Settings panel laid flat as a page */
+#phone.remote #panel{position:static;transform:none;width:auto;height:auto;max-height:none;overflow:visible;
+  box-shadow:none;background:none;padding:0}
+#phone.remote #sClose,#phone.remote #ptabs button[data-tab="system"]{display:none}
+#phone.remote .tvonly{display:block}
+#phone.remote #phoneQR,#phone.remote #sQRToken,#phone.remote #qrNote,#phone.remote label:has(#sQRToken),
+#phone.remote #guestQR,#phone.remote #remoteQR,#phone.remote label:has(#sCfgSync),
+#phone.remote label:has(#sGuestMake),#phone.remote label:has(#sBetSync){display:none}
+#phone .rrow{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.3rem 0}
+#phone .rrow button,#phone .rgames button{border:1px solid var(--line);background:var(--turf);color:var(--chalk);
+  padding:.6em 1.1em;border-radius:6px;font-size:1.05rem;font-weight:700}
+#phone .rrow b{font-size:1.2rem;min-width:7em;text-align:center}
+#phone .rgames{display:flex;flex-direction:column;gap:.45rem}
+#phone .rgames button{text-align:left}
+#phone .rgames button.on{border-color:var(--flag);color:var(--flag)}
+#phone .rgames button.off{color:var(--sideline);font-weight:600}
+#phone.guest label:has(#sGvKey),#phone.guest label:has(#sGvUrl),#phone.guest #gvLeak{display:none}
+#phone #sMyName{width:10rem !important}
+#phone.guest #sBetEditAll,#phone.guest #sBetClear{display:none}
 #phone details{margin-top:1rem;border-top:1px solid var(--line);padding-top:.6rem}
 #phone summary{color:var(--flag);font-weight:700;font-size:.85rem;letter-spacing:.08em;
   text-transform:uppercase;cursor:pointer;padding:.3rem 0}
@@ -702,6 +728,15 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   <p class="note" id="qrNote" style="margin-top:.3rem">Scan with your phone's camera to open the bet page.</p>
   <p class="note" style="margin-top:.3rem">Or open: <b id="phoneUrl" style="color:var(--chalk);word-break:break-all"></b>
     <button id="sCopyPhone" style="color:var(--sideline);font-size:.9rem;font-weight:600;margin-left:.3rem">copy</button></p>
+  <h4>Friends' bets</h4>
+  <label><button id="sGuestMake" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Let friends add bets</button>
+    <button id="sGuestOff" hidden style="color:var(--sideline);font-size:1rem">Turn off</button></label>
+  <div id="guestQR" class="qrbox"></div>
+  <p class="note" id="guestNote" style="margin-top:.3rem">Makes a QR code for friends. Their bets show on the board with their name, and they can only add or remove their own.</p>
+  <h4>Phone remote</h4>
+  <label>Let my phone change the board's settings <input type="checkbox" id="sCfgSync"></label>
+  <div id="remoteQR" class="qrbox"></div>
+  <p class="note cfgSyncNote" style="margin-top:.3rem">Every setting on your phone, plus delay, mute, spotlight and a stop button for the lights. The code carries your token, so it only shows while this is ticked and Settings is open.</p>
   <h4>Display</h4>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
   <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
@@ -785,7 +820,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21w';
+var BUILD = 'build 2026-09-21x';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -794,7 +829,7 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
-  yards:35, dur:12, minShow:4, order:'kick', showNet:true, showWp:true, spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
+  yards:35, dur:12, minShow:4, order:'kick', cfgSync:false, myName:'', guestCode:'', pinId:'', showNet:true, showWp:true, spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
   deep:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
@@ -870,10 +905,12 @@ function load(){
   } catch(e){}
   return c;
 }
-function save(){ try{ localStorage.setItem('sundayBoard', JSON.stringify(cfg)); }catch(e){} }
+function save(){ try{ localStorage.setItem('sundayBoard', JSON.stringify(cfg)); }catch(e){} cfgChanged(); }
 
+var BOUND = Object.create(null);           // setting -> its control, for the phone remote
 function bind(id, key, kind){
   var el = document.getElementById(id);
+  BOUND[key] = {id:id, kind:kind};
   if (kind === 'bool'){ el.checked = !!cfg[key]; }
   else { el.value = String(cfg[key]); }
   el.addEventListener('change', function(){
@@ -955,6 +992,7 @@ var SOUNDS = {
 /* ---------------- fetching ---------------- */
 function schedule(){
   clearTimeout(timer);
+  if (RSYNC && RSYNC.phone) return;          // the phone remote never runs the board
   var wait = REPLAY ? Math.max(250, cfg.interval * 1000 / REPLAY.speed)
                     : cfg.interval * 1000 * Math.min(Math.pow(2, fails), 8);
   timer = setTimeout(poll, wait);
@@ -1859,8 +1897,21 @@ function recapHTML(soon, done){
       else if (st === 'lost'){ lost++; if (b.stake) net -= b.stake; }
       else if (st === 'live' || st === 'pending') open++;
     });
+    // with friends in on it, a line each: who won what
+    var people = {};
+    todays.forEach(function(b){
+      var who = b.by || 'You', st = betState(b).state, p = people[who] || (people[who] = {w:0, l:0, net:0});
+      if (st === 'won'){ p.w++; if (b.stake && b.odds) p.net += b.stake * (decimalOdds(b.odds) - 1); }
+      else if (st === 'lost'){ p.l++; if (b.stake) p.net -= b.stake; }
+    });
+    var names = Object.keys(people);
+    var per = names.length > 1 ? '<ul style="margin-top:.5em">' + names.sort(function(a, b){ return people[b].net - people[a].net; }).map(function(n){
+      var p = people[n];
+      return '<li>' + esc(n) + '<span class="g">' + p.w + '\u2013' + p.l + '</span>' +
+        (cfg.betMoney && p.net ? '<span class="p" style="color:' + (p.net > 0 ? 'var(--live)' : '#FF7A6E') + '">' + (p.net > 0 ? '+' : '') + money(p.net) + '</span>' : '') + '</li>';
+    }).join('') + '</ul>' : '';
     out.push('<section><h3>BETS</h3><div class="big"><span class="w">' + won + ' won</span> \u00b7 <span class="l">' + lost + ' lost</span></div>' +
-      (open ? '<div class="sub">' + open + ' still open</div>' : '') +
+      (open ? '<div class="sub">' + open + ' still open</div>' : '') + per +
       (cfg.betMoney && net ? '<div class="sub">Net <b style="color:' + (net > 0 ? 'var(--live)' : '#FF7A6E') + '">' + (net > 0 ? '+' : '') + money(net) + '</b></div>' : '') +
       '</section>');
   }
@@ -3821,23 +3872,27 @@ function saveBets(){
    operations — this bet added, that bet deleted — worked out against the last
    list the relay sent, so nothing another device added in the meantime is lost. */
 var SYNC = {base:null, busy:false, again:false};
-function syncOn(){ return !!(cfg.betSync && cfg.goveeUrl && cfg.goveeKey); }
+function syncOn(){ return !!(cfg.betSync && cfg.goveeUrl && (cfg.goveeKey || cfg.guestCode)); }
+// the owner's token, or on a friend's phone the guest code the board handed out
+function betToken(){ return cfg.goveeKey || cfg.guestCode; }
+function isGuest(){ return !cfg.goveeKey && !!cfg.guestCode; }
+function mineBet(b){ return !isGuest() || (b.by || '') === (cfg.myName || '').trim(); }
 function syncNote(t){ var el = document.getElementById('betSyncNote'); if (el) el.textContent = t; }
-function betKey(b){ return JSON.stringify({s:b.src, st:b.stake, o:b.odds, l:b.legs}); }
+function betKey(b){ return JSON.stringify({s:b.src, st:b.stake, o:b.odds, l:b.legs, by:b.by || ''}); }
 
 function betsPush(){
   if (SYNC.busy){ SYNC.again = true; return; }
   var base = SYNC.base || {}, ops = [], seen = {};
   BETS.forEach(function(b){
     seen[b.id] = 1;
-    if (base[b.id] !== betKey(b)) ops.push({op:'upsert', bet:b});
+    if (base[b.id] !== betKey(b) && mineBet(b)) ops.push({op:'upsert', bet:b});
   });
   // only delete what the relay had last time we looked — never what we never saw
   if (SYNC.base) for (var id in base) if (!seen[id]) ops.push({op:'delete', id:id});
   if (!ops.length) return;
   SYNC.busy = true;
   fetch(gvBase() + '/bets', {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({key:cfg.goveeKey, ops:ops})})
+    body: JSON.stringify({key:betToken(), by:(cfg.myName || '').trim(), ops:ops})})
     .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
     .then(function(x){
       if (!x.ok){ syncNote('Relay refused: ' + (x.j.error || 'unknown')); return; }
@@ -3852,11 +3907,12 @@ function betsPush(){
 
 function betsPull(){
   if (!syncOn() || SYNC.busy) return;
-  fetch(gvBase() + '/bets?key=' + encodeURIComponent(cfg.goveeKey), {cache:'no-store'})
+  fetch(gvBase() + '/bets?key=' + encodeURIComponent(betToken()), {cache:'no-store'})
     .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
     .then(function(x){
       if (!x.ok){
-        syncNote(x.j && x.j.error ? 'Relay says: ' + x.j.error : 'Relay refused the token.');
+        syncNote(isGuest() ? 'This guest code has been switched off \u2014 ask for the new QR code on the board.'
+          : (x.j && x.j.error ? 'Relay says: ' + x.j.error : 'Relay refused the token.'));
         return;
       }
       // the first time, anything only this browser knew about goes up
@@ -3890,6 +3946,154 @@ function startSync(){
   betsPull();
 }
 setInterval(function(){ if (syncOn()) betsPull(); }, 10000);
+
+/* ---- settings through the relay: the phone remote ----
+   The board's settings live in one document on the relay. The phone remote edits
+   that document; the board checks it every few seconds and takes any change as
+   if it had been made on its own panel — the same controls change, the same
+   handlers run. Changes made on the board go up the same way, so the phone
+   always shows what the TV is doing. Accounts, the relay itself and which tab is
+   open stay per device. */
+var LOCAL_KEYS = ['goveeKey','goveeUrl','ptab','record','cfgSync','betSync','gvSeed','seed2','myName','guestCode'];
+var RSYNC = {rev:0, last:'', busy:false, again:false, timer:null, applying:false, ready:false, phone:false,
+             me:'d' + Math.random().toString(36).slice(2, 9)};
+function sharedCfg(){
+  var o = {};
+  for (var k in DEFAULTS) if (LOCAL_KEYS.indexOf(k) < 0) o[k] = cfg[k];
+  return o;
+}
+function remoteOn(){ return !!((cfg.cfgSync || RSYNC.phone) && gvBase() && cfg.goveeKey); }
+function remoteNote(t){
+  [].forEach.call(document.querySelectorAll('.cfgSyncNote'), function(el){ el.textContent = t; });
+}
+function clock(){ return new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', second:'2-digit'}); }
+function cfgChanged(){
+  if (!RSYNC || RSYNC.applying || !RSYNC.ready || !remoteOn()) return;
+  if (JSON.stringify(sharedCfg()) === RSYNC.last) return;
+  clearTimeout(RSYNC.timer);
+  RSYNC.timer = setTimeout(cfgPush, RSYNC.phone ? 600 : 1200);
+}
+function cfgPush(){
+  if (!remoteOn()) return;
+  if (RSYNC.busy){ RSYNC.again = true; return; }
+  var body = sharedCfg(), txt = JSON.stringify(body);
+  if (txt === RSYNC.last) return;
+  RSYNC.busy = true;
+  fetch(gvBase() + '/settings', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({key:cfg.goveeKey, cfg:body, from:RSYNC.me})})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(x){
+      if (!x.ok){ remoteNote('Relay refused: ' + (x.j.error || 'unknown')); return; }
+      if (!x.j.rev){ remoteNote('The relay needs updating to version 10 for the phone remote.'); return; }
+      RSYNC.rev = x.j.rev; RSYNC.last = txt;
+      remoteNote((RSYNC.phone ? 'Sent to the board' : 'Settings shared') + ' \u00b7 ' + clock());
+    })
+    .catch(function(){ remoteNote('Could not reach the relay \u2014 will try again.'); })
+    .then(function(){ RSYNC.busy = false; if (RSYNC.again){ RSYNC.again = false; cfgPush(); } });
+}
+function cfgPull(){
+  if (!remoteOn() || RSYNC.busy) return Promise.resolve();
+  return fetch(gvBase() + '/settings?key=' + encodeURIComponent(cfg.goveeKey), {cache:'no-store'})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(x){
+      if (!x.ok){ remoteNote('Relay said: ' + (x.j.error || 'no') + ' \u2014 check the token, and that the relay is on version 10.'); return; }
+      var j = x.j;
+      if (j.version && !('rev' in j)){ remoteNote('The relay needs updating to version 10 for the phone remote.'); return; }
+      if (!j.cfg){                                  // nothing stored yet: the board's settings seed it
+        RSYNC.ready = true;
+        if (!RSYNC.phone) cfgPush(); else remoteNote('Waiting for the board to share its settings.');
+        return;
+      }
+      /* Only a newer write from someone else moves the "last shared" mark. Taking
+         a snapshot on every check would swallow a change made here in the second
+         before its upload — which is how a [ ] nudge on the board got lost. */
+      if (j.rev > RSYNC.rev && j.from !== RSYNC.me){
+        applyRemote(j.cfg);
+        RSYNC.last = JSON.stringify(sharedCfg());
+      } else if (!RSYNC.ready) RSYNC.last = JSON.stringify(sharedCfg());
+      RSYNC.rev = Math.max(RSYNC.rev, j.rev || 0);
+      if (JSON.stringify(sharedCfg()) !== RSYNC.last) cfgChanged();
+      RSYNC.ready = true;
+      remoteNote((RSYNC.phone ? 'Connected to the board' : 'Phone remote on') + ' \u00b7 checked ' + clock());
+    })
+    .catch(function(){ remoteNote('Could not reach the relay \u2014 showing the last settings.'); });
+}
+/* Take someone else's change as if it had been made here: each control is set
+   and its own change handler runs, so whatever that setting normally does
+   (redraw, reschedule, reconnect) happens exactly as it would by hand. */
+function applyRemote(rc){
+  var changed = [];
+  for (var k in rc){
+    if (!(k in DEFAULTS) || LOCAL_KEYS.indexOf(k) >= 0) continue;
+    if (typeof rc[k] !== typeof DEFAULTS[k]) continue;
+    if (JSON.stringify(rc[k]) !== JSON.stringify(cfg[k])) changed.push(k);
+  }
+  if (!changed.length) return;
+  RSYNC.applying = true;
+  try {
+    changed.forEach(function(k){
+      cfg[k] = rc[k];
+      var b = BOUND[k], el = b && document.getElementById(b.id);
+      if (!el) return;
+      if (b.kind === 'bool') el.checked = !!cfg[k]; else el.value = String(cfg[k]);
+      el.dispatchEvent(new Event('change'));
+    });
+    save();
+    if (changed.indexOf('pinId') >= 0) SPOT.pin = cfg.pinId || null;
+    if (changed.indexOf('sleeperUser') >= 0 && cfg.sleeperUser){
+      var u = document.getElementById('sUser'); if (u) u.value = cfg.sleeperUser;
+      if (!RSYNC.phone) sleeperConnect();
+    } else if (changed.indexOf('league') >= 0 && FAN.leagues && !RSYNC.phone){
+      var lg = document.getElementById('sLeague'); if (lg) lg.value = cfg.league;
+      loadRoster();
+    }
+    if (changed.some(function(x){ return /^(gv|govee)/.test(x); })){ try { gvTeamRows(); } catch(e){} }
+    paintFlags(); paintFanBar();
+    if (RSYNC.phone) paintRemote(); else render();
+  } finally { RSYNC.applying = false; }
+}
+function startRemote(seed){
+  if (!remoteOn()) return;
+  if (seed){ RSYNC.ready = true; RSYNC.last = ''; cfgPush(); }
+  else cfgPull();
+}
+setInterval(function(){ if (remoteOn() && RSYNC.ready) cfgPull(); }, 4000);
+
+/* ---- friends' bets: the guest code ----
+   A friend's phone gets a code, not the token. The relay lets that code add
+   bets under the friend's name and remove only their own — it opens nothing
+   else. A new code shuts out the old one; Turn off shuts out everyone. */
+var GUEST = {code:''};
+function guestNote(t){ var el = document.getElementById('guestNote'); if (el) el.textContent = t; }
+function guestLink(){
+  return location.origin + location.pathname + '#bets&g=' + encodeURIComponent(GUEST.code) + '&r=' + encodeURIComponent(gvBase());
+}
+function paintGuest(){
+  var box = document.getElementById('guestQR'), mk = document.getElementById('sGuestMake'), off = document.getElementById('sGuestOff');
+  if (!box) return;
+  if (mk) mk.textContent = GUEST.code ? 'New code (locks out the old one)' : 'Let friends add bets';
+  if (off) off.hidden = !GUEST.code;
+  if (!GUEST.code){ box.innerHTML = ''; return; }
+  try { box.innerHTML = QR.svg(guestLink(), 190); } catch(e){ box.textContent = e.message; }
+  guestNote('Friends scan this, put their name in once, and add bets. The board shows each bet with their name. Code ' +
+    GUEST.code + ' \u2014 they can\u2019t touch your lights, your settings or anyone else\u2019s bets.');
+}
+function guestCall(body){
+  if (!cfg.goveeKey || !gvBase()) return guestNote('Needs the relay and your access token on the Lights tab first.');
+  var req = body
+    ? fetch(gvBase() + '/guest', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.assign({key:cfg.goveeKey}, body))})
+    : fetch(gvBase() + '/guest?key=' + encodeURIComponent(cfg.goveeKey), {cache:'no-store'});
+  req.then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(x){
+      if (!x.ok) return guestNote('Relay said: ' + (x.j.error || 'no') + ' \u2014 friends\u2019 bets need relay version 10.');
+      if (x.j.version && !('code' in x.j)) return guestNote('Friends\u2019 bets need the relay updated to version 10.');
+      GUEST.code = x.j.code || '';
+      if (!GUEST.code && body) guestNote(body && body.off ? 'Switched off. Friends\u2019 bets already on the board stay.' : 'Friends can\u2019t add bets right now.');
+      paintGuest();
+      if (GUEST.code && !cfg.betSync){ cfg.betSync = true; document.getElementById('sBetSync').checked = true; save(); SYNC.base = null; startSync(); }
+    })
+    .catch(function(){ guestNote('Could not reach the relay.'); });
+}
 
 /* Stat words as bettors and sportsbooks write them, mapped to ESPN's box keys. */
 var STAT_WORDS = [
@@ -4284,6 +4488,7 @@ function betBanner(b, leg, ls, kind, tone){
     if (tone === 'good' && b.odds) body += ' · +' + money(b.stake * (decimalOdds(b.odds) - 1));
     if (tone === 'bad') body += ' · ' + money(-b.stake);
   }
+  if (b.by) kind += ' \u00b7 ' + String(b.by).toUpperCase();      // whose money it is
   push(g, kind, body, false, null, false, leg.player ? [leg.player] : []);
 }
 
@@ -4394,6 +4599,7 @@ function betChip(b){
       (cfg.betMoney && b.stake ? ' \u00b7 ' + money(b.stake) +
         (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') : '') + '</span>';
     var gcls = 'pbox s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
+    if (b.by) head = '<span class="by">' + esc(b.by) + '</span>' + head;
     return '<span class="' + gcls + '">' + head +
       b.legs.map(function(leg, i){ return legChip(leg, s.legs[i]); }).join('') + '</span>';
   }
@@ -4402,7 +4608,8 @@ function betChip(b){
     one = one.replace(/<\/span>$/, ' <i class="amt">' + money(b.stake) +
       (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') + '</i></span>');
   }
-  return one;
+  // a friend's bet carries their name on a tag in front of the chip
+  return b.by ? '<span class="byw"><span class="by">' + esc(b.by) + '</span>' + one + '</span>' : one;
 }
 
 var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
@@ -4483,11 +4690,12 @@ function paintBetList(){
   if (!box) return;
   box.innerHTML = BETS.length ? BETS.map(function(b){
     var s = betState(b);
-    return '<div class="bl"><span>' + esc(b.parlay ? b.legs.map(function(l){ return l.label; }).join(' + ') : b.legs[0].label) +
+    return '<div class="bl"><span>' + (b.by ? '<b class="byl">' + esc(b.by) + '</b> ' : '') +
+      esc(b.parlay ? b.legs.map(function(l){ return l.label; }).join(' + ') : b.legs[0].label) +
       (b.stake ? ' · ' + money(b.stake) : '') + (b.odds ? ' @ ' + (b.odds > 0 ? '+' : '') + b.odds : '') +
-      ' <i>' + s.state + '</i></span><span class="acts">' +
-      '<button class="edit" data-edit="' + esc(b.id) + '" title="Edit">edit</button>' +
-      '<button data-bet="' + esc(b.id) + '" title="Remove">\u00d7</button></span></div>';
+      ' <i>' + s.state + '</i></span><span class="acts">' + (mineBet(b)
+        ? '<button class="edit" data-edit="' + esc(b.id) + '" title="Edit">edit</button>' +
+          '<button data-bet="' + esc(b.id) + '" title="Remove">\u00d7</button>' : '') + '</span></div>';
   }).join('') : '<p class="note">No bets yet.</p>';
   [].slice.call(box.querySelectorAll('button[data-bet]')).forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -4527,9 +4735,16 @@ function addBets(){
   var ta = document.getElementById('sBetText');
   var lines = ta.value.split(/\n/).filter(function(l){ return l.trim(); });
   var keep = [];
+  if (isGuest() && !(cfg.myName || '').trim()){
+    var nm = document.getElementById('sMyName');
+    syncNote('Put your name in first, so the board knows whose bets these are.');
+    if (nm) nm.focus();
+    return;
+  }
   lines.forEach(function(l){
     var b = parseBet(l);
-    if (b && !b.error) BETS.push(b); else keep.push(l);      // unreadable lines stay put to fix
+    if (b && !b.error){ if ((cfg.myName || '').trim()) b.by = cfg.myName.trim(); BETS.push(b); }
+    else keep.push(l);      // unreadable lines stay put to fix
   });
   saveBets();
   ta.value = keep.join('\n');
@@ -5095,7 +5310,7 @@ function showTab(name){
    Accounts, the lights, bets and recordings are someone's setup, not a
    preference, so they stay. */
 var KEEP_ON_RESET = ['sleeperUser','sleeperId','league','starterOnly','govee','goveeUrl','goveeKey',
-  'goveeDev','goveeSku','goveeSeg','goveeScenes','gvSeed','seed2','record','ptab','betSync'];
+  'goveeDev','goveeSku','goveeSeg','goveeScenes','gvSeed','seed2','record','ptab','betSync','cfgSync','myName','guestCode'];
 function resetSettings(){
   if (!confirm('Reset the board\'s settings to their defaults?\n\nYour Sleeper account, lights, bets and recordings are kept.')) return;
   var keep = {};
@@ -5173,13 +5388,19 @@ function togglePanel(force){
   } else paintPhoneQR();
   p.classList.toggle('open', open);
   document.getElementById('scrim').classList.toggle('on', open);
+  paintRemoteQR();
+  if (open && cfg.goveeKey && gvBase() && !GUEST.checked){ GUEST.checked = true; guestCall(null); }
   // the header's SETTINGS button sits under the open panel, so focus the way out
   if (open) setTimeout(function(){ document.getElementById('sClose').focus(); }, 210);
   if (open && cfg.ptab === 'system') paintReplay();
 }
 function fullscreen(){
   if (document.fullscreenElement) document.exitFullscreen();
-  else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  else if (document.documentElement.requestFullscreen){
+    // refused without a click (after a self-update); the board still runs windowed
+    var pr = document.documentElement.requestFullscreen();
+    if (pr && pr.catch) pr.catch(function(){});
+  }
 }
 function keepAwake(){
   if (!navigator.wakeLock) return;
@@ -5212,7 +5433,11 @@ function watchdog(){
     fetch(location.href.split('#')[0], {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; })
       .then(function(t){
         var m = /var BUILD = '([^']+)'/.exec(t || '');
-        if (m && m[1] !== BUILD) location.reload();
+        if (m && m[1] !== BUILD){
+          // come straight back up on the new build: nobody is there to press Start
+          try { sessionStorage.setItem('sundayBoardAuto', '1'); } catch(e){}
+          location.reload();
+        }
       }).catch(function(){});
   }
 }
@@ -5227,7 +5452,7 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape'){
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     if (!document.getElementById('panel').classList.contains('open') && SPOT.pin){
-      SPOT.pin = null; render(); return;
+      SPOT.pin = null; cfg.pinId = ''; save(); render(); return;
     }
     togglePanel(false);
     return;
@@ -5252,6 +5477,7 @@ document.getElementById('live').addEventListener('click', function(e){
   if (SPOT.pin === id){ SPOT.pin = null; SPOT.skip = id; SPOT.auto = null; }
   else if (SPOT.auto === id && !SPOT.pin){ SPOT.skip = id; SPOT.auto = null; }   // wave off a big moment
   else SPOT.pin = id;
+  cfg.pinId = SPOT.pin || ''; save();
   render();
 });
 document.getElementById('sClose').addEventListener('click', function(){ togglePanel(false); });
@@ -5309,6 +5535,25 @@ document.getElementById('sRecFile').addEventListener('change', function(){
   this.value = '';
 });
 bind('sStripBets','stripBets','bool');
+document.getElementById('sGuestMake').addEventListener('click', function(){ guestCall({rotate:true}); });
+document.getElementById('sGuestOff').addEventListener('click', function(){ guestCall({off:true}); });
+document.getElementById('sCfgSync').checked = !!cfg.cfgSync;
+document.getElementById('sCfgSync').addEventListener('change', function(){
+  cfg.cfgSync = this.checked; save();
+  if (cfg.cfgSync){
+    if (!cfg.goveeKey) remoteNote('Needs the relay and your access token on the Lights tab first.');
+    startRemote(true);          // the board's own settings are the starting point
+  } else remoteNote('Off. The phone remote can\u2019t change anything.');
+  paintRemoteQR();
+});
+function paintRemoteQR(){
+  var box = document.getElementById('remoteQR');
+  if (!box) return;
+  var open = document.getElementById('panel').classList.contains('open');
+  if (!cfg.cfgSync || !cfg.goveeKey || !open){ box.innerHTML = ''; return; }
+  var url = location.origin + location.pathname + '#remote&t=' + encodeURIComponent(cfg.goveeKey) + '&r=' + encodeURIComponent(gvBase());
+  try { box.innerHTML = QR.svg(url, 190); } catch(e){ box.textContent = e.message; }
+}
 bind('sBetSync','betSync','bool');
 document.getElementById('sBetSync').addEventListener('change', function(){
   if (cfg.betSync){ SYNC.base = null; startSync(); }
@@ -5421,7 +5666,9 @@ setInterval(function(){ if (cfg.fanBar) paintFanBar(); }, 30000);  // keep the a
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
 paintFlags();
 paintLog();
-if (/^#bets/.test(location.hash)) phoneMode(); else startSync();
+if (/^#remote/.test(location.hash)) remoteMode();
+else if (/^#bets/.test(location.hash)) phoneMode();
+else { startSync(); if (cfg.cfgSync) startRemote(false); }
 
 /* ---- the phone page ----
    The same file, opened with #bets on the end: no board, just the bet box, the
@@ -5433,9 +5680,10 @@ function phoneMode(){
   location.hash.replace(/^#bets&?/, '').split('&').forEach(function(kv){
     var i = kv.indexOf('='); if (i > 0) args[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1));
   });
-  if (args.t){ cfg.goveeKey = args.t; }
+  if (args.t){ cfg.goveeKey = args.t; cfg.guestCode = ''; }
+  if (args.g){ cfg.guestCode = args.g; if (!args.t) cfg.goveeKey = ''; }
   if (args.r){ cfg.goveeUrl = args.r; }
-  if (args.t || args.r){
+  if (args.t || args.r || args.g){
     save();
     // out of the address bar, history and any bookmark made from here on
     try { history.replaceState(null, '', location.pathname + '#bets'); } catch(e){}
@@ -5458,6 +5706,21 @@ function phoneMode(){
   note.className = 'note'; note.id = 'phoneNote';
   note.textContent = 'The relay address and access token you use on the board. Saved on this phone only.';
   conn.appendChild(note);
+  /* A friend's phone came in through the guest code: no token field, and a name
+     is needed before anything can be added, since the board shows it. */
+  var nm = document.createElement('label');
+  nm.innerHTML = 'Your name <input type="text" id="sMyName" maxlength="16" autocomplete="given-name" placeholder="shown on the board">';
+  conn.insertBefore(nm, conn.firstChild.nextSibling);
+  var ni = nm.querySelector('input');
+  ni.value = cfg.myName || '';
+  ni.addEventListener('change', function(){ cfg.myName = ni.value.trim().slice(0, 16); save(); paintBetList(); });
+  if (isGuest()){
+    wrap.classList.add('guest');
+    wrap.querySelector('h1 span').textContent = 'friends\u2019 bets';
+    conn.querySelector('h4').textContent = 'You';
+    note.textContent = 'Your bets show on the board with your name. You can remove your own, not anyone else\u2019s.';
+    if (!cfg.myName) setTimeout(function(){ ni.focus(); }, 300);
+  }
   var bets = document.querySelector('.ptab[data-tab="bets"]');
   bets.classList.add('on');
   wrap.appendChild(bets);
@@ -5483,6 +5746,107 @@ function phoneMode(){
   startSync();
 }
 
+/* ---- the phone remote ----
+   Opened with #remote: the whole Settings panel as a page on the phone, plus a
+   Remote tab for the things you reach for during a game. Everything is written
+   to the relay and the board picks it up within a few seconds. */
+function remoteMode(){
+  var args = {};
+  location.hash.replace(/^#remote&?/, '').split('&').forEach(function(kv){
+    var i = kv.indexOf('='); if (i > 0) args[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1));
+  });
+  if (args.t){ cfg.goveeKey = args.t; cfg.guestCode = ''; }
+  if (args.r){ cfg.goveeUrl = args.r; }
+  if (args.t || args.r){
+    save();
+    try { history.replaceState(null, '', location.pathname + '#remote'); } catch(e){}
+    document.getElementById('sGvKey').value = cfg.goveeKey;
+    document.getElementById('sGvUrl').value = cfg.goveeUrl;
+  }
+  RSYNC.phone = true;
+  clearTimeout(timer);
+  document.body.classList.add('phone');
+  var wrap = document.createElement('div');
+  wrap.id = 'phone'; wrap.className = 'remote';
+  wrap.innerHTML = '<h1>SUNDAY<em>BOARD</em> <span>remote</span></h1>';
+  document.body.appendChild(wrap);
+
+  // the Remote tab, first in the row
+  var tabs = document.getElementById('ptabs');
+  var tb = document.createElement('button');
+  tb.setAttribute('data-tab', 'remote'); tb.textContent = 'Remote';
+  tabs.insertBefore(tb, tabs.firstChild);
+  var sec = document.createElement('section');
+  sec.className = 'ptab'; sec.setAttribute('data-tab', 'remote');
+  sec.innerHTML =
+    '<p class="note cfgSyncNote">Connecting\u2026</p>' +
+    '<h4>Delay</h4><div class="rrow"><button data-d="-5">\u2212 5s</button><b id="rDelay"></b><button data-d="5">+ 5s</button></div>' +
+    '<h4>Sound</h4><div class="rrow"><button id="rMute"></button></div>' +
+    '<h4>Spotlight</h4><div id="rGames" class="rgames"></div>' +
+    '<h4>Lights</h4><div class="rrow"><button id="rStop">Stop the lights now</button></div>' +
+    '<p class="note">Everything on the other tabs is the board\u2019s own settings \u2014 change one here and the TV follows within a few seconds.</p>';
+  var panel = document.getElementById('panel');
+  var first = panel.querySelector('.ptab');
+  first.parentNode.insertBefore(sec, first);
+  tb.addEventListener('click', function(){ showTab('remote'); });
+  wrap.appendChild(panel);
+  panel.classList.add('open');
+
+  sec.querySelectorAll('button[data-d]').forEach(function(bt){
+    bt.addEventListener('click', function(){
+      cfg.delay = Math.max(0, Math.min(180, (Number(cfg.delay) || 0) + Number(bt.getAttribute('data-d'))));
+      document.getElementById('sDelay').value = String(cfg.delay);
+      save(); paintRemote();
+    });
+  });
+  document.getElementById('rMute').addEventListener('click', function(){
+    cfg.sound = !cfg.sound; document.getElementById('sSound').checked = cfg.sound; save(); paintRemote();
+  });
+  document.getElementById('rStop').addEventListener('click', function(){
+    if (!cfg.goveeDev) return remoteNote('No light picked on the board yet.');
+    gvStop(true); remoteNote('Stop sent to the lights.');
+  });
+  showTab('remote');
+  paintRemote();
+  cfgPull().then(function(){ paintRemote(); remoteGames(); });
+  setInterval(remoteGames, 15000);
+}
+/* Live games for the spotlight buttons, straight from the same feed the board reads. */
+var RGAMES = RGAMES || [];     // the phone page starts before this line runs
+function remoteGames(){
+  fetch(API + '?limit=100&_=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      RGAMES = (d.events || []).map(function(ev){
+        var c = (ev.competitions || [])[0] || {}, t = c.competitors || [];
+        var h = t.filter(function(x){ return x.homeAway === 'home'; })[0] || {}, a = t.filter(function(x){ return x.homeAway === 'away'; })[0] || {};
+        return {id:String(ev.id), state:(ev.status && ev.status.type && ev.status.type.state) || '',
+                txt:(a.team && a.team.abbreviation) + ' ' + (a.score || 0) + ' \u2013 ' + (h.score || 0) + ' ' + (h.team && h.team.abbreviation)};
+      }).filter(function(g){ return g.state === 'in'; });
+      paintRemote();
+    }).catch(function(){});
+}
+function paintRemote(){
+  if (!RSYNC.phone) return;
+  var d = document.getElementById('rDelay'); if (d) d.textContent = (Number(cfg.delay) || 0) + 's behind';
+  var m = document.getElementById('rMute'); if (m) m.textContent = cfg.sound ? 'Chimes on \u2014 tap to mute' : 'Muted \u2014 tap for chimes';
+  var box = document.getElementById('rGames');
+  if (!box) return;
+  if (cfg.spot === 'off'){ box.innerHTML = '<p class="note">Spotlight is off (Board tab).</p>'; return; }
+  var games = RGAMES || [];
+  box.innerHTML = (games.length ? games.map(function(g){
+      return '<button data-g="' + esc(g.id) + '" class="' + (cfg.pinId === g.id ? 'on' : '') + '">' + esc(g.txt) + '</button>';
+    }).join('') : '<p class="note">No games on right now.</p>') +
+    (cfg.pinId ? '<button data-g="" class="off">Let go of the pinned game</button>' : '');
+  box.querySelectorAll('button[data-g]').forEach(function(bt){
+    bt.addEventListener('click', function(){
+      var id = bt.getAttribute('data-g');
+      cfg.pinId = (id && id !== cfg.pinId) ? id : '';
+      save(); paintRemote();
+    });
+  });
+}
+
 function boot(demo){
   document.getElementById('gate').remove();
   unlockAudio();
@@ -5499,6 +5863,14 @@ function boot(demo){
   }
 }
 document.getElementById('start').addEventListener('click', function(){ boot(false); });
+/* After a self-update the page skips the start screen. Fullscreen and sound
+   need a real click, so the browser may hold those back until someone touches
+   the laptop — the scores, banners and lights carry on regardless. */
+(function(){
+  var auto = false;
+  try { auto = sessionStorage.getItem('sundayBoardAuto') === '1'; sessionStorage.removeItem('sundayBoardAuto'); } catch(e){}
+  if (auto && !/^#(bets|remote)/.test(location.hash)) setTimeout(function(){ boot(false); }, 300);
+})();
 document.getElementById('demo').addEventListener('click', function(){ boot(true); });
 if (/[?&]demo/i.test(location.search)) document.getElementById('demo').textContent = 'Run a demo Sunday (from the link you opened)';
 document.getElementById('sDemo').addEventListener('click', function(){
