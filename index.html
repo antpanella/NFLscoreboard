@@ -584,7 +584,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21d \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-21f \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2024,7 +2024,8 @@ function norm(s){ return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); }
 /* Last name from "Josh Allen", "J.Allen" or "Amon-Ra St. Brown". Returns '' when
    there is only a single token, so a bare surname is never indexed as one. */
 function surnameOf(name){
-  var t = String(name || '').trim();
+  // "K. Walker III" is a Walker; generational suffixes are not surnames
+  var t = String(name || '').replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim();
   if (!t) return '';
   var parts = t.split(/\s+/);
   var last = parts[parts.length - 1];
@@ -3326,6 +3327,62 @@ function captureBox(id, j){
   BOX[id] = out;
 }
 
+/* ---- name -> NFL team ----
+   A prop only knew its game once the player turned up in a box score, so before
+   kickoff — or before his first touch — the chip had no colours and no state.
+   Sleeper's player list names every active player's team, so it is indexed once
+   and kept for a day and a half. */
+var NIDX = null;
+function nameIndex(){
+  if (NIDX) return NIDX;
+  try {
+    var c = JSON.parse(localStorage.getItem('sundayBoardNames') || 'null');
+    if (c && c.at && Date.now() - c.at < 36 * 3600000 && c.map) return (NIDX = c.map);
+  } catch(e){}
+  return null;
+}
+var namesPending = false;
+function fetchNames(){
+  if (namesPending || nameIndex()) return;
+  namesPending = true;
+  fetch(SLEEP + '/players/nfl?active=true')
+    .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
+    .then(function(all){
+      var map = Object.create(null);
+      for (var id in all){
+        var pl = all[id];
+        if (!pl || !pl.team || !pl.last_name) continue;
+        var full = ((pl.first_name || '') + ' ' + pl.last_name).trim();
+        map[norm(full)] = {t: pl.team, p: pl.position || '', j: String(pl.number != null ? pl.number : '')};
+        var ln = '~' + norm(pl.last_name);
+        // a surname on its own is only useful while it points at one player
+        map[ln] = map[ln] === undefined ? {t: pl.team, one: 1} : {one: 0};
+      }
+      NIDX = map;
+      try { localStorage.setItem('sundayBoardNames', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
+      paintBets(); render();
+    })
+    .catch(function(){})
+    .then(function(){ namesPending = false; });
+}
+
+/* Which NFL team does this player play for — box score first, then the index. */
+function playerTeam(name){
+  name = String(name || '').replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim();
+  var f = findPlayer(name, '');
+  if (f && f.rec && f.rec.team) return f.rec.team;
+  var idx = nameIndex();
+  if (!idx){ fetchNames(); return ''; }
+  var hit = idx[norm(name)];
+  if (hit && hit.t) return hit.t;
+  var ln = surnameOf(name);
+  if (ln){
+    var one = idx['~' + norm(ln)];
+    if (one && one.one && one.t) return one.t;
+  }
+  return '';
+}
+
 /* Find the player a bet names, in whichever game he is playing. */
 function findPlayer(name, teamHint){
   var want = norm(name), last = surnameOf(name);
@@ -3346,6 +3403,15 @@ function findPlayer(name, teamHint){
   }
   return byLast.length === 1 ? byLast[0] : hit;
 }
+/* The game a player prop belongs to, with or without a box score yet. */
+function gameForLeg(leg){
+  if (leg.team){ var gt = gameFor(leg.team); if (gt) return gt; }
+  var f = findPlayer(leg.player, leg.team);
+  if (f) return gameById(f.gid);
+  var t = playerTeam(leg.player);
+  return t ? gameFor(t) : null;
+}
+
 function gameById(id){
   var gs = window.__games || [];
   for (var i = 0; i < gs.length; i++) if (String(gs[i].id) === String(id)) return gs[i];
@@ -3359,8 +3425,12 @@ function legState(leg){
   if (leg.type === 'prop' || leg.type === 'td'){
     var f = findPlayer(leg.player, leg.team);
     if (!f){
-      var g0 = leg.team ? gameFor(leg.team) : null;
-      return {state: g0 && g0.state === 'post' ? 'push' : 'pending', cur:0, g:g0};
+      var g0 = gameForLeg(leg);
+      // his game is on but the box has nothing for him yet: that is a live zero
+      var st0 = !g0 ? 'pending'
+        : (g0.state === 'post' ? ((leg.type === 'td' || leg.side === 'over') ? 'lost' : 'won')
+        : (g0.state === 'in' ? 'live' : 'pending'));
+      return {state: st0, good: leg.side === 'under', cur:0, g:g0};
     }
     var g = gameById(f.gid), r = f.rec;
     var done = g && g.state === 'post';
@@ -3420,6 +3490,8 @@ function money(v){ return (v < 0 ? '−$' : '$') + Math.abs(v).toFixed(Math.abs(
    pass after loading just records where things stand. */
 function evaluateBets(){
   if (!BETS.length) { paintBets(); return; }
+  if (BETS.some(function(b){ return b.legs.some(function(l){
+        return (l.type === 'prop' || l.type === 'td') && !l.team; }); })) fetchNames();
   var first = BETSEEN === null;
   if (first) BETSEEN = Object.create(null);
   BETS.forEach(function(b){
@@ -3491,10 +3563,7 @@ function legDetail(leg, ls){
    cards, a little brighter — so a bet and its box match at a glance. */
 function betSkin(leg, ls){
   var g = (ls && ls.g) || (leg.team ? gameFor(leg.team) : null);
-  if (!g && (leg.type === 'prop' || leg.type === 'td')){
-    var f = findPlayer(leg.player, leg.team);
-    if (f) g = gameById(f.gid);
-  }
+  if (!g && (leg.type === 'prop' || leg.type === 'td')) g = gameForLeg(leg);
   if (!g || !cfg.tint || !g.away.color) return '';
   return ' style="--ca:' + tint(g.away.color, g.away.alt, 0.19) +
          ';--cb:' + tint(g.home.color, g.home.alt, 0.19) + '"';
@@ -3585,8 +3654,8 @@ function betBadge(g){
     b.legs.forEach(function(leg){
       var t = leg.team;
       if (!t && (leg.type === 'prop' || leg.type === 'td')){
-        var f = findPlayer(leg.player, '');
-        if (f && String(f.gid) === String(g.id)) n++;
+        var pg = gameForLeg(leg);
+        if (pg && String(pg.id) === String(g.id)) n++;
         return;
       }
       if (t && (g.away.abbr === t || g.home.abbr === t)) n++;
@@ -3659,10 +3728,11 @@ function betGameIds(){
   var ids = Object.create(null);
   BETS.forEach(function(b){
     b.legs.forEach(function(leg){
-      var g = leg.team ? gameFor(leg.team) : null;
+      var g = leg.team ? gameFor(leg.team)
+        : ((leg.type === 'prop' || leg.type === 'td') ? gameForLeg(leg) : null);
       if (g) ids[g.id] = 1;
       else if (leg.type === 'prop' || leg.type === 'td'){
-        // no team given: any live game could be his, so watch them all
+        // still no idea whose game it is: watch them all until the index lands
         (window.__games || []).forEach(function(x){ if (x.state === 'in') ids[x.id] = 1; });
       }
     });
