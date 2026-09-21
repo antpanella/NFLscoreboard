@@ -82,6 +82,10 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .down{opacity:.85}
 #fanBar i{font-style:normal;font-weight:500;font-size:calc(.8 * var(--su))}
 #fanBar .vs{color:var(--sideline);font-weight:600;opacity:.8}
+#fanBar .wc{flex:none;font-weight:700;font-size:calc(.8 * var(--su));padding:.05em .5em;border-radius:3px;
+  margin-left:.3rem;background:rgba(255,255,255,.08);letter-spacing:.03em}
+#fanBar .wc.up{color:var(--live)}
+#fanBar .wc.down{color:#FF7A6E}
 /* only the team name gives way; the score and the count always stay whole */
 #fanBar .side{display:flex;align-items:baseline;gap:.35rem;min-width:0}
 #fanBar .side .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -138,7 +142,70 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem;gap:.8rem}
 #live{flex:1;min-height:0;display:grid;gap:var(--gap);
   grid-template-columns:repeat(var(--cols),1fr);
-  grid-auto-rows:1fr;align-content:stretch}
+  grid-auto-rows:1fr;align-content:stretch;grid-auto-flow:row dense}
+/* Spotlight: one card takes a 2x2 block in its own place in the grid. Its type
+   runs off the board's unit times its own factor, so the rest of the board is
+   sized exactly as if it were four ordinary cards. */
+.game.spot{grid-column:span 2;grid-row:span 2;position:relative;
+  --u:calc(var(--U) * var(--spk,1.8));--u2:calc(var(--U2) * var(--spk,1.8));
+  outline:calc(.035 * var(--U)) solid var(--flag);outline-offset:calc(-.035 * var(--U))}
+/* Field position: away end zone on the left, home on the right, the ball where
+   it is spotted and a yellow line where the first down is. */
+.fp{position:relative;height:calc(.32 * var(--u));margin:calc(.12 * var(--u)) 0 calc(.05 * var(--u));
+  border-radius:calc(.06 * var(--u));overflow:visible;
+  box-shadow:0 0 0 calc(.03 * var(--u)) rgba(255,255,255,.4),0 0 calc(.2 * var(--u)) rgba(0,0,0,.5);
+  background:
+    linear-gradient(90deg,transparent 8.1%,rgba(255,255,255,.85) 8.1% 8.55%,transparent 8.55% 91.45%,rgba(255,255,255,.85) 91.45% 91.9%,transparent 91.9%),
+    repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.22) calc(10% - 1px) 10%) 8.33% 0/83.33% 100% no-repeat,
+    linear-gradient(90deg,var(--ea,#333) 0 8.33%,#0B1A12 8.33% 91.67%,var(--eh,#333) 91.67% 100%)}
+.fp .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.55)}
+.fp .ltg{position:absolute;top:calc(-.05 * var(--u));bottom:calc(-.05 * var(--u));width:calc(.05 * var(--u));
+  margin-left:calc(-.025 * var(--u));background:#FFD400;border-radius:1px}
+.fp .ball{position:absolute;top:50%;width:calc(.5 * var(--u));height:calc(.5 * var(--u));
+  margin:calc(-.25 * var(--u)) 0 0 calc(-.25 * var(--u));background:var(--flag);
+  box-shadow:0 0 0 calc(.035 * var(--u)) rgba(0,0,0,.7)}
+.fp .ball.r{clip-path:polygon(0 0,100% 50%,0 100%)}
+.fp .ball.l{clip-path:polygon(100% 0,0 50%,100% 100%)}
+.fp .ball.c{border-radius:50%}
+.game.rzon .fp .ball{background:#fff}
+body.nofp .fp{display:none}
+.game .lp{display:none}
+/* Prime time: one game on, so the board gives it the room. The card takes the
+   left, and the right carries what a single game has time for. */
+#live.prime{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-auto-rows:1fr}
+#live.prime .game .lp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;font-size:calc(.3 * var(--u2));line-height:1.2;color:#DCE7E0;font-weight:500;margin-top:calc(.06 * var(--u))}
+#live.prime .game .lp b{color:var(--flag);font-weight:700;letter-spacing:.06em;margin-right:.5em}
+.pside{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:calc(.9 * var(--pu));
+  font-size:var(--pu);color:var(--chalk);padding:calc(.2 * var(--pu)) calc(.4 * var(--pu))}
+.pside h3{margin:0 0 calc(.3 * var(--pu));font-size:calc(.72 * var(--pu));letter-spacing:.16em;color:var(--sideline);font-weight:700}
+.pside h3 i{font-style:normal;color:var(--chalk);letter-spacing:.02em;font-weight:500;margin-left:.6em}
+.pside section{flex:none}
+.pside .pl{display:flex;gap:.6em;line-height:1.25;padding:calc(.14 * var(--pu)) 0;border-top:1px solid rgba(255,255,255,.08)}
+.pside .pl:first-of-type{border-top:0}
+.pside .pl .when{color:var(--sideline);flex:none;min-width:4.6em;font-variant-numeric:tabular-nums}
+.pside .pl .txt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.pside .pl.new .txt{color:#fff;font-weight:600}
+.pside .pl.big .txt{color:var(--flag);font-weight:700}
+.pside .pl.old{opacity:.55}
+.pside table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.pside td{padding:calc(.08 * var(--pu)) 0;white-space:nowrap}
+.pside td.n{text-align:right;font-weight:700;width:5.5em}
+.pside td.k{color:var(--sideline);padding-left:1em}
+.pside th{text-align:right;font-weight:700;font-size:calc(.8 * var(--pu));padding-bottom:.2em}
+.pside .fp2 td.n{color:#fff}
+.pside .who{display:flex;flex-wrap:wrap;gap:.25em 1.1em}
+.pside .who span{white-space:nowrap}
+.pside .who b{color:#C9A0FF}
+.pside .who .opp b{color:var(--sideline)}
+.pside .who em{font-style:normal;color:var(--sideline);font-size:.8em;margin-left:.3em}
+.game.spot .lp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;font-size:calc(.34 * var(--u2));line-height:1.2;color:#DCE7E0;
+  font-weight:500;margin-top:calc(.06 * var(--u))}
+.game.spot .lp b{color:var(--flag);font-weight:700;letter-spacing:.06em;margin-right:.5em}
+.game.pinned::after{content:'PINNED';position:absolute;top:calc(.12 * var(--u));right:calc(.2 * var(--u));
+  font-size:calc(.22 * var(--u));font-weight:700;letter-spacing:.1em;color:var(--flag);opacity:.85}
+#live .game{cursor:pointer}
 
 .game{background:var(--turf);border-left:calc(.14 * var(--u)) solid transparent;
   padding:calc(.18 * var(--u)) calc(.28 * var(--u));
@@ -328,9 +395,9 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   background:rgba(255,255,255,.14);overflow:hidden;vertical-align:middle}
 #bets .bar>span{display:block;height:100%;background:#FFB020}
 /* each bet painted in its game's colours */
-#bets .bet.tinted{padding:.16em .6em;border-radius:.35em;
-  background-image:linear-gradient(107deg, var(--ca,transparent) 0 46%,
-    rgba(255,255,255,.13) 46% 47.4%, var(--cb,transparent) 47.4% 100%)}
+#bets .bet.tinted{padding:.16em .7em;border-radius:.35em;position:relative;overflow:hidden;
+  isolation:isolate}
+#bets .bet .skin{position:absolute;left:0;top:0;z-index:-1;display:block;overflow:visible}
 #bets .bet.tinted b,#bets .bet.tinted i,#bets .bet.tinted em{text-shadow:0 1px 3px rgba(0,0,0,.75)}
 #bets .bet.tinted b{color:#fff}
 #bets .pbox .bet.tinted{margin:.12em 0}
@@ -339,6 +406,33 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .meta .betm{color:var(--flag);font-weight:700}
 #betPreview .ok{color:var(--live)} #betPreview .bad{color:var(--redzone)}
 #betHelp{font-size:.88rem;line-height:1.5;color:var(--sideline);margin-bottom:.5rem}
+#phoneQR{display:flex;justify-content:center;margin:.6rem 0 .2rem}
+#phoneQR svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
+#phoneQR.secret svg{box-shadow:0 0 0 3px #FFB020}
+#qrNote{text-align:center}
+/* phone page */
+body.phone{overflow:auto;height:auto;display:block;background:var(--pitch,#0A1410)}
+body.phone>*:not(#phone){display:none !important}
+#phone{max-width:640px;margin:0 auto;padding:16px 16px 60px;font-size:17px;color:var(--chalk)}
+#phone h1{font-size:1.4rem;font-weight:700;letter-spacing:.04em;margin:.3rem 0 .6rem}
+#phone h1 em{font-style:normal;color:var(--flag)}
+#phone h1 span{font-size:.8rem;color:var(--sideline);letter-spacing:.15em;margin-left:.3rem}
+#phone h4{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--flag);
+  font-weight:700;margin:1.2rem 0 .45rem}
+#phone .tvonly{display:none}
+#phone details{margin-top:1rem;border-top:1px solid var(--line);padding-top:.6rem}
+#phone summary{color:var(--flag);font-weight:700;font-size:.85rem;letter-spacing:.08em;
+  text-transform:uppercase;cursor:pointer;padding:.3rem 0}
+#phone details #betHelp{margin-top:.5rem}
+#phone label{display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  padding:.55rem 0;border-bottom:1px solid var(--line);font-size:1rem}
+#phone input[type=text],#phone input[type=password]{width:12rem !important;font-size:16px !important}
+#phone textarea{font-size:16px !important;min-height:7rem}
+#phone #sBetAdd{font-size:1.05rem;padding:.55em 1.3em !important}
+#phone .note{color:var(--sideline);font-size:.9rem;line-height:1.45;margin-top:.5rem}
+#phone #betList i{display:none}
+#phone #betList .bl{font-size:1rem;padding:.5rem 0}
+#phone #betList button{font-size:1.1rem;padding:.2rem .4rem}
 #betHelp>div{display:flex;flex-wrap:wrap;gap:.3rem .5rem;align-items:baseline;padding:.15rem 0}
 #betHelp b{color:var(--chalk);font-weight:600;width:7em;flex:none;font-size:.78rem;
   letter-spacing:.07em;text-transform:uppercase}
@@ -347,13 +441,19 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #betList .bl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
   padding:.2rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
 #betList .bl i{font-style:normal;color:var(--sideline);margin-left:.4em}
-#betList .acts{display:flex;gap:.6rem;align-items:center;flex:none}
+#betList .acts,#recList .acts{display:flex;gap:.6rem;align-items:center;flex:none}
+#recList .rl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
+  padding:.25rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
+#recList .rl i{font-style:normal;color:var(--sideline);margin-left:.4em}
+#recList button{color:var(--sideline);font-size:.9rem;font-weight:600;letter-spacing:.05em}
+#recList button[data-rplay],#recList button[data-rstop]{color:var(--live)}
+#recList button[data-rdel]{color:var(--redzone);font-size:1.1rem}
 #betList button{color:var(--redzone);font-size:1.1rem;font-weight:700}
 #betList button.edit{color:var(--sideline);font-size:.9rem;font-weight:600;letter-spacing:.06em}
 #finals .w{color:var(--chalk)}
 
 /* ---------- settings ---------- */
-#panel{position:fixed;top:0;right:0;bottom:0;width:min(24rem,90vw);background:#0E1A14;
+#panel{position:fixed;top:0;right:0;bottom:0;width:min(26rem,94vw);background:#0E1A14;
   border-left:1px solid var(--line);padding:1.4rem;z-index:60;overflow-y:auto;
   transform:translateX(100%);transition:transform .2s ease}
 #panel.open{transform:translateX(0)}
@@ -361,6 +461,18 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   gap:1rem;margin-bottom:1rem;position:sticky;top:0;background:#0E1A14;
   padding:.2rem 0 .6rem;z-index:2}
 #panel h2{font-size:1.5rem;font-weight:700}
+/* tabs sit under the sticky header and stay put while a tab scrolls */
+#ptabs{display:flex;flex-wrap:wrap;gap:.1rem;position:sticky;top:3.1rem;z-index:2;
+  background:#0E1A14;border-bottom:1px solid var(--line);margin:-.4rem 0 .6rem}
+#ptabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#ptabs button{padding:.5em .42em .45em;font-weight:600;font-size:.9rem;color:var(--sideline);flex:none;
+  border-bottom:3px solid transparent;margin-bottom:-1px;letter-spacing:.02em}
+#ptabs button:hover{color:var(--chalk)}
+#ptabs button.on{color:var(--chalk);border-bottom-color:var(--flag)}
+.ptab{display:none} .ptab.on{display:block}
+#panel h4{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--flag);
+  font-weight:700;margin:1.3rem 0 .45rem;opacity:.9}
+.ptab>h4:first-child{margin-top:.4rem}
 #sClose{background:var(--flag);color:#0A1410;font-weight:700;font-size:1.15rem;
   padding:.45em 1.4em;border-radius:2px;letter-spacing:.02em}
 #sClose:hover{background:#ffc63d}
@@ -386,6 +498,23 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #log div{font-size:1rem;padding:.35rem 0;border-bottom:1px solid var(--line);color:var(--sideline);line-height:1.3}
 #log div b{color:var(--chalk);font-weight:600}
 #empty{color:var(--sideline);text-align:center;padding:3rem 1rem;font-size:1.4rem;line-height:1.5}
+/* End of the day: what happened, in one place, until the next kickoff. */
+#empty.recap{flex:1;min-height:0;padding:1rem 1.5rem;text-align:left;display:grid;gap:1.2rem 2.4rem;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));align-content:start;overflow:hidden;
+  font-size:calc(1.35 * var(--su,16px));color:var(--chalk)}
+body.recapping #live{display:none}
+#empty.recap h2{grid-column:1/-1;margin:0;font-size:calc(1.9 * var(--su,16px));letter-spacing:.04em}
+#empty.recap h2 small{font-size:.5em;color:var(--sideline);font-weight:500;letter-spacing:.06em;margin-left:1em}
+#empty.recap h3{margin:0 0 .4em;font-size:.72em;letter-spacing:.16em;color:var(--sideline)}
+#empty.recap .big{font-size:1.5em;font-weight:700;line-height:1.2}
+#empty.recap .big .w{color:var(--live)} #empty.recap .big .l{color:#FF7A6E}
+#empty.recap .sub{color:var(--sideline);margin-top:.2em}
+#empty.recap ul{list-style:none;margin:0;padding:0}
+#empty.recap li{padding:.22em 0;border-top:1px solid rgba(255,255,255,.08);line-height:1.3}
+#empty.recap li:first-child{border-top:0}
+#empty.recap li b{color:var(--flag);margin-right:.5em}
+#empty.recap li .g{color:var(--sideline);margin-left:.5em;white-space:nowrap}
+#empty.recap li .p{color:#C9A0FF;font-weight:700;float:right}
 </style>
 </head>
 <body>
@@ -429,7 +558,43 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 <div id="scrim"></div>
 <aside id="panel">
-  <div class="phead"><h2>Settings</h2><span id="buildS" class="note" style="margin-left:.8rem;flex:1"></span><button id="sClose">Done</button></div>
+  <div class="phead"><h2>Settings</h2><span id="buildS" class="note" style="margin:0 0 0 .8rem;flex:1;white-space:nowrap;font-size:.8rem;opacity:.7"></span><button id="sClose">Done</button></div>
+<nav id="ptabs"><button data-tab="board">Board</button><button data-tab="alerts">Alerts</button><button data-tab="fantasy">Fantasy</button><button data-tab="bets">Bets</button><button data-tab="lights">Lights</button><button data-tab="system">System</button></nav>
+<div id="ptabBody">
+<section class="ptab" data-tab="board">
+  <h4>Layout</h4>
+  <label>Text size <select id="sScale">
+      <option value="0.8">smaller</option><option value="0.9">small</option>
+      <option value="1">auto-fit</option><option value="1.12">bigger</option>
+      <option value="1.25">huge</option><option value="1.4">max</option>
+    </select></label>
+  <label>Card order <select id="sOrder">
+      <option value="kick">by kickoff time (fixed)</option>
+      <option value="heat">most interesting first</option>
+    </select></label>
+  <label>Spotlight <select id="sSpot">
+      <option value="auto">big moments + cards I click</option>
+      <option value="manual">only cards I click</option>
+      <option value="off">off</option>
+    </select></label>
+  <p class="note" style="margin:.1rem 0 .4rem">The spotlit game grows to four times its size where it sits. Big moments are a close finish (the Alerts tab's close-game rule, or overtime) and a red-zone trip in a game where you have a fantasy starter or a live bet. Click any card to pin it there; click it again, or press <kbd>Esc</kbd>, to let go. Clicking a big moment waves it off until it is over. Needs three or more live games.</p>
+  <label>Prime-time layout for a single game <input type="checkbox" id="sPrime"></label>
+  <label>Recap when the games are over <input type="checkbox" id="sRecap"></label>
+  <label>Today's games only <input type="checkbox" id="sToday"></label>
+  <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
+  <label>Kicking-off-later strip <input type="checkbox" id="sStripUp"></label>
+  <label>Final scores strip <input type="checkbox" id="sStripFin"></label>
+  <label>Hide title, week and status <input type="checkbox" id="sSlim"></label>
+  <h4>Cards</h4>
+  <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
+  <label>Dim the team that is behind <input type="checkbox" id="sDim"></label>
+  <label>Show team records <input type="checkbox" id="sRecs"></label>
+  <label>Timeouts left <input type="checkbox" id="sTimeouts"></label>
+  <label>Field position bar <input type="checkbox" id="sField"></label>
+  <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
+  <label>Highlight team
+    <select id="sFav"><option value="">none</option></select></label>
+  <h4>Feed</h4>
   <label>Refresh every
     <select id="sInterval">
       <option value="2">2 sec</option><option value="3">3 sec</option>
@@ -438,10 +603,18 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
       <option value="20">20 sec</option><option value="30">30 sec</option>
     </select></label>
   <label>Smooth clock between polls <input type="checkbox" id="sTickClock"></label>
-  <label>Alert sound <input type="checkbox" id="sSound"></label>
+  <label>Live odds &amp; drive detail <input type="checkbox" id="sDeep"></label>
+  <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
+</section>
+<section class="ptab" data-tab="alerts">
+  <h4>What gets a banner</h4>
   <label>Touchdowns <input type="checkbox" id="sTD"></label>
   <label>Field goals <input type="checkbox" id="sFG"></label>
   <label>Turnovers <input type="checkbox" id="sTO"></label>
+  <label>Long plays over <input type="number" id="sYards" min="0" max="99" step="5"> yds</label>
+  <label>Final score alerts <input type="checkbox" id="sFinal"></label>
+  <label>Cover flips (4th qtr) <input type="checkbox" id="sCover"></label>
+  <h4>Close games</h4>
   <label>Close game &amp; overtime <input type="checkbox" id="sClose"></label>
   <label>…inside the last <select id="sCloseMin">
       <option value="2">2:00</option><option value="4">4:00</option>
@@ -451,12 +624,38 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
       <option value="3">3 points</option><option value="8">8 points (one score)</option>
       <option value="16">16 points (two scores)</option>
     </select></label>
-  <label>Team colours in the cards <input type="checkbox" id="sTint"></label>
+  <h4>The banner</h4>
+  <label>Alert stays up <select id="sDur">
+      <option value="8">8 sec</option><option value="12">12 sec</option><option value="18">18 sec</option>
+    </select></label>
+  <label>…but a newer play cuts in after <select id="sMinShow">
+      <option value="2">2 sec</option><option value="4">4 sec</option>
+      <option value="6">6 sec</option><option value="999">never</option>
+    </select></label>
+  <label>Alert sound <input type="checkbox" id="sSound"></label>
+</section>
+<section class="ptab" data-tab="fantasy">
+  <h4>Sleeper</h4>
+  <label>Sleeper username <input type="text" id="sUser" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:1rem;border-radius:2px"></label>
+  <label><button id="sConnect" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Connect</button>
+    <button id="sTest" style="color:var(--sideline);font-size:1rem">Test banner</button></label>
+  <label>League <select id="sLeague"><option value="all">All my leagues</option></select></label>
+  <label>Alert for <select id="sStarters"><option value="1">starters only</option><option value="0">whole roster</option></select></label>
+  <p id="fanNote" class="note" style="margin-top:.6rem">Not connected. Your username is all it needs — Sleeper's API is read-only and needs no password.</p>
+  <h4>On the cards</h4>
   <label>Fantasy line in each card <input type="checkbox" id="sFanRow"></label>
   <label>…include my opponent's players <input type="checkbox" id="sFanFoes"></label>
+  <h4>Header ticker</h4>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
   <label>Projected totals <input type="checkbox" id="sFanProj"></label>
+  <label>Win chance <input type="checkbox" id="sFanWin"></label>
+  <label>Scroll the ticker <input type="checkbox" id="sFanRoll"></label>
+  <label>Fantasy points refresh <select id="sFanEvery">
+      <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
+      <option value="30">every 30 sec</option><option value="60">every minute</option>
+    </select></label>
+  <h4>Banners</h4>
   <label>Fantasy point banners <select id="sFanAlerts">
       <option value="both">both teams</option><option value="mine">my team only</option>
       <option value="off">off</option>
@@ -466,46 +665,9 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
       <option value="2">2 points</option><option value="4">4 points</option>
       <option value="6">6 points (a TD)</option>
     </select></label>
-  <label>Scroll the ticker <input type="checkbox" id="sFanRoll"></label>
-  <label>Hide title, week and status <input type="checkbox" id="sSlim"></label>
-  <label>Fantasy points refresh <select id="sFanEvery">
-      <option value="10">every 10 sec</option><option value="20">every 20 sec</option>
-      <option value="30">every 30 sec</option><option value="60">every minute</option>
-    </select></label>
-  <label>Dim the team that is behind <input type="checkbox" id="sDim"></label>
-  <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
-  <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
-  <label>Cover flips (4th qtr) <input type="checkbox" id="sCover"></label>
-  <label>Live odds &amp; drive detail <input type="checkbox" id="sDeep"></label>
-  <label>Final score alerts <input type="checkbox" id="sFinal"></label>
-  <label>Long plays over <input type="number" id="sYards" min="0" max="99" step="5"> yds</label>
-  <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
-  <label>Alert stays up <select id="sDur">
-      <option value="8">8 sec</option><option value="12">12 sec</option><option value="18">18 sec</option>
-    </select></label>
-  <label>…but a newer play cuts in after <select id="sMinShow">
-      <option value="2">2 sec</option><option value="4">4 sec</option>
-      <option value="6">6 sec</option><option value="999">never</option>
-    </select></label>
-  <label>Highlight team
-    <select id="sFav"><option value="">none</option></select></label>
-  <label>Card order <select id="sOrder">
-      <option value="kick">by kickoff time (fixed)</option>
-      <option value="heat">most interesting first</option>
-    </select></label>
-  <label>Today's games only <input type="checkbox" id="sToday"></label>
-  <label>Text size <select id="sScale">
-      <option value="0.8">smaller</option><option value="0.9">small</option>
-      <option value="1">auto-fit</option><option value="1.12">bigger</option>
-      <option value="1.25">huge</option><option value="1.4">max</option>
-    </select></label>
-  <label>Show team records <input type="checkbox" id="sRecs"></label>
-  <label>Timeouts left <input type="checkbox" id="sTimeouts"></label>
-  <label>Kicking-off-later strip <input type="checkbox" id="sStripUp"></label>
-  <label>Final scores strip <input type="checkbox" id="sStripFin"></label>
-  <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
-
-  <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">MY BETS</h3>
+</section>
+<section class="ptab" data-tab="bets">
+  <h4>Add bets</h4>
   <p class="note" style="margin:.2rem 0 .4rem">One bet per line, pasted from DraftKings or typed. A <b>$20</b> stake and <b>-110</b> odds can sit anywhere on the line. Team names and abbreviations both work.</p>
   <div id="betHelp">
     <div><b>Spread</b><code>BUF -3.5</code><code>NYJ +2.5 $20 -110</code><code>DAL pk</code></div>
@@ -523,38 +685,45 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
     <button id="sBetEditAll" style="color:var(--sideline);font-size:1rem">Edit all</button>
     <button id="sBetClear" style="color:var(--sideline);font-size:1rem">Clear settled</button></label>
   <div id="betList"></div>
+  <div class="tvonly">
+  <h4>From your phone</h4>
+  <label>Share bets through the relay <input type="checkbox" id="sBetSync"></label>
+  <p class="note" id="betSyncNote" style="margin-top:.3rem">Uses the same relay and token as the lights. Turn this on, then open the phone page and add bets there — they land on the board within ten seconds.</p>
+  <div id="phoneQR"></div>
+  <label>Put my token in the code <input type="checkbox" id="sQRToken"></label>
+  <p class="note" id="qrNote" style="margin-top:.3rem">Scan with your phone's camera to open the bet page.</p>
+  <p class="note" style="margin-top:.3rem">Or open: <b id="phoneUrl" style="color:var(--chalk);word-break:break-all"></b>
+    <button id="sCopyPhone" style="color:var(--sideline);font-size:.9rem;font-weight:600;margin-left:.3rem">copy</button></p>
+  <h4>Display</h4>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
   <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
   <label>Show stakes and payouts <input type="checkbox" id="sBetMoney"></label>
-
-  <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">FANTASY ROSTER</h3>
-  <label>Sleeper username <input type="text" id="sUser" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:1rem;border-radius:2px"></label>
-  <label><button id="sConnect" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Connect</button>
-    <button id="sTest" style="color:var(--sideline);font-size:1rem">Test banner</button></label>
-  <label>League <select id="sLeague"><option value="all">All my leagues</option></select></label>
-  <label>Alert for <select id="sStarters"><option value="1">starters only</option><option value="0">whole roster</option></select></label>
-  <p id="fanNote" class="note" style="margin-top:.6rem">Not connected. Your username is all it needs — Sleeper's API is read-only and needs no password.</p>
-
-  <label><button id="sDemo" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Run a demo Sunday</button></label>
-
-  <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">GOVEE LIGHTS</h3>
+  </div>
+</section>
+<section class="ptab" data-tab="lights">
+  <h4>Relay</h4>
   <label>Flash on scores <input type="checkbox" id="sGovee"></label>
-  <label>Bridge URL <input type="text" id="sGvUrl" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
-  <label>Key or token <input type="password" id="sGvKey" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
+  <label>Relay URL <input type="text" id="sGvUrl" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
+  <label>Relay access token <input type="password" id="sGvKey" style="width:9rem;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.25em .5em;font:inherit;font-size:.9rem;border-radius:2px"></label>
   <label><button id="sGvLoad" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Find lights</button>
     <button id="sGvTest" style="color:var(--sideline);font-size:1rem">Test flash</button>
     <button id="sGvStop" style="color:var(--redzone);font-size:1rem;font-weight:600">Stop</button></label>
-  <label><button id="sGvAuto" style="color:var(--sideline);font-size:1rem">Match scenes to teams by name</button></label>
   <label>Light <select id="sGvDev"><option value="">none</option></select></label>
+  <p id="gvLeak" class="note" hidden style="margin-top:.4rem;color:#FFB020;font-weight:600">
+    This token was published in an earlier version of the board. Set a new ACCESS_TOKEN in Cloudflare, then paste the new one here.</p>
+  <p id="gvNote" class="note" style="margin-top:.4rem">Govee blocks browsers directly, so this needs a relay: your Cloudflare Worker. The token is stored in this browser only — it is never part of the page — so enter it once on each laptop that should drive the lights. The board never sees your Govee key.</p>
+  <h4>Animation</h4>
   <label>Default animation <select id="sGvMode">
       <option value="colors">Team colours</option>
       <option value="segments">Every other LED, crawling</option>
       <option value="scene">A DIY scene from the Govee app</option>
     </select></label>
+  <label><button id="sGvAuto" style="color:var(--sideline);font-size:1rem">Match scenes to teams by name</button></label>
   <div id="gvTeams"></div>
   <label>Pulses <input type="number" id="sGvPulses" min="1" max="4" step="1"></label>
   <label>Scene runs for <input type="number" id="sGvHold" min="2" max="60" step="1"> sec</label>
   <label>Min seconds between <input type="number" id="sGvGap" min="3" max="120" step="1"></label>
+  <h4>After the show</h4>
   <label>When the show ends <select id="sGvRestMode">
       <option value="color">Go to this colour</option>
       <option value="off">Turn the strip off</option>
@@ -562,12 +731,34 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Resting colour <input type="color" id="sGvRest" style="width:3.2rem;height:1.6rem;background:var(--turf);border:1px solid var(--line);border-radius:2px;padding:0">
     <button id="sGvRestNow" style="color:var(--sideline);font-size:1rem">Set now</button></label>
   <label>Resting brightness <input type="number" id="sGvRestBri" min="1" max="100" step="5"> %</label>
-  <p id="gvNote" class="note" style="margin-top:.4rem">Govee blocks browsers directly, so this needs a relay. Either a Cloudflare Worker (paste its https URL above and your ACCESS_TOKEN below), or <kbd>node govee-bridge.mjs</kbd> on this laptop (then paste your real Govee key). With the Worker, the board never holds your Govee key.</p>
-
-  <div id="diag"><h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">WHAT THE FEED IS SENDING</h3><div id="diagItems" style="font-size:1rem;color:var(--sideline);line-height:1.5"></div></div>
-
+</section>
+<section class="ptab" data-tab="system">
+  <h4>Record &amp; replay</h4>
+  <label>Record live Sundays for replay <input type="checkbox" id="sRecord"></label>
+  <label>Replay speed <select id="sRecSpeed">
+      <option value="1">real time</option><option value="4">4×</option>
+      <option value="16" selected>16×</option><option value="60">60×</option>
+    </select></label>
+  <div id="recList"></div>
+  <label>Load a recording file <input type="file" id="sRecFile" accept=".gz,.json,application/json,application/gzip" style="max-width:12rem;font-size:.85rem"></label>
+  <p id="recNote" class="note" style="margin-top:.3rem">The last four days are kept in this browser. Export a day to send it over when something on the board needs checking.</p>
+  <h4>Unattended</h4>
+  <label>Pick up new versions by itself <input type="checkbox" id="sAutoUpd"></label>
+  <p class="note">When no game is on, the board checks every half hour for a newer copy of itself and reloads. Never mid-game. It also restarts the score feed if it ever stalls, and asks the laptop to keep the screen on.</p>
+  <h4>Tools</h4>
+  <label><button id="sDemo" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Run a demo Sunday</button></label>
+  <label>Scroll test (force ticker) <input type="checkbox" id="sTick"></label>
+  <label><button id="sReset" style="border:1px solid var(--redzone);color:var(--redzone);background:none;padding:.3em 1em;border-radius:2px;font-weight:600">Reset settings to defaults</button></label>
+  <p class="note">Resets how the board looks and alerts. Keeps your Sleeper account, your lights, your bets and your recordings.</p>
+  <h4>Backup</h4>
+  <label><button id="sCfgExp" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Save settings to a file</button></label>
+  <label>Include my bets <input type="checkbox" id="sCfgBets" checked></label>
+  <label>Include my relay token <input type="checkbox" id="sCfgTok"></label>
+  <label>Load settings from a file <input type="file" id="sCfgFile" accept=".json,application/json" style="max-width:12rem;font-size:.85rem"></label>
+  <p class="note" id="cfgNote">Moves your whole setup to another laptop in one step: Sleeper account, look, alerts, lights and bets. Recordings have their own save above. The relay token stays out of the file unless you tick it &mdash; if you do, keep that file private.</p>
+  <h4>Diagnostics</h4>
+  <div id="diag"><div id="diagItems" style="font-size:1rem;color:var(--sideline);line-height:1.5"></div></div>
   <div id="log"><h3>RECENT ALERTS</h3><div id="logItems"></div></div>
-
   <p class="note">
     <kbd>S</kbd> settings &nbsp; <kbd>F</kbd> fullscreen &nbsp; <kbd>R</kbd> refresh now<br>
     Close this panel with <b>Done</b> above, by clicking the dimmed board, or with <kbd>Esc</kbd>.<br>
@@ -576,6 +767,8 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
     also unofficial — if it ever goes quiet, the board keeps showing the last good scores
     and says so up top.
   </p>
+</section>
+</div>
 </aside>
 
 <script>
@@ -584,7 +777,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21f \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-21s';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -593,12 +786,13 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
-  yards:35, dur:12, minShow:4, order:'kick', fav:'', today:false, scale:1, delay:0,
+  yards:35, dur:12, minShow:4, order:'kick', spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
   deep:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
-  goveeKey:'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY', gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanRoll:true, fanAlerts:'both', fanMin:2, betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  goveeKey:'',                  // never in the file: this page is public
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, recap:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -608,10 +802,20 @@ var cfg = load();
    new value through. */
 if (cfg.gvSeed !== 1){
   cfg.goveeUrl = 'https://small-silence-9112.antpanella.workers.dev';
-  cfg.goveeKey = 'sEtREB3YvBsfaCGLHKd6osuh1EhAsnQlNJQn8eeetEY';
-  cfg.gvSeed = 1;               // the relay details, but NOT the on switch
+  cfg.gvSeed = 1;               // the relay address only — never the token or the on switch
   try { localStorage.setItem('sundayBoard', JSON.stringify(cfg)); } catch(e){}
 }
+
+/* An earlier build of this page carried the relay's access token in plain text,
+   and GitHub Pages serves the file to anyone. Only a hash of that token lives
+   here now, so a browser still holding it can be told to rotate it. */
+function fnv(s){
+  var h = 0x811c9dc5;
+  var b = unescape(encodeURIComponent(String(s || '')));
+  for (var i = 0; i < b.length; i++){ h ^= b.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0;
+}
+function tokenLeaked(){ return !!cfg.goveeKey && fnv(cfg.goveeKey) === 0xe5748d3d; }
 
 /* Close-game alerts shipped switched off in an early build and the setting is
    sticky, so this turns them on once for boards still carrying that value. */
@@ -640,6 +844,7 @@ var showing = false, shownAt = 0, alertTimer = null;
 var lastGood = 0;
 var fails = 0;
 var timer = null;
+var WD = {tried:0, beat:Date.now(), kicks:0, born:Date.now(), checked:0};
 var audio = null;
 var wake = null;
 var logLines = [];
@@ -670,7 +875,7 @@ function bind(id, key, kind){
     if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts)$/.test(key)) render();
+    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -742,11 +947,14 @@ var SOUNDS = {
 /* ---------------- fetching ---------------- */
 function schedule(){
   clearTimeout(timer);
-  var wait = cfg.interval * 1000 * Math.min(Math.pow(2, fails), 8);
+  var wait = REPLAY ? Math.max(250, cfg.interval * 1000 / REPLAY.speed)
+                    : cfg.interval * 1000 * Math.min(Math.pow(2, fails), 8);
   timer = setTimeout(poll, wait);
 }
 
 function poll(){
+  WD.tried = Date.now();
+  if (REPLAY){ if (!replayTick()) schedule(); return; }
   var ctl = new AbortController();
   var kill = setTimeout(function(){ ctl.abort(); }, 12000);
   fetch(API + '?limit=100&_=' + Date.now(), {signal:ctl.signal, cache:'no-store'})
@@ -754,6 +962,7 @@ function poll(){
     .then(function(data){
       clearTimeout(kill);
       fails = 0; lastGood = Date.now();
+      record('sb', '', data);
       stash(data);
       schedule();
     })
@@ -843,22 +1052,53 @@ function readSummary(j){
   if (dc){
     if (!out.possession && dc.team && dc.team.id) out.possession = String(dc.team.id);
     var plays = dc.plays || [];
+    out.drive = {desc: String(dc.description || ''), team: (dc.team && (dc.team.abbreviation || dc.team.shortDisplayName)) || ''};
     if (!out.lastPlay && plays.length){
       var lp = plays[plays.length - 1] || {};
       out.lastPlay = lp.text || '';
       out.lastPlayId = lp.id || out.lastPlay;
     }
   }
+  // team totals for the prime-time panel: yards, turnovers, third downs, clock
+  var bt = j && j.boxscore && j.boxscore.teams;
+  if (bt && bt.length === 2){
+    out.tstats = {};
+    bt.forEach(function(t){
+      var ab = t.team && t.team.abbreviation, st = {};
+      if (!ab) return;
+      (t.statistics || []).forEach(function(x){ if (x && x.name) st[x.name] = String(x.displayValue || ''); });
+      out.tstats[ab] = st;
+    });
+  }
   return out;
 }
 
+/* The TV delay has to hold back every ESPN feed, not just the scoreboard. Game
+   detail (box scores, down and distance, play text) used to land the moment it
+   was fetched, so a prop would cash or the next play show while the scores
+   above were still waiting out the delay — a spoiler. Detail now waits the same
+   number of seconds. Sleeper is left alone: it is always later than the TV. */
+function afterDelay(fn){
+  var ms = REPLAY ? 0 : Math.max(0, Number(cfg.delay) || 0) * 1000;
+  if (!ms) fn(); else setTimeout(fn, ms);
+}
+
 function fetchDetail(id){
+  if (REPLAY){
+    var fr = frameAt(REPLAY.sum[id]);
+    if (fr){ DEEP[id] = readSummary(fr.data); deepOk++; deepAt = Date.now();
+             captureBox(id, fr.data); if (BETS.length) evaluateBets(); }
+    return Promise.resolve();
+  }
   return fetch(SUM + '?event=' + encodeURIComponent(id) + '&_=' + Date.now(), {cache:'no-store'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(j){
-      DEEP[id] = readSummary(j); deepOk++; deepAt = Date.now();
-      captureBox(id, j);
-      if (BETS.length) evaluateBets();
+      record('sum', id, j);                 // recordings keep the real time
+      afterDelay(function(){
+        DEEP[id] = readSummary(j); deepOk++; deepAt = Date.now();
+        captureBox(id, j);
+        if (BETS.length) evaluateBets();
+      });
     })
     .catch(function(){ deepFail++; });
 }
@@ -876,7 +1116,8 @@ function deepTick(){
   if (!ids.length){ deepTimer = setTimeout(deepTick, 4000); return; }
   if (!deepQ.length) deepQ = ids.slice();
   var id = deepQ.shift();
-  var gap = Math.max(1200, Math.round(20000 / ids.length));
+  var gap = REPLAY ? Math.max(150, Math.round(20000 / ids.length / REPLAY.speed))
+                   : Math.max(1200, Math.round(20000 / ids.length));
   fetchDetail(id).then(function(){ deepTimer = setTimeout(deepTick, gap); });
 }
 
@@ -942,6 +1183,7 @@ function parse(data){
       dd: String(sit.downDistanceText || sit.shortDownDistanceText || '')
             .replace(/\s+at\s+/i, ' '),
       redzone: !!sit.isRedZone,
+      spot: String(sit.possessionText || ''),     // "NYJ 34", for the field bar
       // timeouts remaining; the feed leaves these out before kickoff
       tos: {home: numOr(sit.homeTimeouts, null), away: numOr(sit.awayTimeouts, null)},
       neutral: !!comp.neutralSite,
@@ -1273,6 +1515,7 @@ function push(game, kind, body, quiet, team, hot, whoList){
   if (fired[key]) return;
   fired[key] = 1;
   if (quiet) return;
+  noteDayPlay(game, kind, body, whoList);
 
   var arrow = / to /i.test(body || '') ? '  \u2192  ' : '  \u00b7  ';
   var who = (whoList !== undefined ? whoList : (game.who || [])).join(arrow);
@@ -1491,6 +1734,11 @@ function renderBoard(){
   var empty = document.getElementById('empty');
   if (!live.length){
     empty.hidden = false;
+    var rc = cfg.recap !== false ? recapHTML(soon, done) : '';
+    empty.classList.toggle('recap', !!rc);
+    LASTSIG = '';
+    document.body.classList.toggle('recapping', !!rc);
+    if (rc){ empty.innerHTML = rc; document.getElementById('live').innerHTML = ''; return; }
     empty.textContent = soon.length
       ? 'Nothing kicked off yet. First game ' + dayWord(soon[0].date) +
         ' at ' + kickoff(soon[0].date) + '.'
@@ -1499,24 +1747,236 @@ function renderBoard(){
     return;
   }
   empty.hidden = true;
+  empty.classList.remove('recap'); document.body.classList.remove('recapping');
 
   var n = live.length;
   var box = document.getElementById('live');
   var W = box.clientWidth, H = box.clientHeight;
+  SPOT.id = pickSpot(live);
+  // a spotlit card is a 2x2 block, so the grid is chosen for three more cells
+  var cells = n + (SPOT.id ? 3 : 0), cmin = SPOT.id ? 2 : 1;
   var cols = 1, rows = 1, best = -1;
-  for (var c = 1; c <= Math.max(1, Math.min(n, 6)); c++){
-    var r = Math.ceil(n / c);
+  for (var c = cmin; c <= Math.max(cmin, Math.min(cells, 6)); c++){
+    var r = Math.max(cmin, Math.ceil(cells / c));
     var g = Math.max(4, Math.round(Math.min(W, H) * 0.012));
     var nd = unitNeeds();
     var u = Math.min((W - g * (c - 1)) / c / nd.w, (H - g * (r - 1)) / r / nd.h);
     if (u > best){ best = u; cols = c; rows = r; }
   }
+  live.forEach(logPlay);
+  var prime = n === 1 && cfg.prime !== false;
+  box.classList.toggle('prime', prime);
+  if (prime){ cols = 1; rows = 1; }
   document.documentElement.style.setProperty('--cols', cols);
   live.forEach(noteClock);
-  box.innerHTML = live.map(card).join('');
+  var html = live.map(card).join('') + (prime ? primeSide(live[0], W, H) : '');
+  /* Most polls change a clock and nothing else, but during a TV break or at
+     halftime nothing changes at all. Then the board is left exactly as it is:
+     no rebuild, no re-measuring, no tickers restarting. */
+  var sig = html + '|' + W + 'x' + H + '|' + cols + 'x' + rows + '|' + FAN.ready + '|' + JSON.stringify(cfg);
+  if (sig === LASTSIG){ SKIPS++; diagnose(live); return; }
+  LASTSIG = sig;
+  box.innerHTML = html;
+  if (SPOT.id){
+    /* Pin the block where the card already sits, nudged left or up if it would
+       hang off the edge. The other cards flow around it in the same order, and
+       with the block placed first the grid never has to leave a hole for it. */
+    var at = live.map(function(x){ return String(x.id); }).indexOf(SPOT.id);
+    var sc = Math.min(at % cols, cols - 2), sr = Math.min(Math.floor(at / cols), rows - 2);
+    var el = box.querySelector('.game.spot');
+    if (el){ el.style.gridColumn = (sc + 1) + ' / span 2'; el.style.gridRow = (sr + 1) + ' / span 2'; }
+    var tr = getComputedStyle(box).gridTemplateRows.split(' ').filter(Boolean).length;
+    if (tr > rows) rows = tr;
+  }
   fit(cols, rows);
   collectTickers();
   diagnose(live);
+}
+
+/* ---- end-of-day recap ----
+   Once the last game of the day is final the board has nothing to show but a
+   finals strip. It shows the day instead: how the fantasy matchup ended up, how
+   the bets did, and the plays worth remembering. Kept in this browser for the
+   day so a reload in the evening doesn't wipe it. */
+var DAY = (function(){
+  try {
+    var d = JSON.parse(localStorage.getItem('sundayBoardDay') || 'null');
+    if (d && d.day === new Date().toDateString()) return d;
+  } catch(e){}
+  return {day:new Date().toDateString(), plays:[]};
+})();
+function noteDayPlay(game, kind, body, whoList){
+  if (DEMO || REPLAY) return;
+  if (!/TOUCHDOWN|FIELD GOAL|SAFETY|INTERCEPT|TURNOVER|FUMBLE|YARD|GO WATCH|OVERTIME/.test(kind)) return;
+  var today = new Date().toDateString();
+  if (DAY.day !== today) DAY = {day:today, plays:[]};
+  var who = (whoList !== undefined ? whoList : (game.who || [])).slice(0, 2).join(' \u2192 ');
+  DAY.plays.push({k:kind, w:who, b:String(body || '').slice(0, 110), g:game.away.abbr + ' ' + game.away.score + '-' + game.home.score + ' ' + game.home.abbr,
+                  m:!!fanHit(whoList !== undefined ? whoList : game.who), t:Date.now()});
+  if (DAY.plays.length > 60) DAY.plays.shift();
+  try { localStorage.setItem('sundayBoardDay', JSON.stringify(DAY)); } catch(e){}
+}
+function recapHTML(soon, done){
+  var today = done.filter(function(g){ return isToday(g.date); });
+  if (!today.length) return '';
+  var out = [], next = soon.length ? ' \u00b7 next: ' + dayWord(soon[0].date) + ' ' + kickoff(soon[0].date) : '';
+  var more = soon.length && isToday(soon[0].date);
+  out.push('<h2>' + (more ? 'SO FAR TODAY' : 'THAT\'S A WRAP') + '<small>' + today.length + ' game' + (today.length === 1 ? '' : 's') + ' final' + esc(next) + '</small></h2>');
+
+  var m = FAN.match;
+  if (FAN.ready && m && m.me){
+    var wc = winChance(m), left = m.me.left + (m.opp ? m.opp.left : 0);
+    var ahead = !m.opp || m.me.pts >= m.opp.pts;
+    var mine = FAN.roster.filter(function(e){ return e.side !== 'opp' && (!cfg.starterOnly || e.starter); })
+      .map(function(e){ return {e:e, v:fanPts(e)}; })
+      .filter(function(x){ return x.v !== null; })
+      .sort(function(a, b){ return b.v - a.v; }).slice(0, 3);
+    out.push('<section><h3>FANTASY</h3><div class="big"><span class="' + (ahead ? 'w' : 'l') + '">' + fmtPts(m.me.pts) + '</span>' +
+      (m.opp ? ' \u2013 ' + fmtPts(m.opp.pts) : '') + '</div>' +
+      '<div class="sub">' + esc(m.me.name) + (m.opp ? ' vs ' + esc(m.opp.name) : '') + '</div>' +
+      '<div class="sub">' + (left ? (ahead ? 'Ahead' : 'Behind') + ' with ' + left + ' player' + (left === 1 ? '' : 's') + ' still to play' +
+        (wc !== null ? ' \u00b7 ' + Math.round(wc * 100) + '% to win' : '') : (m.opp ? (ahead ? 'Won' : 'Lost') : 'Final')) + '</div>' +
+      (mine.length ? '<ul style="margin-top:.5em">' + mine.map(function(x){
+        return '<li>' + esc(x.e.name) + '<span class="g">' + esc(x.e.pos || '') + '</span><span class="p">' + fmtPts(x.v) + '</span></li>';
+      }).join('') + '</ul>' : '') + '</section>');
+  }
+
+  var todays = BETS.filter(function(b){ return Date.now() - (b.added || 0) < 36 * 3600000; });
+  if (todays.length){
+    var won = 0, lost = 0, open = 0, net = 0;
+    todays.forEach(function(b){
+      var st = betState(b).state;
+      if (st === 'won'){ won++; if (b.stake && b.odds) net += b.stake * (decimalOdds(b.odds) - 1); }
+      else if (st === 'lost'){ lost++; if (b.stake) net -= b.stake; }
+      else if (st === 'live' || st === 'pending') open++;
+    });
+    out.push('<section><h3>BETS</h3><div class="big"><span class="w">' + won + ' won</span> \u00b7 <span class="l">' + lost + ' lost</span></div>' +
+      (open ? '<div class="sub">' + open + ' still open</div>' : '') +
+      (cfg.betMoney && net ? '<div class="sub">Net <b style="color:' + (net > 0 ? 'var(--live)' : '#FF7A6E') + '">' + (net > 0 ? '+' : '') + money(net) + '</b></div>' : '') +
+      '</section>');
+  }
+
+  var plays = DAY.plays.filter(function(p){ return /TOUCHDOWN|INTERCEPT|TURNOVER|FUMBLE|SAFETY|YARD/.test(p.k); });
+  // your players' moments first, then the rest, newest first
+  plays = plays.filter(function(p){ return p.m; }).reverse().concat(plays.filter(function(p){ return !p.m; }).reverse()).slice(0, 7);
+  if (plays.length){
+    out.push('<section><h3>PLAYS OF THE DAY</h3><ul>' + plays.map(function(p){
+      return '<li><b>' + esc(p.k.split(' \u2014 ')[0]) + '</b>' + (p.m ? '\u2605 ' : '') + esc(p.w || p.b) + '<span class="g">' + esc(p.g) + '</span></li>';
+    }).join('') + '</ul></section>');
+  }
+  return out.length > 1 ? out.join('') : '';
+}
+
+/* ---- prime time ----
+   With a single game on — Thursday, Sunday or Monday night, or the last late
+   game — one card would just be a very large scoreline. Half the width goes to
+   what there is time to follow: the plays as they happen, the drive, the team
+   totals and whoever of yours is on the field. */
+var PLAYLOG = Object.create(null), PRIME_G = null;
+var LASTSIG = '', SKIPS = 0;
+function logPlay(g){
+  if (!g.lastPlay) return;
+  var log = PLAYLOG[g.id] || (PLAYLOG[g.id] = []);
+  var id = String(g.lastPlayId || g.lastPlay);
+  if (log.length && log[0].id === id) return;
+  log.unshift({id:id, text:g.lastPlay, when: qLabel(g) + ' ' + (g.clock || ''),
+               big: /touchdown|intercept|fumble|field goal is good|safety/i.test(g.lastPlay)});
+  if (log.length > 14) log.length = 14;
+}
+function primeSide(g, W, H){
+  PRIME_G = g;
+  // the panel's own unit, off the space it has rather than the cards'
+  var pu = Math.max(13, Math.min(W * 0.42 / 26, H / 17));
+  var d = DEEP[g.id] || {}, out = [];
+  var log = PLAYLOG[g.id] || [];
+
+  var drive = d.drive && d.drive.desc ? '<i>' + esc((d.drive.team ? d.drive.team + ' \u00b7 ' : '') + d.drive.desc) + '</i>' : '';
+  out.push('<section class="plays"><h3>PLAY BY PLAY' + drive + '</h3>' +
+    (log.length ? log.slice(0, 8).map(function(p, i){
+      return '<div class="pl' + (p.big ? ' big' : '') + (i === 0 ? ' new' : i > 4 ? ' old' : '') + '">' +
+        '<span class="when">' + esc(p.when) + '</span><span class="txt">' + esc(p.text) + '</span></div>';
+    }).join('') : '<div class="pl"><span class="txt" style="color:var(--sideline)">Plays show here as they happen.</span></div>') +
+    '</section>');
+
+  var ts = d.tstats, A = g.away.abbr, Hh = g.home.abbr;
+  if (ts && ts[A] && ts[Hh]){
+    var rows = [['totalYards','Total yards'],['netPassingYards','Passing'],['rushingYards','Rushing'],
+                ['firstDowns','First downs'],['thirdDownEff','3rd down'],['turnovers','Turnovers'],
+                ['possessionTime','Possession']];
+    var body = rows.filter(function(r){ return ts[A][r[0]] || ts[Hh][r[0]]; }).map(function(r){
+      return '<tr><td class="n">' + esc(ts[A][r[0]] || '-') + '</td><td class="k">' + r[1] +
+             '</td><td class="n">' + esc(ts[Hh][r[0]] || '-') + '</td></tr>';
+    }).join('');
+    if (body) out.push('<section><h3>TEAM STATS</h3><table>' +
+      '<tr><th>' + esc(A) + '</th><th></th><th>' + esc(Hh) + '</th></tr>' + body + '</table></section>');
+  }
+
+  var mine = fanIn(g);
+  if (mine.length){
+    out.push('<section><h3>FANTASY</h3><div class="who">' + mine.map(function(e){
+      var v = fanPts(e);
+      return '<span class="' + (e.side === 'opp' ? 'opp' : '') + '">' + esc(shortName(e.name)) +
+        '<em>' + esc(e.pos || '') + '</em> <b>' + (v === null ? '\u2013' : fmtPts(v)) + '</b></span>';
+    }).join('') + '</div></section>');
+  }
+  return '<aside class="pside" style="--pu:' + pu.toFixed(1) + 'px">' + out.join('') + '</aside>';
+}
+
+/* ---- spotlight ----
+   One game at a time gets a 2x2 block of the grid, in the place it already
+   holds, so nothing has to be hunted for. A click pins a card; otherwise the
+   board picks a big moment: a close finish, or a red-zone trip in a game you
+   have something riding on. A moment holds for 25 seconds after it ends so the
+   result of the play is still big when it lands. */
+var SPOT = {id:null, pin:null, auto:null, until:0, skip:null};
+function stakeIn(g){
+  if (fanIn(g).some(function(e){ return e.side !== 'opp'; })) return true;
+  return BETS.some(function(b){
+    var st = betState(b).state;
+    if (st !== 'live' && st !== 'pending') return false;
+    return b.legs.some(function(leg){
+      var lg = leg.team && leg.type !== 'prop' && leg.type !== 'td' ? gameFor(leg.team) : gameForLeg(leg);
+      return lg && String(lg.id) === String(g.id);
+    });
+  });
+}
+function spotScore(g){
+  if (tight(g)) return 100 + heat(g);
+  if (g.redzone && stakeIn(g)) return 50 + heat(g);
+  return 0;
+}
+function pickSpot(live){
+  if (cfg.spot === 'off' || live.length < 3){ SPOT.auto = null; return null; }
+  var ids = live.map(function(g){ return String(g.id); });
+  if (SPOT.pin && ids.indexOf(SPOT.pin) < 0) SPOT.pin = null;      // pinned game ended
+  if (SPOT.pin) return SPOT.pin;
+  if (cfg.spot !== 'auto'){ SPOT.auto = null; return null; }
+  var now = vnow(), top = null, topS = 0;
+  // a moment you clicked away stays away until it is over
+  if (SPOT.skip){
+    var sk = live.filter(function(g){ return String(g.id) === SPOT.skip; })[0];
+    if (!sk || !spotScore(sk)) SPOT.skip = null;
+  }
+  live.forEach(function(g){
+    if (String(g.id) === SPOT.skip) return;
+    var sc = spotScore(g); if (sc > topS){ topS = sc; top = g; }
+  });
+  if (SPOT.auto === SPOT.skip) SPOT.auto = null;
+  var cur = SPOT.auto && live.filter(function(g){ return String(g.id) === SPOT.auto; })[0];
+  if (cur && spotScore(cur) > 0){
+    SPOT.until = now + 25000;
+    // only a close finish can take the light from a game that still has it
+    if (top && top !== cur && tight(top) && !tight(cur)){ SPOT.auto = String(top.id); }
+    return SPOT.auto;
+  }
+  if (cur && now < SPOT.until) return SPOT.auto;
+  if (top){ SPOT.auto = String(top.id); SPOT.until = now + 25000; return SPOT.auto; }
+  SPOT.auto = null;
+  return null;
+}
+function lastPlayRow(g){
+  if (!g.lastPlay) return '<div class="lp"></div>';
+  return '<div class="lp"><b>LAST PLAY</b>' + esc(g.lastPlay) + '</div>';
 }
 
 /* Cards move around when they are ranked by drama, which makes a score you were
@@ -1584,10 +2044,15 @@ function tint(hex, alt, target){
   return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
 }
 
+function paintLeak(){
+  var el = document.getElementById('gvLeak');
+  if (el) el.hidden = !tokenLeaked();
+}
 function paintFlags(){
   document.body.classList.toggle('tint', !!cfg.tint);
   document.body.classList.toggle('nodim', !cfg.dimLose);
   document.body.classList.toggle('slim', !!cfg.slim);
+  paintLeak();
 }
 
 /* Half the league wears navy. When both sides land on the same tint, darken the
@@ -1606,6 +2071,8 @@ function card(g){
   else if (g.redzone) cls += ' rz';
   if (g.redzone) cls += ' rzon';
   else if (cfg.fav && (g.home.abbr === cfg.fav || g.away.abbr === cfg.fav)) cls += ' fav';
+  var spot = SPOT.id && String(g.id) === SPOT.id;
+  if (spot) cls += ' spot' + (SPOT.pin === SPOT.id ? ' pinned' : '');
 
   var lead = g.home.score > g.away.score ? 'home' : g.away.score > g.home.score ? 'away' : '';
 
@@ -1621,12 +2088,51 @@ function card(g){
          g.state === 'in' && g.tos ? g.tos.away : null) +
     team(g.home, g.possession === g.home.id, lead === 'away',
          g.state === 'in' && g.tos ? g.tos.home : null) +
+    fieldBar(g) +
     '<div class="meta" data-k="' + esc(g.id) + ':m"><span class="track">' +
       '<span class="clock" data-c="' + esc(g.id) + '" data-q="' + esc(qLabel(g)) + '">' +
         esc(quarter(g)) + '</span>' +
       (g.dd ? '<span class="dd">' + esc(g.redzone ? 'RZ  ' + g.dd : g.dd) + '</span>' : '') +
       betBadge(g) +
-    '</span></div>' + infoLine(g) + fanLine(g) + '</article>';
+    '</span></div>' + infoLine(g) + fanLine(g) + (spot ? lastPlayRow(g) : '') + '</article>';
+}
+
+/* Where the ball is. The spot comes off the end of the down-and-distance text
+   ("2nd & 7 NYJ 34", "1st & Goal DAL 3", "3rd & 4 50"): a team and a yard line
+   on that team's side of midfield. Between plays with no spot — kickoffs,
+   extra points, a quarter break — the bar stays but the ball goes. */
+function fieldSpot(g){
+  var dd = String(g.dd || '').trim();
+  var m = /(?:^|\s)([A-Z]{2,4})\s+(\d{1,2})$/.exec(dd) ||
+          /^([A-Z]{2,4})\s+(\d{1,2})$/.exec(String(g.spot || '').trim()), x = null;
+  if (m){
+    var n = +m[2];
+    if (m[1] === g.away.abbr) x = n;
+    else if (m[1] === g.home.abbr) x = 100 - n;
+  } else if (/(?:^|\s)50$/.test(dd)) x = 50;
+  if (x === null || x < 0 || x > 100) return null;
+  var toRight = g.possession && String(g.possession) === String(g.away.id) ? true
+              : g.possession && String(g.possession) === String(g.home.id) ? false : null;
+  var d = /&\s*(\d+|goal)/i.exec(dd), ltg = null;
+  if (d && toRight !== null){
+    var yds = /goal/i.test(d[1]) ? 100 : +d[1];
+    ltg = Math.max(0, Math.min(100, toRight ? x + yds : x - yds));
+  }
+  return {x:x, dir:toRight, ltg:ltg};
+}
+function fieldBar(g){
+  if (cfg.field === false || g.state !== 'in') return '';
+  // 100 yards of field plus two 10-yard end zones
+  var pct = function(y){ return (8.333 + y * 0.8333).toFixed(2) + '%'; };
+  var sp = fieldSpot(g);
+  // end zones in the full jersey colour, brighter than the card behind them
+  var ea = tint(g.away.color, g.away.alt, 0.45), eh = tint(g.home.color, g.home.alt, 0.45);
+  var out = '<div class="fp" style="--ea:' + ea + ';--eh:' + eh + '"><span class="mid"></span>';
+  if (sp){
+    if (sp.ltg !== null && sp.ltg > 0 && sp.ltg < 100) out += '<span class="ltg" style="left:' + pct(sp.ltg) + '"></span>';
+    out += '<span class="ball ' + (sp.dir === false ? 'l' : sp.dir ? 'r' : 'c') + '" style="left:' + pct(sp.x) + '"></span>';
+  }
+  return out + '</div>';
 }
 
 /* Third row: live market numbers, then the channel and the win probability.
@@ -1720,6 +2226,13 @@ function esc(s){
 
 function paintStatus(){
   if (DEMO) return;
+  if (REPLAY){
+    document.getElementById('dot').className = 'stale';
+    document.getElementById('statusText').textContent = 'REPLAY ' + REPLAY.id + ' \u00b7 ' +
+      new Date(vnow()).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) +
+      ' \u00b7 ' + REPLAY.speed + '\u00d7';
+    return;
+  }
   var dot = document.getElementById('dot'), txt = document.getElementById('statusText');
   if (!lastGood){ dot.className = 'dead'; txt.textContent = 'connecting'; return; }
   var age = Math.round((Date.now() - lastGood) / 1000);
@@ -1770,6 +2283,9 @@ function diagnose(live){
           : 'nothing qualifies yet (Q4 inside ' + (cfg.closeMin || 2) + ':00, within ' +
             (cfg.closeMargin || 8) + ' points)';
       })() + '</div>' +
+    '<div>ball spot (field bar): ' + yn(sit && (sit.possessionText || sit.downDistanceText)) + '</div>' +
+    '<div>screen kept awake: ' + yn(wake) + (navigator.wakeLock ? '' : ' (this browser can\'t)') +
+      ' \u00b7 feed restarts: <b>' + WD.kicks + '</b> \u00b7 unchanged redraws skipped: <b>' + SKIPS + '</b></div>' +
     '<div>last light shows: ' + (gvLog.length
       ? gvLog.map(function(f){
           return esc(f.team) + ' ' + esc(f.scene || f.mode) + ' ' +
@@ -2039,10 +2555,15 @@ function surnameOf(name){
 function isTeamId(id){ return /^[A-Z]{2,4}$/.test(id); }
 function fanNote(msg){ document.getElementById('fanNote').textContent = msg; }
 function sget(path){
+  var mu = /\/matchups\//.test(path);
+  if (REPLAY && mu){
+    var fr = frameAt(REPLAY.mu[path]);
+    return fr ? Promise.resolve(fr.data) : Promise.reject(new Error('not recorded'));
+  }
   return fetch(SLEEP + path).then(function(r){
     if (!r.ok) throw new Error('sleeper ' + r.status);
     return r.json();
-  });
+  }).then(function(d){ if (mu) record('mu', path, d); return d; });
 }
 function pcache(v){
   try {
@@ -2372,6 +2893,36 @@ function gameFor(abbr){
 
 /* Where a team lands if the rest of the day goes to projection: what each
    starter has already banked, plus his projection for the part still to play. */
+/* How uncertain the rest of a lineup is. A player's week varies by roughly half
+   his projection either way; the part still to come carries that much of it,
+   scaled by how much of his game is left. Summed as variances, not points. */
+function spreadLeft(startersList){
+  var map = (pcache().map) || {}, v = 0;
+  (startersList || []).forEach(function(id){
+    if (!id || id === '0') return;
+    var ab = isTeamId(id) ? id : (map[id] && map[id].t);
+    var share = shareLeft(ab), proj = (FAN.proj && FAN.proj[id]) || 0;
+    if (share > 0 && proj > 0){ var sd = 0.55 * proj; v += sd * sd * share; }
+  });
+  return v;
+}
+function normCdf(z){
+  // Abramowitz-Stegun 7.1.26, plenty for a percentage on a TV
+  var t = 1 / (1 + 0.3275911 * Math.abs(z) / Math.SQRT2);
+  var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t *
+          Math.exp(-z * z / 2);
+  return z >= 0 ? (1 + y) / 2 : (1 - y) / 2;
+}
+function winChance(m){
+  if (!m || !m.me || !m.opp) return null;
+  var gap = m.me.proj - m.opp.proj, v = (m.me.vr || 0) + (m.opp.vr || 0);
+  if (v < 1){
+    if (m.me.left || m.opp.left) return null;          // no projections to go on
+    return m.me.pts > m.opp.pts ? 1 : m.me.pts < m.opp.pts ? 0 : 0.5;
+  }
+  return Math.max(0.01, Math.min(0.99, normCdf(gap / Math.sqrt(v))));
+}
+
 function projectedTotal(startersList, pts){
   var map = (pcache().map) || {}, total = 0;
   (startersList || []).forEach(function(id){
@@ -2483,9 +3034,18 @@ function playWords(abbr, full){
 
 function fanPoints(){
   if (!FAN.ready || !FAN.week || !FAN.mine.length) return;
+  /* Not held back by the TV delay: Sleeper's scoring already trails the play by
+     a minute or two, so it is never ahead of what the room has seen. */
   Promise.all(FAN.mine.map(function(m){
     return sget('/league/' + m.league + '/matchups/' + FAN.week)
-      .then(function(rows){
+      .then(function(rows){ return {m:m, rows:rows}; }, function(){ return {m:m, rows:null}; });
+  })).then(applyPoints);
+}
+function applyPoints(got){
+  got.forEach(function(x){
+    var m = x.m, rows = x.rows;
+    if (!rows) return;
+    (function(){
         // the head-to-head for the first league, for the bar across the top
         if (m === FAN.mine[0]){
           FAN.match = matchupOf(rows, m);
@@ -2511,12 +3071,11 @@ function fanPoints(){
           }
           for (var id in (pp || {})) FAN.pts[id] = pp[id];
         });
-      }).catch(function(){});
-  })).then(function(){
-    FAN.ptsAt = Date.now();
-    paintFanBar();
-    render();
+    })();
   });
+  FAN.ptsAt = Date.now();
+  paintFanBar();
+  render();
 }
 /* My row and my opponent's row out of the week's matchup list. */
 function matchupOf(rows, m){
@@ -2542,7 +3101,8 @@ function matchupOf(rows, m){
     return {name: names[r.roster_id] || ('roster ' + r.roster_id),
             pts: Number(r.points) || 0,
             left: leftToPlay(r.starters),
-            proj: projectedTotal(r.starters, pts)};
+            proj: projectedTotal(r.starters, pts),
+            vr: spreadLeft(r.starters)};
   };
   return {me: side(mine), opp: side(opp)};
 }
@@ -2576,8 +3136,11 @@ function scoreChips(m){
       '<i>' + x.left + ' left</i></span>';
   };
   var lead = m.opp ? m.me.pts >= m.opp.pts : true;
+  var wc = cfg.fanWin !== false ? winChance(m) : null;
+  var win = wc === null ? '' : '<span class="wc ' + (wc >= 0.5 ? 'up' : 'down') + '">' +
+    (wc >= 0.995 ? 'WON' : wc <= 0.005 ? 'LOST' : Math.round(wc * 100) + '% to win') + '</span>';
   return '<span class="star">★</span>' + side(m.me, lead) +
-    '<span class="vs">vs</span>' + side(m.opp, m.opp ? !lead : false);
+    '<span class="vs">vs</span>' + side(m.opp, m.opp ? !lead : false) + win;
 }
 
 function paintFanBar(){
@@ -2651,7 +3214,7 @@ function fanSchedule(){
   FAN.ptsTimer = setTimeout(function(){
     fanPoints();
     fanSchedule();
-  }, (live ? every : 300) * 1000);
+  }, (REPLAY ? Math.max(0.5, every / REPLAY.speed) : (live ? every : 300)) * 1000);
 }
 
 function fanPts(e){
@@ -2693,9 +3256,10 @@ function unitNeeds(){
      slack between the abbreviation and the score, and the record clips itself if
      a card really has none. Reserving for the worst case shrank every card. */
   var tos = cfg.timeouts && cfg.scale < 1.3;
+  var fp = cfg.field !== false && cfg.scale < 1.4;
   return {w: 5.9 + (rec ? 0.62 : 0) + (tos ? 0.55 : 0), tos: tos,
-          h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0),
-          rec:rec, meta:meta, info:info, fan:fan};
+          h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0) + (fp ? 0.5 : 0),
+          rec:rec, meta:meta, info:info, fan:fan, fp:fp};
 }
 function fit(cols, rows){
   var box = document.getElementById('live');
@@ -2713,6 +3277,7 @@ function fit(cols, rows){
   document.body.classList.toggle('noinfo', !need.info);
   document.body.classList.toggle('nofan', !need.fan);
   document.body.classList.toggle('noto', !need.tos);
+  document.body.classList.toggle('nofp', !need.fp);
 
   var gap = Math.max(4, Math.round(Math.min(w, h) * 0.012));
   document.documentElement.style.setProperty('--gap', gap + 'px');
@@ -2724,16 +3289,17 @@ function fit(cols, rows){
      and measured. The winner is whichever makes the scores biggest with everything
      still fitting. */
   var cw = (w - gap * (cols - 1)) / cols, ch = (h - gap * (rows - 1)) / rows;
+  if (box.classList.contains('prime')){ var c0 = box.querySelector('.game'); if (c0) cw = c0.clientWidth; }
   var fixedW = 0.9 + (need.tos ? 0.55 : 0), scaleW = 5.0 + (need.rec ? 0.62 : 0);
-  var fixedH = 0.55 + (need.meta ? 0.55 : 0) + (need.info ? 0.5 : 0) + (need.fan ? 0.95 : 0);
+  var fixedH = 0.55 + (need.meta ? 0.55 : 0) + (need.info ? 0.5 : 0) + (need.fan ? 0.95 : 0) + (need.fp ? 0.5 : 0);
   var scaleH = 2.45, scale = cfg.scale || 1;
 
   /* Laying out four candidates costs four reflows per card, which is wasteful
      every five seconds when nothing about the shape of the board has changed.
      The chosen multiplier is cached against that shape; the fitting below still
      runs every time, so a longer play description still gets its own pass. */
-  var sig = [cols, rows, box.children.length, w, h, need.rec, need.meta, need.info,
-             need.fan, cfg.scale].join(':');
+  var sig = [cols, rows, box.children.length, SPOT.id || '', box.classList.contains('prime'), w, h, need.rec, need.meta, need.info,
+             need.fan, need.fp, cfg.scale].join(':');
   var tw = 1, u = 11, best = -1;
   var CAND = (FITC.sig === sig) ? [FITC.tw] : [1, 1.15, 1.3, 1.45];
   for (var ci = 0; ci < CAND.length; ci++){
@@ -2749,7 +3315,7 @@ function fit(cols, rows){
   FITC.sig = sig; FITC.tw = tw;
   // with one or two games a card is enormous; cap against screen height so the
   // score can't outgrow the panel
-  document.documentElement.style.setProperty('--u', u.toFixed(2) + 'px');
+  setU(u);
 
   /* The information rows carry their own unit, so a long down-and-distance line
      changes their size rather than the scores'. */
@@ -2773,6 +3339,23 @@ function fit(cols, rows){
   }
 
   fillCards(box, u2);
+  fitSpot(box, cw, ch, gap);
+  fitSide(box);
+}
+/* The prime-time panel starts large and steps down until everything in it fits.
+   The play list is the long part, so it goes last: older plays drop off before
+   the type has to shrink past a readable size. */
+function fitSide(box){
+  var el = box.querySelector('.pside');
+  if (!el) return;
+  var pu = Math.min(el.clientHeight / 9, el.clientWidth / 18, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) * 0.6 || 40);
+  var floor = Math.max(13, Math.min(el.clientHeight / 20, 22));
+  el.style.setProperty('--pu', pu.toFixed(1) + 'px');
+  for (var t = 0; t < 30 && pu > floor && el.scrollHeight > el.clientHeight + 1; t++){
+    pu *= 0.95; el.style.setProperty('--pu', pu.toFixed(1) + 'px');
+  }
+  var pl = el.querySelectorAll('.pl');
+  for (var k = pl.length - 1; k > 0 && el.scrollHeight > el.clientHeight + 1; k--) pl[k].remove();
 }
 
 /* The loop above has to stop at whichever card fills up first — usually one
@@ -2780,17 +3363,18 @@ function fit(cols, rows){
    space under its last row. So each card then gets its own unit for the small
    rows: measure what it is actually using, hand it the slack, verify. */
 function fillCards(box, u2){
-  var cards = box.children, want = [];
+  var cards = box.querySelectorAll(':scope > .game'), want = [];
   for (var i = 0; i < cards.length; i++){
     var c = cards[i];
     c.style.removeProperty('--u2');
+    if (c.classList.contains('spot')){ want.push(0); continue; }
     var kids = c.children;
     if (!kids.length) continue;
     var small = 0, total = 0;
     for (var k = 0; k < kids.length; k++){
       var hgt = kids[k].offsetHeight;
       total += hgt;
-      if (!kids[k].classList.contains('row')) small += hgt;
+      if (!kids[k].classList.contains('row') && !kids[k].classList.contains('fp')) small += hgt;
     }
     var style = getComputedStyle(c);
     var inner = c.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
@@ -2822,22 +3406,40 @@ function rowsSpill(card){
 /* True when any card is taller or wider than its slot, or when one of the
    information rows has been squeezed past what it can show. */
 var FITC = {sig:'', tw:1};
-function setU2(v){ document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px'); }
+function setU2(v){
+  document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px');
+  document.documentElement.style.setProperty('--U2', v.toFixed(2) + 'px');
+}
 function setU(v){
   document.documentElement.style.setProperty('--u', v.toFixed(2) + 'px');
-  document.documentElement.style.setProperty('--u2', v.toFixed(2) + 'px');
+  document.documentElement.style.setProperty('--U', v.toFixed(2) + 'px');
+  setU2(v);
 }
 
 function spills(box){
-  var c = box.children;
+  var c = box.querySelectorAll(':scope > .game');
   for (var k = 0; k < c.length; k++){
+    if (c[k].classList.contains('spot')) continue;     // sized on its own afterwards
     if (c[k].scrollWidth > c[k].clientWidth + 0.5 || c[k].scrollHeight > c[k].clientHeight + 0.5) return true;
   }
-  var rows = box.querySelectorAll('.meta, .info');
+  var rows = box.querySelectorAll('.game:not(.spot) .meta, .game:not(.spot) .info');
   for (var r = 0; r < rows.length; r++){
     if (rows[r].scrollHeight > rows[r].clientHeight + 0.5) return true;
   }
   return false;
+}
+/* The spotlit card starts at the size its 2x2 block allows and steps down
+   until nothing in it spills. */
+function fitSpot(box, cw, ch, gap){
+  var el = box.querySelector('.game.spot');
+  if (!el) return;
+  var k = Math.min((cw * 2 + gap) / cw, (ch * 2 + gap) / ch) * 0.98;
+  el.style.setProperty('--spk', k.toFixed(3));
+  for (var t = 0; t < 20 && k > 1 && (el.scrollWidth > el.clientWidth + 0.5 ||
+       el.scrollHeight > el.clientHeight + 0.5 || rowsSpill(el)); t++){
+    k *= 0.95;
+    el.style.setProperty('--spk', k.toFixed(3));
+  }
 }
 /* Rows too wide for their card scroll instead of clipping. The board replaces its
    card HTML on every poll, so a CSS animation would restart every 15s and never
@@ -3119,7 +3721,7 @@ function gvStop(quiet){
    colours running, which looked exactly like the wrong show firing. The newer
    score now waits out the gap and then takes over; only older ones are dropped. */
 function gvFlash(hex, alt, abbr){
-  if (!cfg.govee || !cfg.goveeDev || !cfg.goveeSku) return;
+  if (!cfg.govee || !cfg.goveeDev || !cfg.goveeSku || REPLAY) return;
   var wait = cfg.goveeGap * 1000 - (Date.now() - gvLast);
   if (wait > 0){
     clearTimeout(gvPending);
@@ -3162,7 +3764,84 @@ function loadBets(){
 }
 function saveBets(){
   try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  if (syncOn()) betsPush();
 }
+
+/* ---- sharing bets through the relay ----
+   With sharing on, the relay's list is the real one; this browser keeps a copy
+   so the strip survives a dropped connection. Changes go up as single
+   operations — this bet added, that bet deleted — worked out against the last
+   list the relay sent, so nothing another device added in the meantime is lost. */
+var SYNC = {base:null, busy:false, again:false};
+function syncOn(){ return !!(cfg.betSync && cfg.goveeUrl && cfg.goveeKey); }
+function syncNote(t){ var el = document.getElementById('betSyncNote'); if (el) el.textContent = t; }
+function betKey(b){ return JSON.stringify({s:b.src, st:b.stake, o:b.odds, l:b.legs}); }
+
+function betsPush(){
+  if (SYNC.busy){ SYNC.again = true; return; }
+  var base = SYNC.base || {}, ops = [], seen = {};
+  BETS.forEach(function(b){
+    seen[b.id] = 1;
+    if (base[b.id] !== betKey(b)) ops.push({op:'upsert', bet:b});
+  });
+  // only delete what the relay had last time we looked — never what we never saw
+  if (SYNC.base) for (var id in base) if (!seen[id]) ops.push({op:'delete', id:id});
+  if (!ops.length) return;
+  SYNC.busy = true;
+  fetch(gvBase() + '/bets', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({key:cfg.goveeKey, ops:ops})})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(x){
+      if (!x.ok){ syncNote('Relay refused: ' + (x.j.error || 'unknown')); return; }
+      takeBets(x.j.bets);
+    })
+    .catch(function(){ syncNote('Could not reach the relay — kept here, will retry.'); })
+    .then(function(){
+      SYNC.busy = false;
+      if (SYNC.again){ SYNC.again = false; betsPush(); }
+    });
+}
+
+function betsPull(){
+  if (!syncOn() || SYNC.busy) return;
+  fetch(gvBase() + '/bets?key=' + encodeURIComponent(cfg.goveeKey), {cache:'no-store'})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(x){
+      if (!x.ok){
+        syncNote(x.j && x.j.error ? 'Relay says: ' + x.j.error : 'Relay refused the token.');
+        return;
+      }
+      // the first time, anything only this browser knew about goes up
+      var firstTime = !SYNC.base;
+      takeBets(x.j.bets);
+      if (firstTime && localOnly.length){ BETS = BETS.concat(localOnly); localOnly = []; betsPush(); }
+    })
+    .catch(function(){ syncNote('Could not reach the relay — showing the last copy.'); });
+}
+var localOnly = [];
+
+function takeBets(list){
+  var live = (list || []).filter(function(b){ return !b.deleted && b.legs && b.legs.length; });
+  var before = JSON.stringify(BETS.map(betKey));
+  SYNC.base = {};
+  (list || []).forEach(function(b){ if (!b.deleted && b.legs) SYNC.base[b.id] = betKey(b); });
+  BETS = live;
+  try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  syncNote('Shared through the relay \u00b7 ' + live.length + ' bet' + (live.length === 1 ? '' : 's') +
+    ' \u00b7 checked ' + new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', second:'2-digit'}));
+  if (JSON.stringify(BETS.map(betKey)) !== before){
+    paintBetList(); evaluateBets();
+    if (!document.body.classList.contains('phone')) render();
+  }
+}
+
+function startSync(){
+  if (!syncOn()) return;
+  // bets made before sharing was switched on are offered up on the first pull
+  if (!SYNC.base) localOnly = BETS.slice();
+  betsPull();
+}
+setInterval(function(){ if (syncOn()) betsPull(); }, 10000);
 
 /* Stat words as bettors and sportsbooks write them, mapped to ESPN's box keys. */
 var STAT_WORDS = [
@@ -3336,7 +4015,8 @@ var NIDX = null;
 function nameIndex(){
   if (NIDX) return NIDX;
   try {
-    var c = JSON.parse(localStorage.getItem('sundayBoardNames') || 'null');
+    // v2: the first index lacked initials; anything saved under the old key is ignored
+    var c = JSON.parse(localStorage.getItem('sundayBoardNames2') || 'null');
     if (c && c.at && Date.now() - c.at < 36 * 3600000 && c.map) return (NIDX = c.map);
   } catch(e){}
   return null;
@@ -3349,17 +4029,24 @@ function fetchNames(){
     .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
     .then(function(all){
       var map = Object.create(null);
+      var once = function(key, team){
+        // a shortened key is only useful while it points at exactly one player
+        map[key] = map[key] === undefined ? {t: team, one: 1} : {one: 0};
+      };
       for (var id in all){
         var pl = all[id];
         if (!pl || !pl.team || !pl.last_name) continue;
-        var full = ((pl.first_name || '') + ' ' + pl.last_name).trim();
-        map[norm(full)] = {t: pl.team, p: pl.position || '', j: String(pl.number != null ? pl.number : '')};
-        var ln = '~' + norm(pl.last_name);
-        // a surname on its own is only useful while it points at one player
-        map[ln] = map[ln] === undefined ? {t: pl.team, one: 1} : {one: 0};
+        var last = String(pl.last_name).replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim();
+        var first = String(pl.first_name || '').trim();
+        var rec = {t: pl.team, p: pl.position || '', j: String(pl.number != null ? pl.number : '')};
+        map[norm(first + ' ' + last)] = rec;
+        map[norm(first + ' ' + pl.last_name)] = rec;           // with the suffix, as written
+        // "K. Walker": there are several Walkers, but one K. Walker
+        if (first) once('^' + first.charAt(0).toLowerCase() + ':' + norm(last), pl.team);
+        once('~' + norm(last), pl.team);
       }
       NIDX = map;
-      try { localStorage.setItem('sundayBoardNames', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
+      try { localStorage.setItem('sundayBoardNames2', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
       paintBets(); render();
     })
     .catch(function(){})
@@ -3377,6 +4064,10 @@ function playerTeam(name){
   if (hit && hit.t) return hit.t;
   var ln = surnameOf(name);
   if (ln){
+    // first initial and surname beats surname alone: several Walkers, one K. Walker
+    var ini = String(name).trim().charAt(0).toLowerCase();
+    var byIni = idx['^' + ini + ':' + norm(ln)];
+    if (byIni && byIni.one && byIni.t) return byIni.t;
     var one = idx['~' + norm(ln)];
     if (one && one.one && one.t) return one.t;
   }
@@ -3561,12 +4252,68 @@ function legDetail(leg, ls){
 /* One leg as it reads on the strip: its label, where it stands, a bar for props. */
 /* The chip wears the colours of the game it rides on — the same diagonal as the
    cards, a little brighter — so a bet and its box match at a glance. */
+/* Which half of the chip is "his": the player's team on a prop or TD, the team
+   backed on a spread or moneyline. Totals belong to both, so neither. */
+function betSide(leg, g){
+  if (!g || leg.type === 'total') return '';
+  var t = (leg.type === 'prop' || leg.type === 'td') ? (leg.team || playerTeam(leg.player)) : leg.team;
+  if (!t) return '';
+  if (g.away.abbr === t || g.away.abbr === ALIAS[t]) return 'away';
+  if (g.home.abbr === t || g.home.abbr === ALIAS[t]) return 'home';
+  return '';
+}
+
+/* The chip's colours are drawn after layout, in real pixels, so the outline can
+   follow the coloured half exactly: the same diagonal, the same rounded corners.
+   The chip records its two colours and which half is "his"; skinChips() does
+   the drawing once it knows each chip's size. */
 function betSkin(leg, ls){
   var g = (ls && ls.g) || (leg.team ? gameFor(leg.team) : null);
   if (!g && (leg.type === 'prop' || leg.type === 'td')) g = gameForLeg(leg);
-  if (!g || !cfg.tint || !g.away.color) return '';
-  return ' style="--ca:' + tint(g.away.color, g.away.alt, 0.19) +
-         ';--cb:' + tint(g.home.color, g.home.alt, 0.19) + '"';
+  if (!g || !cfg.tint || !g.away.color) return null;
+  return {attrs: ' data-ca="' + tint(g.away.color, g.away.alt, 0.19) +
+                 '" data-cb="' + tint(g.home.color, g.home.alt, 0.19) +
+                 '" data-side="' + betSide(leg, g) + '"'};
+}
+
+var SKIN_N = 0;
+var SEAM_TAN = Math.tan(17 * Math.PI / 180);   // the cards' seam leans 17 degrees
+function skinChips(root){
+  var chips = root.querySelectorAll('.bet.tinted');
+  for (var i = 0; i < chips.length; i++){
+    var c = chips[i];
+    var w = c.offsetWidth, h = c.offsetHeight;
+    if (!w || !h) continue;
+    var r = Math.min(h / 2, parseFloat(getComputedStyle(c).borderTopLeftRadius) || 0);
+    // the seam: same angle on every chip, centred, whatever the chip's width
+    var dx = h * SEAM_TAN, xt = w / 2 + dx / 2, xb = w / 2 - dx / 2;
+    var L = '0,0 ' + xt + ',0 ' + xb + ',' + h + ' 0,' + h;
+    var R = xt + ',0 ' + w + ',0 ' + w + ',' + h + ' ' + xb + ',' + h;
+    var side = c.getAttribute('data-side');
+    var half = side === 'away' ? L : (side === 'home' ? R : '');
+    var id = 'sk' + (++SKIN_N);
+    var rect = '<rect x="0" y="0" width="' + w + '" height="' + h + '" rx="' + r + '" ry="' + r + '"';
+    var sw = 2.5;                                            // visible outline width, px
+    var svg = '<svg class="skin" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+      '<defs><clipPath id="' + id + 'r">' + rect + '/></clipPath>' +
+      (half ? '<clipPath id="' + id + 'h"><polygon points="' + half + '"/></clipPath>' : '') + '</defs>' +
+      '<g clip-path="url(#' + id + 'r)">' +
+        '<polygon points="' + L + '" fill="' + c.getAttribute('data-ca') + '"/>' +
+        '<polygon points="' + R + '" fill="' + c.getAttribute('data-cb') + '"/>' +
+        '<line x1="' + xt + '" y1="0" x2="' + xb + '" y2="' + h + '" stroke="rgba(255,255,255,.16)" stroke-width="1.2"/>' +
+        /* The outline is each boundary stroked at double width and clipped to the
+           coloured half, so exactly the inner half of the stroke shows: it sits
+           on the edge of the colour everywhere — rounded corners, straight sides
+           and the diagonal alike. */
+        (half ? '<g clip-path="url(#' + id + 'h)">' +
+          rect + ' fill="none" stroke="#fff" stroke-width="' + (sw * 2) + '"/>' +
+          '<polygon points="' + half + '" fill="none" stroke="#fff" stroke-width="' + (sw * 2) + '" stroke-linejoin="miter"/>' +
+          '</g>' : '') +
+      '</g></svg>';
+    var old = c.querySelector('svg.skin');
+    if (old) old.remove();
+    c.insertAdjacentHTML('afterbegin', svg);
+  }
 }
 
 function legChip(leg, ls){
@@ -3584,7 +4331,8 @@ function legChip(leg, ls){
     inner += ' <i>' + ls.cur + '</i>';
   }
   var mark = ls.state === 'won' ? '\u2713' : (ls.state === 'lost' ? '\u2717' : (ls.state === 'push' ? '=' : ''));
-  return '<span class="' + cls + '"' + skin + '>' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
+  return '<span class="' + cls + '"' + (skin ? skin.attrs : '') + '>' +
+    (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
 }
 
 function betChip(b){
@@ -3635,6 +4383,7 @@ function paintBets(){
   el.querySelector('h2').innerHTML = 'MY BETS <span class="sum">' + sum + '</span>';
   el.querySelector('.items').innerHTML = '<div class="betrow">' + rows.map(function(r){ return betChip(r.b); }).join('') + '</div>';
   el.hidden = false;
+  skinChips(el);
   refitIfMoved(el);
 }
 /* The strip is repainted between board renders, when a box score lands. If
@@ -3647,21 +4396,24 @@ function refitIfMoved(el){
 }
 
 /* a small marker on any card carrying money */
+/* A parlay is one bet however many of its legs ride on this game, so the count
+   is bets; legs are added only when they tell you something extra. The count
+   used to be legs, which is why the same parlay read "1 bet" and later "5 bets"
+   as more of its players turned up in the box score. */
 function betBadge(g){
   if (!BETS.length) return '';
-  var n = 0;
+  var bets = 0, legs = 0;
   BETS.forEach(function(b){
+    var here = 0;
     b.legs.forEach(function(leg){
-      var t = leg.team;
-      if (!t && (leg.type === 'prop' || leg.type === 'td')){
-        var pg = gameForLeg(leg);
-        if (pg && String(pg.id) === String(g.id)) n++;
-        return;
-      }
-      if (t && (g.away.abbr === t || g.home.abbr === t)) n++;
+      var lg = leg.team && leg.type !== 'prop' && leg.type !== 'td' ? gameFor(leg.team) : gameForLeg(leg);
+      if (lg && String(lg.id) === String(g.id)) here++;
     });
+    if (here){ bets++; legs += here; }
   });
-  return n ? '<span class="betm">' + n + (n === 1 ? ' bet' : ' bets') + '</span>' : '';
+  if (!bets) return '';
+  return '<span class="betm">' + bets + (bets === 1 ? ' bet' : ' bets') +
+    (legs > bets ? ' \u00b7 ' + legs + ' legs' : '') + '</span>';
 }
 
 /* ---- settings ---- */
@@ -3750,14 +4502,619 @@ function finalBoxes(){
   });
 }
 
+/* ---------------- record & replay ----------------
+   While games are on, the board quietly keeps what the feeds said: the
+   scoreboard, each game's detail (box score, situation, drive), and the
+   Sleeper matchup. Any recorded afternoon can then be played back through the
+   board at speed, which is how features get checked against a real Sunday
+   rather than a made-up one. Everything stays in this browser; Export turns a
+   day into a single file you can hand over. Nothing is recorded in the demo
+   or while a replay is running. */
+
+var REC = {db:null, opening:null, last:Object.create(null), n:0, bytes:0};
+var REPLAY = null;   // {id, sb:[], sum:{}, mu:{}, start, end, t0, speed}
+var REC_FORCE = false;   // test hook: allow recording the demo
+
+function recOpen(){
+  if (REC.db) return Promise.resolve(REC.db);
+  if (REC.opening) return REC.opening;
+  REC.opening = new Promise(function(res, rej){
+    if (!window.indexedDB) return rej(new Error('no indexedDB'));
+    var rq = indexedDB.open('sundayBoardRec', 1);
+    rq.onupgradeneeded = function(){
+      var db = rq.result;
+      var fr = db.createObjectStore('frames', {autoIncrement:true});
+      fr.createIndex('session', 'session');
+      db.createObjectStore('sessions', {keyPath:'id'});
+    };
+    rq.onsuccess = function(){ REC.db = rq.result; res(REC.db); };
+    rq.onerror = function(){ rej(rq.error); };
+  });
+  return REC.opening;
+}
+
+/* gzip when the browser can (Chrome can); plain JSON otherwise */
+function packJSON(obj){
+  var txt = JSON.stringify(obj);
+  if (typeof CompressionStream === 'undefined') return Promise.resolve({raw:txt, n:txt.length});
+  var s = new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip'));
+  return new Response(s).blob().then(function(b){ return {gz:b, n:b.size}; });
+}
+function unpackJSON(rec){
+  if (rec.raw !== undefined) return Promise.resolve(JSON.parse(rec.raw));
+  var s = rec.gz.stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(s).text().then(JSON.parse);
+}
+
+function recSession(){
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+
+/* How often each kind of frame is worth keeping. The scoreboard changes every
+   poll, but ten seconds is plenty to replay a game faithfully. */
+var REC_EVERY = {sb:10000, sum:30000, mu:20000};
+
+function record(kind, key, data){
+  if (!cfg.record || REPLAY || (DEMO && !REC_FORCE)) return;
+  var k = kind + ':' + (key || ''), now = Date.now();
+  if (REC.last[k] && now - REC.last[k] < REC_EVERY[kind]) return;
+  REC.last[k] = now;
+  var slim = kind === 'sb' ? trimScoreboard(data) : (kind === 'sum' ? trimSummary(data) : data);
+  var session = recSession();
+  Promise.all([recOpen(), packJSON(slim)]).then(function(r){
+    var db = r[0], packed = r[1];
+    var tx = db.transaction(['frames', 'sessions'], 'readwrite');
+    var row = {session:session, t:now, kind:kind, key:key || ''};
+    if (packed.gz) row.gz = packed.gz; else row.raw = packed.raw;
+    tx.objectStore('frames').add(row);
+    var ss = tx.objectStore('sessions'), g = ss.get(session);
+    g.onsuccess = function(){
+      var s = g.result || {id:session, start:now, end:now, count:0, bytes:0};
+      s.end = now; s.count++; s.bytes += packed.n;
+      ss.put(s);
+    };
+    REC.n++; REC.bytes += packed.n;
+  }).catch(function(){});
+  if (REC.n === 1) recPrune();
+}
+
+/* Drop what the board never reads, so a whole Sunday stays a few megabytes. */
+function trimScoreboard(d){
+  var out = {week:d.week, season:d.season, events:[]};
+  (d.events || []).forEach(function(ev){
+    var e = {id:ev.id, date:ev.date, name:ev.name, status:ev.status, competitions:[]};
+    (ev.competitions || []).forEach(function(c){
+      e.competitions.push({
+        id:c.id, status:c.status, situation:c.situation, odds:c.odds,
+        broadcast:c.broadcast, broadcasts:c.broadcasts, neutralSite:c.neutralSite,
+        competitors:(c.competitors || []).map(function(x){
+          var t = x.team || {};
+          return {homeAway:x.homeAway, score:x.score, records:x.records,
+                  team:{id:t.id, abbreviation:t.abbreviation, shortDisplayName:t.shortDisplayName,
+                        displayName:t.displayName, logo:t.logo, color:t.color,
+                        alternateColor:t.alternateColor}};
+        })
+      });
+    });
+    out.events.push(e);
+  });
+  return out;
+}
+function trimSummary(j){
+  var hc = j && j.header && j.header.competitions && j.header.competitions[0];
+  var dc = j && j.drives && j.drives.current;
+  return {
+    header: hc ? {competitions:[{situation:hc.situation, status:hc.status}]} : null,
+    situation: j && j.situation,
+    boxscore: j && j.boxscore ? {players:j.boxscore.players} : null,
+    drives: dc ? {current:{team:dc.team, plays:(dc.plays || []).slice(-6)}} : null,
+    winprobability: (j && j.winprobability || []).slice(-2),
+    pickcenter: j && j.pickcenter
+  };
+}
+
+/* keep the four most recent days */
+function recPrune(){
+  recOpen().then(function(db){
+    var tx = db.transaction('sessions', 'readonly'), all = tx.objectStore('sessions').getAll();
+    all.onsuccess = function(){
+      var list = (all.result || []).sort(function(a, b){ return b.start - a.start; });
+      list.slice(4).forEach(function(s){ recDelete(s.id); });
+    };
+  }).catch(function(){});
+}
+function recDelete(id){
+  return recOpen().then(function(db){
+    return new Promise(function(res){
+      var tx = db.transaction(['frames', 'sessions'], 'readwrite');
+      var idx = tx.objectStore('frames').index('session');
+      var cur = idx.openKeyCursor(IDBKeyRange.only(id));
+      cur.onsuccess = function(){
+        var c = cur.result;
+        if (c){ tx.objectStore('frames').delete(c.primaryKey); c.continue(); }
+      };
+      tx.objectStore('sessions').delete(id);
+      tx.oncomplete = function(){ res(); };
+    });
+  });
+}
+function recList(){
+  return recOpen().then(function(db){
+    return new Promise(function(res){
+      var g = db.transaction('sessions', 'readonly').objectStore('sessions').getAll();
+      g.onsuccess = function(){
+        res((g.result || []).sort(function(a, b){ return b.start - a.start; }));
+      };
+      g.onerror = function(){ res([]); };
+    });
+  }).catch(function(){ return []; });
+}
+
+/* read a whole day back, decompressed and sorted by kind */
+function recLoad(id){
+  return recOpen().then(function(db){
+    return new Promise(function(res){
+      var rows = [];
+      var cur = db.transaction('frames', 'readonly').objectStore('frames')
+        .index('session').openCursor(IDBKeyRange.only(id));
+      cur.onsuccess = function(){
+        var c = cur.result;
+        if (c){ rows.push(c.value); c.continue(); } else res(rows);
+      };
+    });
+  }).then(function(rows){
+    return Promise.all(rows.map(function(r){
+      return unpackJSON(r).then(function(d){ return {t:r.t, kind:r.kind, key:r.key, data:d}; });
+    }));
+  }).then(sortFrames);
+}
+function sortFrames(frames){
+  var out = {sb:[], sum:{}, mu:{}, start:Infinity, end:0};
+  frames.sort(function(a, b){ return a.t - b.t; }).forEach(function(f){
+    out.start = Math.min(out.start, f.t); out.end = Math.max(out.end, f.t);
+    if (f.kind === 'sb') out.sb.push(f);
+    else (out[f.kind][f.key] = out[f.kind][f.key] || []).push(f);
+  });
+  return out;
+}
+
+/* ---- playback ----
+   A virtual clock runs from the first frame at the chosen speed; every place
+   that would fetch asks for the latest frame at or before that moment. */
+function vnow(){ return REPLAY ? REPLAY.start + (Date.now() - REPLAY.t0) * REPLAY.speed : Date.now(); }
+function frameAt(list){
+  if (!list || !list.length) return null;
+  var t = vnow(), lo = 0, hi = list.length - 1, best = -1;
+  while (lo <= hi){
+    var mid = (lo + hi) >> 1;
+    if (list[mid].t <= t){ best = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return best < 0 ? null : list[best];
+}
+
+function startReplay(id, speed, from){
+  return recLoad(id).then(function(day){
+    if (!day.sb.length) throw new Error('nothing recorded');
+    stopDemoIfAny();
+    REPLAY = day; REPLAY.id = id; REPLAY.speed = speed || 16; REPLAY.t0 = Date.now();
+    if (from) REPLAY.start = Math.max(day.start, from);
+    // a clean slate, as if the board had just been opened at that moment
+    prev = null; fired = Object.create(null); queue = []; showing = false;
+    clearTimeout(alertTimer); document.getElementById('alert').className = '';
+    BOX = Object.create(null); DEEP = Object.create(null); BETSEEN = null;
+    FAN.seen = {}; FAN.plays = [];
+    buffer = [];
+    poll();
+    paintReplay();
+  });
+}
+function stopReplay(){
+  if (!REPLAY) return;
+  REPLAY = null;
+  prev = null; fired = Object.create(null); BOX = Object.create(null);
+  DEEP = Object.create(null); BETSEEN = null; FAN.seen = {}; FAN.plays = [];
+  poll();
+  paintReplay();
+}
+function stopDemoIfAny(){
+  if (!DEMO) return;
+  DEMO = false; clearTimeout(timer);
+}
+function replayTick(){
+  if (vnow() > REPLAY.end + 5000){ var id = REPLAY.id; stopReplay(); recNote('Replay of ' + id + ' finished.'); return true; }
+  var f = frameAt(REPLAY.sb);
+  if (f){ lastGood = Date.now(); fails = 0; ingest(f.data); }
+  paintStatus();
+  return false;
+}
+
+/* ---- export / import ----
+   One file per day: every frame, in order. That file is what to send over when
+   something on the board needs checking against what actually happened. */
+function recExport(id){
+  return recLoad(id).then(function(day){
+    var frames = day.sb.slice();
+    ['sum', 'mu'].forEach(function(k){
+      for (var key in day[k]) frames = frames.concat(day[k][key].map(function(f){ return {t:f.t, kind:k, key:key, data:f.data}; }));
+    });
+    frames = frames.map(function(f){ return {t:f.t, kind:f.kind || 'sb', key:f.key || '', data:f.data}; })
+                   .sort(function(a, b){ return a.t - b.t; });
+    return packJSON({sundayBoard:'recording', version:1, session:id, frames:frames});
+  }).then(function(p){
+    var blob = p.gz || new Blob([p.raw], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sunday-board-' + id + (p.gz ? '.json.gz' : '.json');
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+  });
+}
+function recImport(file){
+  var gzipped = /\.gz$/i.test(file.name);
+  var read = gzipped
+    ? new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text()
+    : file.text();
+  return read.then(JSON.parse).then(function(obj){
+    if (!obj || obj.sundayBoard !== 'recording' || !obj.frames) throw new Error('not a board recording');
+    var id = 'import-' + (obj.session || 'day');
+    return recDelete(id).then(function(){ return recOpen(); }).then(function(db){
+      return Promise.all(obj.frames.map(function(f){
+        return packJSON(f.data).then(function(p){
+          var row = {session:id, t:f.t, kind:f.kind, key:f.key || ''};
+          if (p.gz) row.gz = p.gz; else row.raw = p.raw;
+          return {row:row, n:p.n};
+        });
+      })).then(function(rows){
+        return new Promise(function(res){
+          var tx = db.transaction(['frames', 'sessions'], 'readwrite');
+          var st = {id:id, start:Infinity, end:0, count:0, bytes:0};
+          rows.forEach(function(r){
+            tx.objectStore('frames').add(r.row);
+            st.start = Math.min(st.start, r.row.t); st.end = Math.max(st.end, r.row.t);
+            st.count++; st.bytes += r.n;
+          });
+          tx.objectStore('sessions').put(st);
+          tx.oncomplete = function(){ res(id); };
+        });
+      });
+    });
+  });
+}
+
+/* ---- settings panel ---- */
+function recNote(t){ var el = document.getElementById('recNote'); if (el) el.textContent = t; }
+function paintReplay(){
+  var box = document.getElementById('recList');
+  if (!box) return;
+  recList().then(function(list){
+    if (!list.length){ box.innerHTML = '<p class="note">Nothing recorded yet — it starts on its own when games are live.</p>'; return; }
+    box.innerHTML = list.map(function(s){
+      var mins = Math.round((s.end - s.start) / 60000);
+      var on = REPLAY && REPLAY.id === s.id;
+      return '<div class="rl"><span><b>' + esc(s.id) + '</b> <i>' +
+        new Date(s.start).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) + '–' +
+        new Date(s.end).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) +
+        ' · ' + mins + ' min · ' + (s.bytes / 1048576).toFixed(1) + ' MB</i></span><span class="acts">' +
+        (on ? '<button data-rstop="1">stop</button>'
+            : '<button data-rplay="' + esc(s.id) + '">play</button>') +
+        '<button data-rexp="' + esc(s.id) + '">export</button>' +
+        '<button data-rdel="' + esc(s.id) + '">×</button></span></div>';
+    }).join('');
+    box.querySelectorAll('[data-rplay]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var sp = Number(document.getElementById('sRecSpeed').value) || 16;
+        recNote('Loading ' + b.getAttribute('data-rplay') + '…');
+        startReplay(b.getAttribute('data-rplay'), sp).then(function(){
+          recNote('Replaying at ' + sp + '× — the lights stay off during replays.');
+          togglePanel(false);
+        }).catch(function(e){ recNote('Could not replay: ' + e.message); });
+      });
+    });
+    box.querySelectorAll('[data-rstop]').forEach(function(b){
+      b.addEventListener('click', function(){ stopReplay(); recNote('Back to live.'); });
+    });
+    box.querySelectorAll('[data-rexp]').forEach(function(b){
+      b.addEventListener('click', function(){
+        recNote('Packing ' + b.getAttribute('data-rexp') + '…');
+        recExport(b.getAttribute('data-rexp')).then(function(){ recNote('Saved to your downloads.'); })
+          .catch(function(e){ recNote('Export failed: ' + e.message); });
+      });
+    });
+    box.querySelectorAll('[data-rdel]').forEach(function(b){
+      b.addEventListener('click', function(){
+        recDelete(b.getAttribute('data-rdel')).then(paintReplay);
+      });
+    });
+  });
+}
+
+/* ---- QR codes ----
+   A small encoder so the board can show a code to scan without loading anything
+   from outside: byte mode, error correction level M, versions 1–10 (up to about
+   200 characters), mask chosen by the standard penalty rules. Follows the
+   structure of Project Nayuki's reference implementation. */
+var QR = (function(){
+  // per version 1..10, level M
+  var ECC_LEN = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26];
+  var BLOCKS  = [0,  1,  1,  1,  2,  2,  4,  4,  4,  5,  5];
+
+  function rawModules(v){
+    var r = (16 * v + 128) * v + 64;
+    if (v >= 2){ var n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; }
+    return r;
+  }
+  function dataCodewords(v){ return Math.floor(rawModules(v) / 8) - ECC_LEN[v] * BLOCKS[v]; }
+  function alignPos(v){
+    if (v === 1) return [];
+    var n = Math.floor(v / 7) + 2, step = Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2, res = [6];
+    for (var pos = v * 4 + 10; res.length < n; pos -= step) res.splice(1, 0, pos);
+    return res;
+  }
+  function gmul(x, y){
+    var z = 0;
+    for (var i = 7; i >= 0; i--){ z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; }
+    return z & 0xFF;
+  }
+  function rsDivisor(deg){
+    var r = []; for (var i = 0; i < deg - 1; i++) r.push(0); r.push(1);
+    var root = 1;
+    for (var k = 0; k < deg; k++){
+      for (var j = 0; j < r.length; j++){ r[j] = gmul(r[j], root); if (j + 1 < r.length) r[j] ^= r[j + 1]; }
+      root = gmul(root, 2);
+    }
+    return r;
+  }
+  function rsRemainder(data, div){
+    var r = div.map(function(){ return 0; });
+    data.forEach(function(b){
+      var f = b ^ r.shift(); r.push(0);
+      div.forEach(function(c, i){ r[i] ^= gmul(c, f); });
+    });
+    return r;
+  }
+  function bit(x, i){ return ((x >>> i) & 1) !== 0; }
+
+  function encode(text){
+    var bytes = [], s = unescape(encodeURIComponent(text));
+    for (var i = 0; i < s.length; i++) bytes.push(s.charCodeAt(i));
+    var v = 1;
+    for (; v <= 10; v++) if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= dataCodewords(v) * 8) break;
+    if (v > 10) throw new Error('text too long for a QR code here');
+    // --- the bit stream
+    var bb = [];
+    var put = function(val, len){ for (var i = len - 1; i >= 0; i--) bb.push((val >>> i) & 1); };
+    put(4, 4); put(bytes.length, v < 10 ? 8 : 16);
+    bytes.forEach(function(b){ put(b, 8); });
+    var cap = dataCodewords(v) * 8;
+    put(0, Math.min(4, cap - bb.length));
+    put(0, (8 - bb.length % 8) % 8);
+    for (var pad = 0xEC; bb.length < cap; pad ^= 0xEC ^ 0x11) put(pad, 8);
+    var data = [];
+    for (var k = 0; k < bb.length; k += 8){ var x = 0; for (var q = 0; q < 8; q++) x = (x << 1) | bb[k + q]; data.push(x); }
+    // --- error correction, split into blocks and interleaved
+    var nb = BLOCKS[v], el = ECC_LEN[v], raw = Math.floor(rawModules(v) / 8);
+    var nShort = nb - raw % nb, shortLen = Math.floor(raw / nb), div = rsDivisor(el), blocks = [];
+    for (var bi = 0, off = 0; bi < nb; bi++){
+      var dat = data.slice(off, off + shortLen - el + (bi < nShort ? 0 : 1));
+      off += dat.length;
+      var ecc = rsRemainder(dat, div);
+      if (bi < nShort) dat.push(0);
+      blocks.push(dat.concat(ecc));
+    }
+    var code = [];
+    for (var ci = 0; ci < blocks[0].length; ci++){
+      blocks.forEach(function(bl, j){ if (ci !== shortLen - el || j >= nShort) code.push(bl[ci]); });
+    }
+    // --- the grid
+    var size = v * 4 + 17, mod = [], fn = [];
+    for (var y = 0; y < size; y++){ mod.push(new Array(size).fill(false)); fn.push(new Array(size).fill(false)); }
+    var setF = function(x, y, d){ mod[y][x] = d; fn[y][x] = true; };
+    for (var t = 0; t < size; t++){ setF(6, t, t % 2 === 0); setF(t, 6, t % 2 === 0); }
+    var finder = function(cx, cy){
+      for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++){
+        var d = Math.max(Math.abs(dx), Math.abs(dy)), xx = cx + dx, yy = cy + dy;
+        if (xx >= 0 && xx < size && yy >= 0 && yy < size) setF(xx, yy, d !== 2 && d !== 4);
+      }
+    };
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    var ap = alignPos(v), na = ap.length;
+    for (var ai = 0; ai < na; ai++) for (var aj = 0; aj < na; aj++){
+      if ((ai === 0 && aj === 0) || (ai === 0 && aj === na - 1) || (ai === na - 1 && aj === 0)) continue;
+      for (var ady = -2; ady <= 2; ady++) for (var adx = -2; adx <= 2; adx++)
+        setF(ap[ai] + adx, ap[aj] + ady, Math.max(Math.abs(adx), Math.abs(ady)) !== 1);
+    }
+    var format = function(mask){
+      var d = (0 << 3) | mask, rem = d;            // level M has format bits 00
+      for (var i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+      var bits = ((d << 10) | rem) ^ 0x5412;
+      for (var a = 0; a <= 5; a++) setF(8, a, bit(bits, a));
+      setF(8, 7, bit(bits, 6)); setF(8, 8, bit(bits, 7)); setF(7, 8, bit(bits, 8));
+      for (var b = 9; b < 15; b++) setF(14 - b, 8, bit(bits, b));
+      for (var c = 0; c < 8; c++) setF(size - 1 - c, 8, bit(bits, c));
+      for (var e = 8; e < 15; e++) setF(8, size - 15 + e, bit(bits, e));
+      setF(8, size - 8, true);
+    };
+    format(0);
+    if (v >= 7){
+      var rem2 = v;
+      for (var r2 = 0; r2 < 12; r2++) rem2 = (rem2 << 1) ^ ((rem2 >>> 11) * 0x1F25);
+      var vb = (v << 12) | rem2;
+      for (var vi = 0; vi < 18; vi++){
+        var vbit = bit(vb, vi), pa = size - 11 + vi % 3, pb = Math.floor(vi / 3);
+        setF(pa, pb, vbit); setF(pb, pa, vbit);
+      }
+    }
+    // codewords in the zigzag
+    var n = 0;
+    for (var right = size - 1; right >= 1; right -= 2){
+      if (right === 6) right = 5;
+      for (var vert = 0; vert < size; vert++) for (var jj = 0; jj < 2; jj++){
+        var cx = right - jj, up = ((right + 1) & 2) === 0, cy = up ? size - 1 - vert : vert;
+        if (!fn[cy][cx] && n < code.length * 8){ mod[cy][cx] = bit(code[n >>> 3], 7 - (n & 7)); n++; }
+      }
+    }
+    // --- pick the mask with the lowest penalty
+    var masks = [
+      function(x, y){ return (x + y) % 2 === 0; }, function(x, y){ return y % 2 === 0; },
+      function(x){ return x % 3 === 0; },          function(x, y){ return (x + y) % 3 === 0; },
+      function(x, y){ return (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0; },
+      function(x, y){ return x * y % 2 + x * y % 3 === 0; },
+      function(x, y){ return (x * y % 2 + x * y % 3) % 2 === 0; },
+      function(x, y){ return ((x + y) % 2 + x * y % 3) % 2 === 0; }
+    ];
+    var applyMask = function(m){
+      for (var y = 0; y < size; y++) for (var x = 0; x < size; x++)
+        if (!fn[y][x] && masks[m](x, y)) mod[y][x] = !mod[y][x];
+    };
+    var penalty = function(){
+      var p = 0, dark = 0, x, y;
+      var line = function(get){
+        for (var a = 0; a < size; a++){
+          var run = 1, cells = [];
+          for (var b = 0; b < size; b++) cells.push(get(a, b));
+          for (var c = 1; c < size; c++){
+            if (cells[c] === cells[c - 1]){ run++; if (run === 5) p += 3; else if (run > 5) p++; }
+            else run = 1;
+          }
+          var str = cells.map(function(z){ return z ? '1' : '0'; }).join('');
+          var pat = /(?=(10111010000|00001011101))/g;
+          while (pat.exec(str)){ p += 40; pat.lastIndex++; }
+        }
+      };
+      line(function(a, b){ return mod[a][b]; });
+      line(function(a, b){ return mod[b][a]; });
+      for (y = 0; y < size - 1; y++) for (x = 0; x < size - 1; x++){
+        var c0 = mod[y][x];
+        if (c0 === mod[y][x + 1] && c0 === mod[y + 1][x] && c0 === mod[y + 1][x + 1]) p += 3;
+      }
+      for (y = 0; y < size; y++) for (x = 0; x < size; x++) if (mod[y][x]) dark++;
+      p += Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+      return p;
+    };
+    var best = 0, bestP = Infinity;
+    for (var mm = 0; mm < 8; mm++){
+      applyMask(mm); format(mm);
+      var pp = penalty();
+      if (pp < bestP){ bestP = pp; best = mm; }
+      applyMask(mm);                              // undo
+    }
+    applyMask(best); format(best);
+    return {size:size, modules:mod, version:v, mask:best};
+  }
+
+  /* as an SVG: black on white with the four-module quiet zone scanners want */
+  function svg(text, px){
+    var q = encode(text), n = q.size + 8, d = '';
+    for (var y = 0; y < q.size; y++) for (var x = 0; x < q.size; x++)
+      if (q.modules[y][x]) d += 'M' + (x + 4) + ',' + (y + 4) + 'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n + ' ' + n + '" width="' + (px || 180) +
+      '" height="' + (px || 180) + '" shape-rendering="crispEdges"><rect width="' + n + '" height="' + n +
+      '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  }
+  return {encode:encode, svg:svg};
+})();
+
 /* ---------------- chrome ---------------- */
+function showTab(name){
+  var ok = false;
+  [].slice.call(document.querySelectorAll('#ptabs button')).forEach(function(b){
+    var on = b.getAttribute('data-tab') === name; b.classList.toggle('on', on); ok = ok || on;
+  });
+  if (!ok) return showTab('board');
+  [].slice.call(document.querySelectorAll('.ptab')).forEach(function(t){
+    t.classList.toggle('on', t.getAttribute('data-tab') === name);
+  });
+  cfg.ptab = name; save();
+  document.getElementById('panel').scrollTop = 0;
+  if (name === 'system') paintReplay();
+}
+
+/* Back to the defaults for everything about how the board looks and alerts.
+   Accounts, the lights, bets and recordings are someone's setup, not a
+   preference, so they stay. */
+var KEEP_ON_RESET = ['sleeperUser','sleeperId','league','starterOnly','govee','goveeUrl','goveeKey',
+  'goveeDev','goveeSku','goveeSeg','goveeScenes','gvSeed','seed2','record','ptab','betSync'];
+function resetSettings(){
+  if (!confirm('Reset the board\'s settings to their defaults?\n\nYour Sleeper account, lights, bets and recordings are kept.')) return;
+  var keep = {};
+  KEEP_ON_RESET.forEach(function(k){ keep[k] = cfg[k]; });
+  var fresh = {};
+  for (var k in DEFAULTS) fresh[k] = DEFAULTS[k];
+  for (var k2 in keep) fresh[k2] = keep[k2];
+  try { localStorage.setItem('sundayBoard', JSON.stringify(fresh)); } catch(e){}
+  location.reload();
+}
+
+/* ---- backup: the whole setup in one file ----
+   Settings (and optionally bets) as plain JSON. The relay token is left out
+   unless asked for, so a backup can be handed around without opening the lights. */
+function cfgNote(t){ var el = document.getElementById('cfgNote'); if (el) el.textContent = t; }
+function cfgExport(){
+  var withTok = document.getElementById('sCfgTok').checked;
+  var withBets = document.getElementById('sCfgBets').checked;
+  var out = {};
+  for (var k in DEFAULTS) out[k] = cfg[k];
+  if (!withTok) delete out.goveeKey;
+  var d = new Date();
+  var stamp = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  var file = {sundayBoard:'settings', version:1, exported:d.toISOString(), build:BUILD, cfg:out};
+  if (withBets) file.bets = BETS;
+  var blob = new Blob([JSON.stringify(file, null, 1)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sunday-board-settings-' + stamp + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+  var tq = document.getElementById('sCfgTok');
+  if (tq.checked){ tq.checked = false; cfgNote('Saved — with your relay token, so keep that file private.'); }
+  else cfgNote('Saved to your downloads.');
+}
+function cfgImport(file){
+  return file.text().then(function(txt){
+    var f;
+    try { f = JSON.parse(txt); } catch(e){ throw new Error('that isn\'t a settings file'); }
+    if (!f || f.sundayBoard !== 'settings' || !f.cfg || typeof f.cfg !== 'object')
+      throw new Error(f && f.sundayBoard === 'recording' ? 'that\'s a recording — load it under Record & replay' : 'that isn\'t a settings file');
+    var nBets = Array.isArray(f.bets) ? f.bets.length : 0;
+    var when = f.exported ? new Date(f.exported).toLocaleString() : 'an unknown date';
+    if (!confirm('Load settings saved ' + when + '?\n\nThis replaces how this board is set up' +
+        (nBets ? ' and adds ' + nBets + ' bet' + (nBets === 1 ? '' : 's') + ' (bets already here are kept)' : '') +
+        '.' + (f.cfg.goveeKey ? '' : '\nYour relay token here is kept.'))) return false;
+    var next = {};
+    for (var k in DEFAULTS) next[k] = cfg[k];
+    for (var j in f.cfg) if (j in DEFAULTS && typeof f.cfg[j] === typeof DEFAULTS[j]) next[j] = f.cfg[j];
+    next.ptab = 'system';
+    if (nBets){
+      var have = {}, keys = {};
+      BETS.forEach(function(b){ have[b.id] = 1; keys[betKey(b)] = 1; });
+      f.bets.forEach(function(b){
+        if (!b || !b.id || !Array.isArray(b.legs) || have[b.id] || keys[betKey(b)]) return;
+        BETS.push(b); have[b.id] = 1; keys[betKey(b)] = 1;
+      });
+    }
+    try { localStorage.setItem('sundayBoard', JSON.stringify(next)); } catch(e){}
+    cfg = next;
+    if (nBets) saveBets();
+    // give a sync push a moment to reach the relay before the page restarts
+    setTimeout(function(){ location.reload(); }, nBets && syncOn() ? 1500 : 50);
+    return true;
+  });
+}
+
 function togglePanel(force){
   var p = document.getElementById('panel');
   var open = force === undefined ? !p.classList.contains('open') : force;
+  if (!open){
+    var qt = document.getElementById('sQRToken');
+    if (qt && qt.checked){ qt.checked = false; paintPhoneQR(); }
+    var ct = document.getElementById('sCfgTok'); if (ct) ct.checked = false;
+  } else paintPhoneQR();
   p.classList.toggle('open', open);
   document.getElementById('scrim').classList.toggle('on', open);
   // the header's SETTINGS button sits under the open panel, so focus the way out
   if (open) setTimeout(function(){ document.getElementById('sClose').focus(); }, 210);
+  if (open && cfg.ptab === 'system') paintReplay();
 }
 function fullscreen(){
   if (document.fullscreenElement) document.exitFullscreen();
@@ -3771,6 +5128,35 @@ function keepAwake(){
   }).catch(function(){});
 }
 
+/* ---- keeping itself running ----
+   A board nobody touches for six hours meets things a tested page doesn't: the
+   laptop dozes and wakes with timers stale, the wake lock is dropped whenever the
+   window loses focus, and GitHub Pages quietly serves a newer copy. Every 20s
+   this checks the poll loop is still turning, takes the wake lock back, and —
+   only when no game is on — looks for a new build. */
+function watchdog(){
+  var now = Date.now(), slept = now - WD.beat > 60000;
+  WD.beat = now;
+  if (document.visibilityState === 'visible' && !wake) keepAwake();
+  if (DEMO || REPLAY) return;
+  var limit = cfg.interval * 1000 * 8 + 30000;
+  if (slept || (WD.tried && now - WD.tried > limit)){
+    WD.kicks++; fails = 0; clearTimeout(timer); poll();
+  }
+  var anyLive = (window.__games || []).some(function(g){ return g.state === 'in'; });
+  if (cfg.autoUpdate !== false && !anyLive && /^https?:/.test(location.protocol) &&
+      now - WD.checked > 30 * 60000 && now - WD.born > 10 * 60000 &&
+      !document.getElementById('panel').classList.contains('open')){
+    WD.checked = now;
+    fetch(location.href.split('#')[0], {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(t){
+        var m = /var BUILD = '([^']+)'/.exec(t || '');
+        if (m && m[1] !== BUILD) location.reload();
+      }).catch(function(){});
+  }
+}
+document.addEventListener('fullscreenchange', function(){ if (!wake) keepAwake(); });
+
 document.addEventListener('visibilitychange', function(){
   if (document.visibilityState === 'visible'){ if (!wake) keepAwake(); if (!DEMO) poll(); }
 });
@@ -3779,6 +5165,9 @@ document.addEventListener('keydown', function(e){
   // being swallowed, which left the panel with no keyboard exit at all.
   if (e.key === 'Escape'){
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    if (!document.getElementById('panel').classList.contains('open') && SPOT.pin){
+      SPOT.pin = null; render(); return;
+    }
     togglePanel(false);
     return;
   }
@@ -3795,6 +5184,15 @@ document.addEventListener('keydown', function(e){
   }
 });
 document.getElementById('gear').addEventListener('click', function(){ togglePanel(); });
+document.getElementById('live').addEventListener('click', function(e){
+  var c = e.target.closest && e.target.closest('.game');
+  if (!c || cfg.spot === 'off') return;
+  var id = c.getAttribute('data-g');
+  if (SPOT.pin === id){ SPOT.pin = null; SPOT.skip = id; SPOT.auto = null; }
+  else if (SPOT.auto === id && !SPOT.pin){ SPOT.skip = id; SPOT.auto = null; }   // wave off a big moment
+  else SPOT.pin = id;
+  render();
+});
 document.getElementById('sClose').addEventListener('click', function(){ togglePanel(false); });
 document.getElementById('scrim').addEventListener('click', function(){ togglePanel(false); });
 
@@ -3808,8 +5206,9 @@ bind('sInterval','interval','num'); bind('sSound','sound','bool');
 bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
 bind('sFinal','final','bool'); bind('sYards','yards','num'); bind('sDur','dur','num');
 bind('sMinShow','minShow','num'); bind('sOrder','order','str');
+bind('sSpot','spot','str'); bind('sPrime','prime','bool');
 bind('sCloseMin','closeMin','num'); bind('sCloseMargin','closeMargin','num');
-bind('sTimeouts','timeouts','bool');
+bind('sTimeouts','timeouts','bool'); bind('sField','field','bool');
 bind('sFav','fav','str'); bind('sToday','today','bool'); bind('sScale','scale','num');
 bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
@@ -3821,9 +5220,71 @@ bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanFoes','fanFoes','bool');
 bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
+bind('sFanWin','fanWin','bool'); bind('sRecap','recap','bool'); bind('sAutoUpd','autoUpdate','bool');
+document.getElementById('sFanWin').addEventListener('change', paintFanBar);
+document.getElementById('sRecap').addEventListener('change', render);
 bind('sFanRoll','fanRoll','bool');
 bind('sFanAlerts','fanAlerts','str'); bind('sFanMin','fanMin','num');
-bind('sStripBets','stripBets','bool'); bind('sBetAlerts','betAlerts','bool'); bind('sBetMoney','betMoney','bool');
+bind('sRecord','record','bool');
+[].slice.call(document.querySelectorAll('#ptabs button')).forEach(function(b){
+  b.addEventListener('click', function(){ showTab(b.getAttribute('data-tab')); });
+});
+showTab(cfg.ptab || 'board');
+document.getElementById('sReset').addEventListener('click', resetSettings);
+document.getElementById('sCfgExp').addEventListener('click', cfgExport);
+document.getElementById('sCfgFile').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  if (!f) return;
+  cfgImport(f).then(function(ok){ cfgNote(ok ? 'Loaded — restarting the board…' : 'Nothing changed.'); })
+    .catch(function(e){ cfgNote('Could not load that file: ' + e.message + '.'); });
+  this.value = '';
+});
+document.getElementById('sRecFile').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  if (!f) return;
+  recNote('Reading ' + f.name + '\u2026');
+  recImport(f).then(function(id){ recNote('Loaded as ' + id + ' \u2014 press play.'); paintReplay(); })
+    .catch(function(e){ recNote('Could not load that file: ' + e.message); });
+  this.value = '';
+});
+bind('sStripBets','stripBets','bool');
+bind('sBetSync','betSync','bool');
+document.getElementById('sBetSync').addEventListener('change', function(){
+  if (cfg.betSync){ SYNC.base = null; startSync(); }
+  else syncNote('Bets are kept in this browser only.');
+});
+/* The phone page's address as a QR code. Optionally it carries the relay and
+   token too, so one scan sets the phone up with nothing to type. That version
+   is a key to your bets and lights, so it is only drawn on request and goes
+   back to the plain link as soon as Settings closes. */
+function phoneLink(withToken){
+  var url = location.origin + location.pathname + '#bets';
+  if (withToken && cfg.goveeKey)
+    url += '&t=' + encodeURIComponent(cfg.goveeKey) + '&r=' + encodeURIComponent(gvBase());
+  return url;
+}
+function paintPhoneQR(){
+  var box = document.getElementById('phoneQR'), note = document.getElementById('qrNote');
+  var chk = document.getElementById('sQRToken');
+  if (!box) return;
+  var withTok = !!(chk && chk.checked && cfg.goveeKey);
+  try { box.innerHTML = QR.svg(phoneLink(withTok), 190); } catch(e){ box.textContent = e.message; }
+  box.classList.toggle('secret', withTok);
+  if (note) note.textContent = withTok
+    ? 'This code carries your access token: whoever scans it can add bets and flash your lights. It goes back to the plain link when you close Settings.'
+    : (chk && chk.checked && !cfg.goveeKey ? 'Enter the relay access token on the Lights tab first.'
+       : 'Scan with your phone\u2019s camera to open the bet page. You\u2019ll type the token once on the phone \u2014 or tick the box above to include it.');
+  var el = document.getElementById('phoneUrl'); if (el) el.textContent = phoneLink(false);
+}
+(function(){
+  var cp = document.getElementById('sCopyPhone');
+  if (cp) cp.addEventListener('click', function(){
+    try { navigator.clipboard.writeText(phoneLink(false)); cp.textContent = 'copied'; } catch(e){}
+  });
+  var chk = document.getElementById('sQRToken');
+  if (chk) chk.addEventListener('change', paintPhoneQR);
+  paintPhoneQR();
+})(); bind('sBetAlerts','betAlerts','bool'); bind('sBetMoney','betMoney','bool');
 document.getElementById('sBetText').addEventListener('input', previewBets);
 document.getElementById('sBetAdd').addEventListener('click', addBets);
 document.getElementById('sBetEditAll').addEventListener('click', function(){
@@ -3842,6 +5303,9 @@ document.getElementById('sBetClear').addEventListener('click', function(){
 paintBetList();
 bind('sTick','tick','bool'); bind('sDeep','deep','bool');
 bind('sGovee','govee','bool'); bind('sGvUrl','goveeUrl','str'); bind('sGvKey','goveeKey','str');
+document.getElementById('sGvKey').addEventListener('input', function(){
+  cfg.goveeKey = this.value; save(); paintLeak();
+});
 bind('sGvPulses','goveePulses','num'); bind('sGvGap','goveeGap','num');
 bind('sGvMode','goveeMode','str'); bind('sGvHold','goveeHold','num');
 bind('sGvRest','gvRest','str'); bind('sGvRestBri','gvRestBri','num');
@@ -3896,6 +5360,67 @@ setInterval(function(){ if (cfg.fanBar) paintFanBar(); }, 30000);  // keep the a
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
 paintFlags();
 paintLog();
+if (/^#bets/.test(location.hash)) phoneMode(); else startSync();
+
+/* ---- the phone page ----
+   The same file, opened with #bets on the end: no board, just the bet box, the
+   syntax guide and your list, laid out for a thumb. It moves the real Bets tab
+   and the relay fields into a page of their own, so there is one parser and one
+   list, not a second copy to keep in step. */
+function phoneMode(){
+  var args = {};
+  location.hash.replace(/^#bets&?/, '').split('&').forEach(function(kv){
+    var i = kv.indexOf('='); if (i > 0) args[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1));
+  });
+  if (args.t){ cfg.goveeKey = args.t; }
+  if (args.r){ cfg.goveeUrl = args.r; }
+  if (args.t || args.r){
+    save();
+    // out of the address bar, history and any bookmark made from here on
+    try { history.replaceState(null, '', location.pathname + '#bets'); } catch(e){}
+    document.getElementById('sGvKey').value = cfg.goveeKey;
+    document.getElementById('sGvUrl').value = cfg.goveeUrl;
+  }
+  document.body.classList.add('phone');     // the gate and the board stay, hidden
+  var wrap = document.createElement('div');
+  wrap.id = 'phone';
+  wrap.innerHTML = '<h1>SUNDAY<em>BOARD</em> <span>bets</span></h1>' +
+    '<div id="phoneConn"><h4>Connection</h4></div>';
+  document.body.appendChild(wrap);
+  var conn = document.getElementById('phoneConn');
+  ['sGvUrl', 'sGvKey'].forEach(function(id){
+    var lab = document.getElementById(id).closest('label');
+    if (lab) conn.appendChild(lab);
+  });
+  var leak = document.getElementById('gvLeak'); if (leak) conn.appendChild(leak);
+  var note = document.createElement('p');
+  note.className = 'note'; note.id = 'phoneNote';
+  note.textContent = 'The relay address and access token you use on the board. Saved on this phone only.';
+  conn.appendChild(note);
+  var bets = document.querySelector('.ptab[data-tab="bets"]');
+  bets.classList.add('on');
+  wrap.appendChild(bets);
+  // on a phone the box comes first; the examples fold away under the list
+  var help = document.getElementById('betHelp');
+  if (help){
+    var det = document.createElement('details');
+    det.id = 'phoneHelp';
+    det.innerHTML = '<summary>How to write each kind of bet</summary>';
+    det.appendChild(help);
+    bets.appendChild(det);
+  }
+  // the sync status line lives in the TV-only block, so give the phone its own
+  var st = document.createElement('p');
+  st.className = 'note'; st.id = 'betSyncNote';
+  var old = document.getElementById('betSyncNote'); if (old) old.id = 'betSyncNoteTv';
+  wrap.appendChild(st);
+  cfg.betSync = true; save();
+  if (!cfg.goveeKey) syncNote('Enter the access token above to load your bets.');
+  ['sGvUrl', 'sGvKey'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', function(){ SYNC.base = null; startSync(); });
+  });
+  startSync();
+}
 
 function boot(demo){
   document.getElementById('gate').remove();
@@ -3908,6 +5433,7 @@ function boot(demo){
     setInterval(paintStatus, 1000);
     setInterval(drain, 500);
     setInterval(tickClocks, 1000);
+    setInterval(watchdog, 20000);
     deepTick();
   }
 }
