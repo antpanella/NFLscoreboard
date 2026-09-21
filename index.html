@@ -151,24 +151,24 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
   outline:calc(.035 * var(--U)) solid var(--flag);outline-offset:calc(-.035 * var(--U))}
 /* Field position: away end zone on the left, home on the right, the ball where
    it is spotted and a yellow line where the first down is. */
-.fp{position:relative;height:calc(.32 * var(--u));margin:calc(.12 * var(--u)) 0 calc(.05 * var(--u));
+.yb{position:relative;height:calc(.32 * var(--u));margin:calc(.12 * var(--u)) 0 calc(.05 * var(--u));
   border-radius:calc(.06 * var(--u));overflow:visible;
   box-shadow:0 0 0 calc(.03 * var(--u)) rgba(255,255,255,.4),0 0 calc(.2 * var(--u)) rgba(0,0,0,.5);
   background:
     linear-gradient(90deg,transparent 8.1%,rgba(255,255,255,.85) 8.1% 8.55%,transparent 8.55% 91.45%,rgba(255,255,255,.85) 91.45% 91.9%,transparent 91.9%),
     repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.22) calc(10% - 1px) 10%) 8.33% 0/83.33% 100% no-repeat,
     linear-gradient(90deg,var(--ea,#333) 0 8.33%,#0B1A12 8.33% 91.67%,var(--eh,#333) 91.67% 100%)}
-.fp .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.55)}
-.fp .ltg{position:absolute;top:calc(-.05 * var(--u));bottom:calc(-.05 * var(--u));width:calc(.05 * var(--u));
+.yb .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.55)}
+.yb .ltg{position:absolute;top:calc(-.05 * var(--u));bottom:calc(-.05 * var(--u));width:calc(.05 * var(--u));
   margin-left:calc(-.025 * var(--u));background:#FFD400;border-radius:1px}
-.fp .ball{position:absolute;top:50%;width:calc(.5 * var(--u));height:calc(.5 * var(--u));
+.yb .ball{position:absolute;top:50%;width:calc(.5 * var(--u));height:calc(.5 * var(--u));
   margin:calc(-.25 * var(--u)) 0 0 calc(-.25 * var(--u));background:var(--flag);
   box-shadow:0 0 0 calc(.035 * var(--u)) rgba(0,0,0,.7)}
-.fp .ball.r{clip-path:polygon(0 0,100% 50%,0 100%)}
-.fp .ball.l{clip-path:polygon(100% 0,0 50%,100% 100%)}
-.fp .ball.c{border-radius:50%}
-.game.rzon .fp .ball{background:#fff}
-body.nofp .fp{display:none}
+.yb .ball.r{clip-path:polygon(0 0,100% 50%,0 100%)}
+.yb .ball.l{clip-path:polygon(100% 0,0 50%,100% 100%)}
+.yb .ball.c{border-radius:50%}
+.game.rzon .yb .ball{background:#fff}
+body.noyb .yb{display:none}
 .game .lp{display:none}
 /* Prime time: one game on, so the board gives it the room. The card takes the
    left, and the right carries what a single game has time for. */
@@ -777,7 +777,7 @@ body.recapping #live{display:none}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21s';
+var BUILD = 'build 2026-09-21t';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2127,7 +2127,7 @@ function fieldBar(g){
   var sp = fieldSpot(g);
   // end zones in the full jersey colour, brighter than the card behind them
   var ea = tint(g.away.color, g.away.alt, 0.45), eh = tint(g.home.color, g.home.alt, 0.45);
-  var out = '<div class="fp" style="--ea:' + ea + ';--eh:' + eh + '"><span class="mid"></span>';
+  var out = '<div class="yb" style="--ea:' + ea + ';--eh:' + eh + '"><span class="mid"></span>';
   if (sp){
     if (sp.ltg !== null && sp.ltg > 0 && sp.ltg < 100) out += '<span class="ltg" style="left:' + pct(sp.ltg) + '"></span>';
     out += '<span class="ball ' + (sp.dir === false ? 'l' : sp.dir ? 'r' : 'c') + '" style="left:' + pct(sp.x) + '"></span>';
@@ -2362,7 +2362,7 @@ function buildSim(){
   var base = new Date(); base.setHours(12,55,0,0);
   var out = sched.map(function(s, i){
     return {id:'d' + i, a:s[0], h:s[1], net:s[2], kick:s[3],
-      as:0, hs:0, poss:s[0], dd:'1st & 10 at ' + s[0] + ' 25', rz:false, cast:[],
+      as:0, hs:0, poss:s[0], dd:'1st & 10 at ' + s[0] + ' 25', rz:false, y:25, cast:[],
       play:'', playId:0, pre:true, sp:SP[i], ou:OU[i],
       // two scripted finishes so a demo always shows the late-game alerts
       drama: i === 0 ? 'close' : (i === 3 ? 'ot' : ''),
@@ -2419,35 +2419,46 @@ function advance(){
       var qb = pick(QB), wr = pick(SKILL);
       g.play = qb + ' 8 yd touchdown pass to ' + wr + ', extra point good';
       g.cast = [qb, wr];
-      g.rz = false; g.poss = opp; g.dd = '1st & 10 at ' + opp + ' 25';
+      g.poss = opp; demoSpot(g, 25, true);
     } else if (r < 0.10 && el > 0.04){             // field goal
       if (off === g.a) g.as += 3; else g.hs += 3;
       var k = pick(KICK);
       g.play = k + ' 43 yd field goal is good';
       g.cast = [k];
-      g.rz = false; g.poss = opp; g.dd = '1st & 10 at ' + opp + ' 25';
+      g.poss = opp; demoSpot(g, 25, true);
     } else if (r < 0.135){                         // turnover
       var loser = pick(QB), taker = pick(SKILL);
       g.play = Math.random() < 0.5
         ? loser + ' pass INTERCEPTED by ' + taker + ' at the ' + opp + ' 38'
         : loser + ' FUMBLES, RECOVERED by ' + taker;
       g.cast = [loser, taker];
-      g.rz = false; g.poss = opp; g.dd = '1st & 10 at ' + opp + ' 38';
+      g.poss = opp; demoSpot(g, 38, true);
     } else if (r < 0.21){                          // chunk play, drive continues
       var rb = pick(SKILL);
       g.play = rb + ' ' + LONG[Math.floor(Math.random() * LONG.length)];
       g.cast = [rb];
-      g.rz = Math.random() < 0.5;
-      g.dd = g.rz ? '1st & Goal at ' + opp + ' 8' : '1st & 10 at ' + opp + ' 34';
+      demoSpot(g, Math.min(94, (g.y || 25) + 15 + Math.floor(Math.random() * 25)), true);
     } else {                                       // routine play, sometimes a punt
       var pl = pick(SKILL);
       g.play = pl + ' ' + SHORT[Math.floor(Math.random() * SHORT.length)];
       g.cast = [pl];
-      if (r > 0.78){ g.poss = opp; g.rz = false; off = opp; }
-      g.dd = ['1st & 10','2nd & 7','3rd & 4','2nd & 12'][Math.floor(Math.random() * 4)] +
-             ' at ' + off + ' ' + (20 + Math.floor(Math.random() * 40));
+      if (r > 0.78){                                // punt: flip the field
+        var land = Math.max(8, Math.min(40, 100 - ((g.y || 25) + 42)));
+        g.poss = opp; demoSpot(g, land, true);
+      } else demoSpot(g, Math.min(97, (g.y || 25) + Math.floor(Math.random() * 11) - 2), false);
     }
   });
+}
+/* The demo keeps a real ball spot — yards from the offense's own goal line — so
+   the field bar, the red zone and the down-and-distance agree with each other. */
+function demoSpot(g, y, fresh){
+  g.y = Math.max(1, Math.min(99, y));
+  var off = g.poss || g.a, def = off === g.a ? g.h : g.a, togo = 100 - g.y;
+  var spot = g.y === 50 ? '50' : g.y < 50 ? off + ' ' + g.y : def + ' ' + togo;
+  var down = fresh ? '1st' : ['1st', '2nd', '3rd', '2nd'][Math.floor(Math.random() * 4)];
+  var dist = togo <= 10 ? 'Goal' : String(fresh ? 10 : 1 + Math.floor(Math.random() * 10));
+  g.dd = down + ' & ' + dist + ' at ' + spot;
+  g.rz = togo <= 20;
 }
 function demoPayload(){
   return {week:{number:1}, season:{year:2026}, events: SIM.map(function(g){
@@ -3277,7 +3288,7 @@ function fit(cols, rows){
   document.body.classList.toggle('noinfo', !need.info);
   document.body.classList.toggle('nofan', !need.fan);
   document.body.classList.toggle('noto', !need.tos);
-  document.body.classList.toggle('nofp', !need.fp);
+  document.body.classList.toggle('noyb', !need.fp);
 
   var gap = Math.max(4, Math.round(Math.min(w, h) * 0.012));
   document.documentElement.style.setProperty('--gap', gap + 'px');
@@ -3374,7 +3385,7 @@ function fillCards(box, u2){
     for (var k = 0; k < kids.length; k++){
       var hgt = kids[k].offsetHeight;
       total += hgt;
-      if (!kids[k].classList.contains('row') && !kids[k].classList.contains('fp')) small += hgt;
+      if (!kids[k].classList.contains('row') && !kids[k].classList.contains('yb')) small += hgt;
     }
     var style = getComputedStyle(c);
     var inner = c.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
