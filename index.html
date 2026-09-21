@@ -93,6 +93,11 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .pts,#fanBar i,#fanBar .star,#fanBar .vs{flex:none}
 #fanBar .play .star{color:var(--live)}
 #fanBar .play .pts{color:var(--live)}
+#fanBar .lg{gap:.4rem}
+#fanBar .lg .nm,#fanBar .lg .pts{color:var(--sideline);font-weight:600}
+#fanBar .lg .nm.up{color:var(--chalk)} #fanBar .lg .pts.up{color:var(--flag);font-weight:700}
+#fanBar .lgtag{flex:none;font-size:calc(.7 * var(--su));font-weight:800;letter-spacing:.14em;color:#0A1410;
+  background:#C9A0FF;border-radius:3px;padding:.1em .5em;margin-right:.5rem}
 #fanBar .play .jn{color:var(--fantasy);font-weight:700}
 #fanBar .pj{color:var(--sideline);font-weight:600}
 #fanBar .up .pj{color:var(--chalk);opacity:.8}
@@ -682,6 +687,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   <h4>Header ticker</h4>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
+  <label>Rest of my league in the ticker <input type="checkbox" id="sFanLeague"></label>
   <label>Projected totals <input type="checkbox" id="sFanProj"></label>
   <label>Win chance <input type="checkbox" id="sFanWin"></label>
   <label>Scroll the ticker <input type="checkbox" id="sFanRoll"></label>
@@ -820,7 +826,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21x';
+var BUILD = 'build 2026-09-21y';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -835,7 +841,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'',                  // never in the file: this page is public
-  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, recap:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -3143,6 +3149,7 @@ function applyPoints(got){
         // the head-to-head for the first league, for the bar across the top
         if (m === FAN.mine[0]){
           FAN.match = matchupOf(rows, m);
+          FAN.others = otherMatchups(rows, m);
           var mineRow = null, oppRow = null;
           (rows || []).forEach(function(r){
             if (String(r.roster_id) === String(m.roster)) mineRow = r;
@@ -3171,6 +3178,27 @@ function applyPoints(got){
   paintFanBar();
   render();
 }
+/* Every other head-to-head in the league this week, paired up by matchup id,
+   for the ticker. Points only: projections for the whole league would mean
+   pulling every team's players, and the room cares about the score. */
+function otherMatchups(rows, m){
+  var names = FAN.owner[m.league] || {}, mineId = null, by = {};
+  (rows || []).forEach(function(r){ if (String(r.roster_id) === String(m.roster)) mineId = r.matchup_id; });
+  (rows || []).forEach(function(r){
+    if (r.matchup_id === null || r.matchup_id === undefined || r.matchup_id === mineId) return;
+    (by[r.matchup_id] = by[r.matchup_id] || []).push({name: names[r.roster_id] || ('roster ' + r.roster_id), pts: Number(r.points) || 0});
+  });
+  return Object.keys(by).sort(function(a, b){ return a - b; })
+    .map(function(k){ return by[k]; }).filter(function(p){ return p.length === 2; });
+}
+function leagueChip(p){
+  var a = p[0], b = p[1], aUp = a.pts >= b.pts;
+  return '<span class="side lg">' +
+    '<b class="nm' + (aUp ? ' up' : '') + '">' + esc(a.name) + '</b><span class="pts' + (aUp ? ' up' : '') + '">' + fmtPts(a.pts) + '</span>' +
+    '<span class="vs">\u2013</span>' +
+    '<span class="pts' + (aUp ? '' : ' up') + '">' + fmtPts(b.pts) + '</span><b class="nm' + (aUp ? '' : ' up') + '">' + esc(b.name) + '</b></span>';
+}
+
 /* My row and my opponent's row out of the week's matchup list. */
 function matchupOf(rows, m){
   rows = rows || [];
@@ -3249,6 +3277,9 @@ function paintFanBar(){
     for (var i = 0; i < FAN.plays.length && items.length <= 6; i++){
       if (Date.now() - FAN.plays[i].at < 1800000) items.push(playChip(FAN.plays[i]));
     }
+  }
+  if (cfg.fanLeague && FAN.others && FAN.others.length){
+    items.push('<span class="lgtag">LEAGUE</span>' + FAN.others.map(leagueChip).join('<span class="dot">\u00b7</span>'));
   }
   var unit = '<span class="unit">' + items.join('<span class="dot">\u00b7</span>') +
     '<span class="dot">\u00b7</span></span>';
@@ -5507,7 +5538,8 @@ bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanFoes','fanFoes','bool');
 bind('sFanEvery','fanEvery','num'); bind('sFanPlays','fanPlays','bool');
 bind('sSlim','slim','bool'); bind('sFanProj','fanProj','bool');
-bind('sFanWin','fanWin','bool'); bind('sRecap','recap','bool'); bind('sAutoUpd','autoUpdate','bool');
+bind('sFanWin','fanWin','bool'); bind('sFanLeague','fanLeague','bool');
+document.getElementById('sFanLeague').addEventListener('change', paintFanBar); bind('sRecap','recap','bool'); bind('sAutoUpd','autoUpdate','bool');
 document.getElementById('sFanWin').addEventListener('change', paintFanBar);
 document.getElementById('sRecap').addEventListener('change', render);
 bind('sFanRoll','fanRoll','bool');
