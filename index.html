@@ -327,13 +327,29 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .bar{display:inline-block;width:3.2em;height:.42em;border-radius:.21em;
   background:rgba(255,255,255,.14);overflow:hidden;vertical-align:middle}
 #bets .bar>span{display:block;height:100%;background:#FFB020}
+/* each bet painted in its game's colours */
+#bets .bet.tinted{padding:.16em .6em;border-radius:.35em;
+  background-image:linear-gradient(107deg, var(--ca,transparent) 0 46%,
+    rgba(255,255,255,.13) 46% 47.4%, var(--cb,transparent) 47.4% 100%)}
+#bets .bet.tinted b,#bets .bet.tinted i,#bets .bet.tinted em{text-shadow:0 1px 3px rgba(0,0,0,.75)}
+#bets .bet.tinted b{color:#fff}
+#bets .pbox .bet.tinted{margin:.12em 0}
+#bets .betrow{gap:.4rem .7rem}
 #bets .bet.s-won .bar>span{background:var(--live)}
 .meta .betm{color:var(--flag);font-weight:700}
 #betPreview .ok{color:var(--live)} #betPreview .bad{color:var(--redzone)}
+#betHelp{font-size:.88rem;line-height:1.5;color:var(--sideline);margin-bottom:.5rem}
+#betHelp>div{display:flex;flex-wrap:wrap;gap:.3rem .5rem;align-items:baseline;padding:.15rem 0}
+#betHelp b{color:var(--chalk);font-weight:600;width:7em;flex:none;font-size:.78rem;
+  letter-spacing:.07em;text-transform:uppercase}
+#betHelp code{font-family:inherit;background:var(--turf);border:1px solid var(--line);
+  border-radius:2px;padding:.1em .45em;color:var(--chalk);opacity:.85}
 #betList .bl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
   padding:.2rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
 #betList .bl i{font-style:normal;color:var(--sideline);margin-left:.4em}
+#betList .acts{display:flex;gap:.6rem;align-items:center;flex:none}
 #betList button{color:var(--redzone);font-size:1.1rem;font-weight:700}
+#betList button.edit{color:var(--sideline);font-size:.9rem;font-weight:600;letter-spacing:.06em}
 #finals .w{color:var(--chalk)}
 
 /* ---------- settings ---------- */
@@ -490,11 +506,21 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
 
   <h3 style="font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin:1.4rem 0 .5rem">MY BETS</h3>
-  <p class="note" style="margin:.2rem 0 .5rem">One bet per line, pasted from DraftKings or typed. Stake and odds are optional. Join parlay legs with <kbd>+</kbd>.<br>
-    <span style="opacity:.8">BUF -3.5 $20 -110 &nbsp;·&nbsp; KC ML &nbsp;·&nbsp; BUF/HOU o44.5 &nbsp;·&nbsp; Josh Allen o249.5 pass yds &nbsp;·&nbsp; Kincaid 5+ receptions &nbsp;·&nbsp; James Cook anytime TD &nbsp;·&nbsp; Parlay: BUF ML + Allen o1.5 pass TDs $10 +260</span></p>
+  <p class="note" style="margin:.2rem 0 .4rem">One bet per line, pasted from DraftKings or typed. A <b>$20</b> stake and <b>-110</b> odds can sit anywhere on the line. Team names and abbreviations both work.</p>
+  <div id="betHelp">
+    <div><b>Spread</b><code>BUF -3.5</code><code>NYJ +2.5 $20 -110</code><code>DAL pk</code></div>
+    <div><b>Moneyline</b><code>KC ML</code><code>Chiefs moneyline $50 -150</code></div>
+    <div><b>Total</b><code>BUF/HOU o44.5</code><code>Bills vs Texans under 47.5</code></div>
+    <div><b>Yards</b><code>Josh Allen o249.5 pass yds</code><code>Josh Allen 250+ passing yards</code><code>Nico Collins u64.5 rec yds</code><code>Barkley o89.5 rush+rec yds</code></div>
+    <div><b>Counting</b><code>Dalton Kincaid 5+ receptions</code><code>Allen o1.5 pass TDs</code><code>Cook o12.5 carries</code><code>Allen o21.5 completions</code><code>Allen o0.5 INTs</code></div>
+    <div><b>Longest</b><code>Cook o17.5 long rush</code><code>Shakir o22.5 long reception</code></div>
+    <div><b>Touchdown</b><code>James Cook anytime TD +140</code><code>Anytime TD Scorer: Khalil Shakir</code></div>
+    <div><b>Parlay</b><code>Parlay: BUF ML + Allen o1.5 pass TDs $10 +260</code><code>SGP (3 legs) BUF -3.5 + Allen o249.5 pass yds + Cook anytime TD $5 +800</code></div>
+  </div>
   <textarea id="sBetText" rows="4" style="width:100%;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.4em .5em;font:inherit;font-size:.95rem;border-radius:2px"></textarea>
   <div id="betPreview" class="note" style="margin:.3rem 0"></div>
   <label><button id="sBetAdd" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Add bets</button>
+    <button id="sBetEditAll" style="color:var(--sideline);font-size:1rem">Edit all</button>
     <button id="sBetClear" style="color:var(--sideline);font-size:1rem">Clear settled</button></label>
   <div id="betList"></div>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
@@ -558,7 +584,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21c \u00b7 fantasy row with numbers, team colours, rest colour';
+var BUILD = 'build 2026-09-21d \u00b7 fantasy row with numbers, team colours, rest colour';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3461,8 +3487,23 @@ function legDetail(leg, ls){
 
 /* ---- the strip ---- */
 /* One leg as it reads on the strip: its label, where it stands, a bar for props. */
+/* The chip wears the colours of the game it rides on — the same diagonal as the
+   cards, a little brighter — so a bet and its box match at a glance. */
+function betSkin(leg, ls){
+  var g = (ls && ls.g) || (leg.team ? gameFor(leg.team) : null);
+  if (!g && (leg.type === 'prop' || leg.type === 'td')){
+    var f = findPlayer(leg.player, leg.team);
+    if (f) g = gameById(f.gid);
+  }
+  if (!g || !cfg.tint || !g.away.color) return '';
+  return ' style="--ca:' + tint(g.away.color, g.away.alt, 0.19) +
+         ';--cb:' + tint(g.home.color, g.home.alt, 0.19) + '"';
+}
+
 function legChip(leg, ls){
-  var cls = 'bet s-' + ls.state + (ls.state === 'live' ? (ls.good ? ' good' : ' bad') : '');
+  var skin = betSkin(leg, ls);
+  var cls = 'bet' + (skin ? ' tinted' : '') + ' s-' + ls.state +
+    (ls.state === 'live' ? (ls.good ? ' good' : ' bad') : '');
   var inner = '<b>' + esc(leg.label) + '</b>';
   if (leg.type === 'prop' && ls.state !== 'pending'){
     var pct = Math.max(0, Math.min(1, (ls.cur || 0) / (leg.line || 1)));
@@ -3474,7 +3515,7 @@ function legChip(leg, ls){
     inner += ' <i>' + ls.cur + '</i>';
   }
   var mark = ls.state === 'won' ? '\u2713' : (ls.state === 'lost' ? '\u2717' : (ls.state === 'push' ? '=' : ''));
-  return '<span class="' + cls + '">' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
+  return '<span class="' + cls + '"' + skin + '>' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
 }
 
 function betChip(b){
@@ -3490,23 +3531,13 @@ function betChip(b){
     var gcls = 'pbox s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
     return '<span class="' + gcls + '">' + head +
       b.legs.map(function(leg, i){ return legChip(leg, s.legs[i]); }).join('') + '</span>';
-  } else {
-    var leg = b.legs[0], ls = s.legs[0];
-    inner = '<b>' + esc(leg.label) + '</b>';
-    if (leg.type === 'prop' && ls.state !== 'pending'){
-      var pct = Math.max(0, Math.min(1, (ls.cur || 0) / (leg.line || 1)));
-      inner += ' <i>' + (ls.cur || 0) + '</i><span class="bar"><span style="width:' +
-        (pct * 100).toFixed(0) + '%"></span></span>';
-    } else if ((leg.type === 'spread' || leg.type === 'ml') && ls.margin !== undefined && ls.state !== 'pending'){
-      inner += ' <i>' + (ls.margin > 0 ? '+' : '') + ls.margin + '</i>';
-    } else if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined && ls.state !== 'pending'){
-      inner += ' <i>' + ls.cur + '</i>';
-    }
   }
-  var mark = s.state === 'won' ? '✓' : (s.state === 'lost' ? '✗' : (s.state === 'push' ? '=' : ''));
-  if (cfg.betMoney && b.stake) inner += ' <i class="amt">' + money(b.stake) +
-    (b.odds ? ' → ' + money(b.stake * decimalOdds(b.odds)) : '') + '</i>';
-  return '<span class="' + cls + '">' + (mark ? '<em>' + mark + '</em>' : '') + inner + '</span>';
+  var one = legChip(b.legs[0], s.legs[0]);
+  if (cfg.betMoney && b.stake){
+    one = one.replace(/<\/span>$/, ' <i class="amt">' + money(b.stake) +
+      (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') + '</i></span>');
+  }
+  return one;
 }
 
 var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
@@ -3572,13 +3603,30 @@ function paintBetList(){
     var s = betState(b);
     return '<div class="bl"><span>' + esc(b.parlay ? b.legs.map(function(l){ return l.label; }).join(' + ') : b.legs[0].label) +
       (b.stake ? ' · ' + money(b.stake) : '') + (b.odds ? ' @ ' + (b.odds > 0 ? '+' : '') + b.odds : '') +
-      ' <i>' + s.state + '</i></span><button data-bet="' + esc(b.id) + '">×</button></div>';
+      ' <i>' + s.state + '</i></span><span class="acts">' +
+      '<button class="edit" data-edit="' + esc(b.id) + '" title="Edit">edit</button>' +
+      '<button data-bet="' + esc(b.id) + '" title="Remove">\u00d7</button></span></div>';
   }).join('') : '<p class="note">No bets yet.</p>';
   [].slice.call(box.querySelectorAll('button[data-bet]')).forEach(function(btn){
     btn.addEventListener('click', function(){
       var id = btn.getAttribute('data-bet');
       BETS = BETS.filter(function(b){ return b.id !== id; });
       saveBets(); paintBetList(); evaluateBets(); render();
+    });
+  });
+  /* Editing is re-entry: the line you typed goes back into the box, where the
+     preview shows how it reads, and Add puts the corrected bet back. */
+  [].slice.call(box.querySelectorAll('button[data-edit]')).forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-edit');
+      var b = BETS.filter(function(x){ return x.id === id; })[0];
+      if (!b) return;
+      var ta = document.getElementById('sBetText');
+      ta.value = (ta.value ? ta.value.replace(/\s*$/, '') + '\n' : '') + (b.src || '');
+      BETS = BETS.filter(function(x){ return x.id !== id; });
+      saveBets(); paintBetList(); previewBets(); evaluateBets(); render();
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
     });
   });
 }
@@ -3708,6 +3756,15 @@ bind('sFanAlerts','fanAlerts','str'); bind('sFanMin','fanMin','num');
 bind('sStripBets','stripBets','bool'); bind('sBetAlerts','betAlerts','bool'); bind('sBetMoney','betMoney','bool');
 document.getElementById('sBetText').addEventListener('input', previewBets);
 document.getElementById('sBetAdd').addEventListener('click', addBets);
+document.getElementById('sBetEditAll').addEventListener('click', function(){
+  var ta = document.getElementById('sBetText');
+  var lines = BETS.map(function(b){ return b.src; }).filter(Boolean);
+  if (!lines.length) return;
+  ta.value = (ta.value ? ta.value.replace(/\s*$/, '') + '\n' : '') + lines.join('\n');
+  BETS = [];
+  saveBets(); paintBetList(); previewBets(); evaluateBets(); render();
+  ta.focus();
+});
 document.getElementById('sBetClear').addEventListener('click', function(){
   BETS = BETS.filter(function(b){ var st = betState(b).state; return st === 'live' || st === 'pending'; });
   saveBets(); paintBetList(); evaluateBets(); render();
