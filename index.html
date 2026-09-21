@@ -248,7 +248,8 @@ body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{op
    and then the sizing passes never learn that the card is too full. */
 .game > *{flex:0 0 auto}
 .row .abbr,.row .rec,.row .pts{white-space:nowrap}
-.row .poss{width:calc(.17 * var(--u));height:calc(.17 * var(--u));border-radius:50%;background:var(--flag);flex:none;visibility:hidden}
+.row .poss{width:calc(.26 * var(--tw,1) * var(--u));height:calc(.26 * var(--tw,1) * var(--u));border-radius:50%;background:var(--flag);flex:none;visibility:hidden;
+  box-shadow:0 0 0 calc(.03 * var(--u)) rgba(0,0,0,.45)}
 .row.has .poss{visibility:visible}
 .row img{height:calc(.9 * var(--tw,1) * var(--u));width:calc(.9 * var(--tw,1) * var(--u));
   object-fit:contain;flex:none}
@@ -259,10 +260,10 @@ body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{op
 .row .rec{font-size:calc(.34 * var(--u));color:var(--sideline);font-weight:500;
   flex:0 1 auto;min-width:0;overflow:hidden}
 .row .pts{flex:0 0 auto}
-.row .tos{display:flex;gap:calc(.055 * var(--u));align-items:center;flex:none;
-  margin-left:calc(.1 * var(--u))}
-.row .tos i{width:calc(.17 * var(--u));height:calc(.17 * var(--u));border-radius:50%;
-  border:calc(.028 * var(--u)) solid var(--sideline);background:transparent;opacity:.75}
+.row .tos{display:flex;gap:calc(.07 * var(--tw,1) * var(--u));align-items:center;flex:none;
+  margin-left:calc(.12 * var(--u))}
+.row .tos i{width:calc(.22 * var(--tw,1) * var(--u));height:calc(.22 * var(--tw,1) * var(--u));border-radius:50%;
+  border:calc(.03 * var(--tw,1) * var(--u)) solid var(--sideline);background:transparent;opacity:.75}
 .row .tos i.on{opacity:1}
 .row .tos i.on{background:var(--chalk);border-color:var(--chalk)}
 body.tint .row .tos i{border-color:rgba(255,255,255,.5)}
@@ -597,6 +598,8 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   <label>Timeouts left <input type="checkbox" id="sTimeouts"></label>
   <label>Field position bar <input type="checkbox" id="sField"></label>
   <label>Betting lines on cards <input type="checkbox" id="sOdds"></label>
+  <label>TV channel on cards <input type="checkbox" id="sShowNet"></label>
+  <label>Win probability on cards <input type="checkbox" id="sShowWp"></label>
   <label>Highlight team
     <select id="sFav"><option value="">none</option></select></label>
   <h4>Feed</h4>
@@ -782,7 +785,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21v';
+var BUILD = 'build 2026-09-21w';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -791,7 +794,7 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
-  yards:35, dur:12, minShow:4, order:'kick', spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
+  yards:35, dur:12, minShow:4, order:'kick', showNet:true, showWp:true, spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
   deep:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
@@ -880,7 +883,7 @@ function bind(id, key, kind){
     if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
+    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime|showNet|showWp)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -2183,9 +2186,9 @@ function infoLine(g){
     if (mkt && mkt.ou !== null) out.push('<span class="mk">o' + mkt.ou + '</span>');
   }
 
-  if (g.net) out.push('<span class="net">' + esc(g.net) + '</span>');
+  if (g.net && cfg.showNet !== false) out.push('<span class="net">' + esc(g.net) + '</span>');
 
-  if (g.wp !== null && g.wp !== undefined){
+  if (g.wp !== null && g.wp !== undefined && cfg.showWp !== false){
     var homeUp = g.wp >= 0.5;
     var pct = Math.round((homeUp ? g.wp : 1 - g.wp) * 100);
     out.push('<span class="wp">' + esc(homeUp ? g.home.abbr : g.away.abbr) +
@@ -3297,7 +3300,7 @@ function unitNeeds(){
      a card really has none. Reserving for the worst case shrank every card. */
   var tos = cfg.timeouts && cfg.scale < 1.3;
   var fp = cfg.field !== false && cfg.scale < 1.4;
-  return {w: 5.9 + (rec ? 0.62 : 0) + (tos ? 0.55 : 0), tos: tos,
+  return {w: 6.03 + (rec ? 0.62 : 0) + (tos ? 0.95 : 0), tos: tos,
           h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0) + (fp ? 0.5 : 0),
           rec:rec, meta:meta, info:info, fan:fan, fp:fp};
 }
@@ -3330,7 +3333,8 @@ function fit(cols, rows){
      still fitting. */
   var cw = (w - gap * (cols - 1)) / cols, ch = (h - gap * (rows - 1)) / rows;
   if (box.classList.contains('prime')){ var c0 = box.querySelector('.game'); if (c0) cw = c0.clientWidth; }
-  var fixedW = 0.9 + (need.tos ? 0.55 : 0), scaleW = 5.0 + (need.rec ? 0.62 : 0);
+  // the possession dot and timeout pips grow with the team row, so they are counted with it
+  var fixedW = 0.77 + (need.tos ? 0.12 : 0), scaleW = 5.1 + (need.rec ? 0.62 : 0) + (need.tos ? 0.45 : 0);
   var fixedH = 0.55 + (need.meta ? 0.55 : 0) + (need.info ? 0.5 : 0) + (need.fan ? 0.95 : 0) + (need.fp ? 0.5 : 0);
   var scaleH = 2.45, scale = cfg.scale || 1;
 
@@ -5263,7 +5267,7 @@ bind('sInterval','interval','num'); bind('sSound','sound','bool');
 bind('sTD','td','bool'); bind('sFG','fg','bool'); bind('sTO','to','bool');
 bind('sFinal','final','bool'); bind('sYards','yards','num'); bind('sDur','dur','num');
 bind('sMinShow','minShow','num'); bind('sOrder','order','str');
-bind('sSpot','spot','str'); bind('sPrime','prime','bool');
+bind('sSpot','spot','str'); bind('sShowNet','showNet','bool'); bind('sShowWp','showWp','bool'); bind('sPrime','prime','bool');
 bind('sCloseMin','closeMin','num'); bind('sCloseMargin','closeMargin','num');
 bind('sTimeouts','timeouts','bool'); bind('sField','field','bool');
 bind('sFav','fav','str'); bind('sToday','today','bool'); bind('sScale','scale','num');
