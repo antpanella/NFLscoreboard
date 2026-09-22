@@ -591,6 +591,184 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 #empty.recap li b{color:var(--flag);margin-right:.5em}
 #empty.recap li .g{color:var(--sideline);margin-left:.5em;white-space:nowrap}
 #empty.recap li .p{color:#C9A0FF;font-weight:700;float:right}
+/* Before the first kick: how long until it, who of yours and your opponent's is
+   on in each window, and the code friends scan to get their bets on the board. */
+/* ---- the pre-kickoff lobby ----
+   Before anything kicks off the board has a whole screen and nothing live to put
+   on it. It leads with the two things the room actually wants — how long until
+   the first kick, and a code to scan to get a bet up — and everything else takes
+   turns on a stage underneath. */
+#empty.lobby{flex:1;min-height:0;padding:1rem 1.5rem;text-align:left;display:grid;
+  gap:1.4rem 2rem;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;
+  /* rows take only what they need and the whole block centres: with a short panel
+     the slack goes above and below rather than pooling in one band across the
+     middle, and a tall one simply overflows, which is what makes the fit step down */
+  align-content:center;overflow:hidden;font-size:calc(1.35 * var(--su,16px));color:var(--chalk)}
+body.lobbying #live{display:none}
+body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
+
+#empty.lobby .cdbox{align-self:center;min-width:0}
+#empty.lobby .cdlbl{font-size:.7em;letter-spacing:.2em;color:var(--sideline);font-weight:700}
+#empty.lobby .cd{display:block;font-size:5em;font-weight:800;line-height:.95;color:var(--flag);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap}
+#empty.lobby .cd.soon{color:var(--live)}
+#empty.lobby .cdsub{font-size:1.15em;color:var(--sideline);white-space:nowrap}
+#empty.lobby .cdsub b{color:var(--chalk)}
+#empty.lobby .proj{display:block;color:var(--sideline);font-size:.8em;margin-top:.2em;white-space:nowrap}
+#empty.lobby .proj .me{color:#C9A0FF;font-weight:700}
+#empty.lobby .proj .them{color:#FF7A6E;font-weight:700}
+
+/* The QR is the one thing here that has to work from a couch, so it takes a
+   fixed share of the width and the code underneath is big enough to type in by
+   hand when someone's camera will not cooperate. */
+#empty.lobby .qr{justify-self:end;align-self:center;text-align:center;width:10.5em}
+#empty.lobby .qr svg{display:block;width:100%;height:auto;box-sizing:border-box;
+  background:#fff;padding:.35em;border-radius:8px}
+#empty.lobby .qr .code{margin-top:.2em;font-size:1.45em;font-weight:800;letter-spacing:.2em;color:var(--flag)}
+#empty.lobby .qr .cap{color:var(--sideline);font-size:.6em;line-height:1.35;margin-top:.2em;white-space:normal}
+#empty.lobby h3{margin:0 0 .35em;font-size:.7em;letter-spacing:.16em;color:var(--sideline);font-weight:700}
+
+/* The stage keeps every panel in the DOM and shows one at a time, so rotating
+   costs nothing and the fit below measures the tallest of them once. */
+#empty.lobby .stage{grid-column:1/-1;min-height:0;display:grid;
+  grid-template-rows:auto auto;gap:.6em}
+#empty.lobby .panes{min-height:0;display:grid}
+#empty.lobby .pane{grid-area:1/1;min-width:0;min-height:0;overflow:hidden;align-self:center;
+  opacity:0;visibility:hidden;transition:opacity .4s ease}
+#empty.lobby .pane.on{opacity:1;visibility:visible}
+#empty.lobby .ptitle{font-size:.7em;letter-spacing:.16em;color:var(--sideline);
+  font-weight:700;margin-bottom:.45em}
+#empty.lobby .dots{display:flex;gap:.5em;align-items:center;justify-content:center}
+#empty.lobby .dots i{width:.5em;height:.5em;border-radius:50%;background:rgba(255,255,255,.2)}
+#empty.lobby .dots i.on{background:var(--flag)}
+@media (prefers-reduced-motion:reduce){ #empty.lobby .pane{transition:none} }
+
+/* today's slate */
+#empty.lobby .slate{display:grid;gap:.45em 1em;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(10em,1fr))}
+#empty.lobby .sg{border-left:.2em solid rgba(255,255,255,.16);padding:.05em .5em;line-height:1.2}
+#empty.lobby .sg.mine{border-left-color:var(--fantasy)}
+#empty.lobby .sg.bet{border-left-color:var(--flag)}
+#empty.lobby .sg b{font-size:.88em;white-space:nowrap}
+#empty.lobby .sg div{white-space:nowrap;color:var(--sideline);font-size:.66em}
+#empty.lobby .sg .mk{color:var(--fantasy);font-weight:700}
+#empty.lobby .sg .mk.b{color:var(--flag)}
+
+/* who's on when */
+#empty.lobby .wins{display:grid;gap:.7em 1.5em;align-content:start;
+  grid-auto-flow:column;grid-auto-columns:minmax(min-content,1fr)}
+#empty.lobby .win .hd{display:flex;align-items:baseline;gap:.5em;padding-bottom:.15em;
+  margin-bottom:.25em;border-bottom:1px solid rgba(255,255,255,.14)}
+#empty.lobby .win .hd b{font-size:1.1em;color:var(--flag);white-space:nowrap}
+#empty.lobby .win .hd i{font-style:normal;color:var(--sideline);font-size:.7em;white-space:nowrap}
+#empty.lobby ul{list-style:none;margin:0;padding:0}
+#empty.lobby li{padding:.1em 0;line-height:1.25;font-size:.78em;white-space:nowrap}
+/* the number keeps its slot whether or not Sleeper has one, so a player without
+   one does not pull his whole line out of the column */
+#empty.lobby li .jn{font-style:normal;color:var(--fantasy);font-weight:700;margin-right:.3em;
+  display:inline-block;min-width:2.2em;text-align:right;flex:none}
+#empty.lobby li.foe .gm,#empty.lobby li .gm{color:var(--sideline);opacity:.85}
+#empty.lobby li i{font-style:normal;color:var(--sideline);margin-left:.4em;font-size:.86em}
+#empty.lobby li.foe{color:#FFB3AC}
+#empty.lobby li.foe .jn{color:#E06A60}
+#empty.lobby li.plain{color:var(--sideline)}
+
+/* the bet slip */
+#empty.lobby .slip{display:grid;gap:0 1.2em;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(15em,1fr))}
+#empty.lobby .sb{display:flex;gap:.45em;align-items:baseline;font-size:.78em;min-width:0;
+  padding:.14em 0;border-top:1px solid rgba(255,255,255,.08);white-space:nowrap}
+#empty.lobby .sb .by{color:#0A1410;background:var(--flag);font-weight:800;font-size:.72em;
+  padding:.05em .4em;border-radius:3px;flex:none;max-width:7em;overflow:hidden;text-overflow:ellipsis}
+#empty.lobby .sb .w{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#empty.lobby .sb .amt{color:var(--flag);font-weight:700;flex:none}
+#empty.lobby .slipsum{grid-column:1/-1;margin-top:.45em;color:var(--sideline);font-size:.78em}
+#empty.lobby .slipsum b{color:var(--chalk)}
+
+/* the fantasy head-to-head */
+#empty.lobby .h2h{display:grid;grid-template-columns:1fr 1fr;gap:.3em 1.5em;align-content:start}
+#empty.lobby .h2h .cap{display:flex;align-items:baseline;gap:.5em;white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.14);padding-bottom:.15em;margin-bottom:.2em}
+#empty.lobby .h2h .cap .pj{color:var(--flag);font-weight:800;margin-left:auto}
+#empty.lobby .h2h .me .cap b{color:#C9A0FF}
+#empty.lobby .h2h .them .cap b{color:#FF7A6E}
+#empty.lobby .h2h .them li{color:#FFB3AC}
+#empty.lobby .h2h .them li .jn{color:#E06A60}
+
+/* each starter's points sit at the right of his line, so the two lineups read
+   as two columns of numbers rather than two lists of names */
+#empty.lobby .h2h li{display:flex;align-items:baseline;gap:.35em}
+#empty.lobby .h2h li .pp{margin-left:auto;font-weight:700;color:var(--chalk);
+  font-variant-numeric:tabular-nums;padding-left:.6em;flex:none}
+#empty.lobby .h2h .them li .pp{color:#FFB3AC}
+/* the projection trails the live number, dimmer, in both the headings and the rows */
+#empty.lobby .h2h li .pj{flex:none;color:var(--sideline);font-weight:600;
+  font-variant-numeric:tabular-nums;min-width:3.6em}
+#empty.lobby .h2h .cap .pj i,#empty.lobby .lgr .pj i{font-style:normal;color:var(--sideline);
+  font-weight:600;opacity:.9}
+#empty.lobby .lgr .pj{font-variant-numeric:tabular-nums}
+#empty.lobby .wins li{display:flex;align-items:baseline;gap:.35em}
+#empty.lobby .wins li .gm{margin-left:auto;padding-left:.7em}
+/* the game each player is in, as a heading over his group */
+#empty.lobby .wins .gg{font-size:.66em;letter-spacing:.08em;color:var(--sideline);
+  font-weight:700;margin:.4em 0 .1em;white-space:nowrap}
+#empty.lobby .wins .gg:first-of-type{margin-top:.1em}
+#empty.lobby .wins .gg i{font-style:normal;opacity:.7;margin-left:.5em;font-weight:500}
+/* the injury stamp beside a man in the lineup */
+#empty.lobby .h2h li .ijb{flex:none;font-size:.62em;font-weight:800;letter-spacing:.05em;
+  padding:.05em .35em;border-radius:3px;color:#0A1410}
+#empty.lobby .h2h li .ijb.out{background:#FF7A6E}
+#empty.lobby .h2h li .ijb.q{background:var(--flag)}
+
+/* the rest of the league: one box per head-to-head */
+#empty.lobby .lgs{display:grid;gap:.7em 1.2em;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(14em,1fr))}
+#empty.lobby .lgbox{border:1px solid rgba(255,255,255,.14);border-radius:6px;
+  padding:.35em .6em;min-width:0}
+#empty.lobby .lgbox.mine{border-color:rgba(201,160,255,.45);background:rgba(201,160,255,.06)}
+#empty.lobby .lgr{display:flex;gap:.6em;align-items:baseline;font-size:.78em;
+  white-space:nowrap;min-width:0;padding:.1em 0;color:var(--sideline)}
+#empty.lobby .lgr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#empty.lobby .lgr .pj{flex:none;font-weight:700;font-variant-numeric:tabular-nums}
+#empty.lobby .lgr.up{color:var(--chalk)}
+#empty.lobby .lgr.up .pj{color:var(--flag)}
+#empty.lobby .lgr.me .nm{color:#C9A0FF;font-weight:700}
+#empty.lobby .lgr.foe .nm{color:#FF7A6E;font-weight:700}
+
+/* the injury report, boxed by fantasy team */
+#empty.lobby .injg{display:grid;gap:.7em 1.2em;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(14em,1fr))}
+#empty.lobby .ijteam{border:1px solid rgba(255,255,255,.14);border-radius:6px;
+  padding:.3em .6em .4em;min-width:0}
+#empty.lobby .ijteam.me{border-color:rgba(201,160,255,.45);background:rgba(201,160,255,.06)}
+#empty.lobby .ijteam.foe{border-color:rgba(255,122,110,.45);background:rgba(255,122,110,.05)}
+#empty.lobby .ijteam .hd{display:flex;align-items:baseline;gap:.5em;white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:.12em;margin-bottom:.18em;min-width:0}
+#empty.lobby .ijteam .hd b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:.82em}
+#empty.lobby .ijteam.me .hd b{color:#C9A0FF}
+#empty.lobby .ijteam.foe .hd b{color:#FF7A6E}
+#empty.lobby .ijteam .hd i{font-style:normal;color:var(--sideline);font-size:.6em;flex:none}
+#empty.lobby .inj{display:grid;gap:0 1.4em;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(14em,1fr))}
+#empty.lobby .ij{font-size:.72em;white-space:nowrap;padding:.1em 0;color:var(--sideline);
+  display:flex;align-items:baseline;gap:.3em;min-width:0}
+#empty.lobby .inj .ij{border-top:1px solid rgba(255,255,255,.08);padding:.14em 0}
+#empty.lobby .ij .st{font-weight:800;flex:none}
+#empty.lobby .ij .st.out{color:#FF7A6E}
+#empty.lobby .ij .st.q{color:var(--flag)}
+#empty.lobby .ij i{font-style:normal;opacity:.75;font-size:.88em}
+#empty.lobby .ij.st8{color:var(--chalk)}
+#empty.lobby .ij .flag{margin-left:auto;flex:none;color:#0A1410;background:var(--flag);
+  font-size:.66em;font-weight:800;letter-spacing:.06em;padding:.02em .35em;border-radius:3px}
+
+/* A bet landing while the lobby is up takes the stage for a few seconds, so the
+   room sees it go on the board rather than wondering whether it stuck. */
+#empty.lobby .newbet{grid-area:1/1;z-index:2;align-self:center;
+  background:linear-gradient(90deg,rgba(255,176,0,.22),rgba(255,176,0,.03));
+  border-left:.3em solid var(--flag);padding:.7em 1em;border-radius:6px}
+#empty.lobby .newbet .t{font-size:.7em;letter-spacing:.2em;color:var(--flag);font-weight:800}
+#empty.lobby .newbet .w{font-size:1.45em;font-weight:700;line-height:1.25;white-space:normal}
+#empty.lobby .newbet .who{color:var(--flag);font-weight:800}
 </style>
 </head>
 <body>
@@ -657,6 +835,16 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   <p class="note" style="margin:.1rem 0 .4rem">The spotlit game grows to four times its size where it sits. Big moments are a close finish (the Alerts tab's close-game rule, or overtime) and a red-zone trip in a game where you have a fantasy starter or a live bet. Click any card to pin it there; click it again, or press <kbd>Esc</kbd>, to let go. Clicking a big moment waves it off until it is over. Needs three or more live games.</p>
   <label>Prime-time layout for a single game <input type="checkbox" id="sPrime"></label>
   <label>Recap when the games are over <input type="checkbox" id="sRecap"></label>
+  <label>Pregame screen before the first kick <input type="checkbox" id="sLobby"></label>
+  <p class="note" style="margin:.1rem 0 .4rem">Before the first kick the board shows a countdown and the friends’ bet code, with these panels taking turns underneath. A bet landing while it is up takes the screen for a few seconds.</p>
+  <label style="padding-left:1.2rem">· Today’s slate <input type="checkbox" id="sLobSlate"></label>
+  <label style="padding-left:1.2rem">· Who’s on when <input type="checkbox" id="sLobWhen"></label>
+  <label style="padding-left:1.2rem">· The bet slip <input type="checkbox" id="sLobSlip"></label>
+  <label style="padding-left:1.2rem">· My fantasy matchup <input type="checkbox" id="sLobH2H"></label>
+  <label style="padding-left:1.2rem">· Rest of the league <input type="checkbox" id="sLobLeague"></label>
+  <label style="padding-left:1.2rem">· Injury flags on my matchup <input type="checkbox" id="sLobInj"></label>
+  <label style="padding-left:1.2rem">· Flash new bets as they arrive <input type="checkbox" id="sLobBets"></label>
+  <label style="padding-left:1.2rem">· Seconds per panel <input type="number" id="sLobEvery" min="4" max="120" step="1" style="width:5rem"></label>
   <label>Today's games only <input type="checkbox" id="sToday"></label>
   <label>Only show live games <input type="checkbox" id="sLiveOnly"></label>
   <label>Kicking-off-later strip <input type="checkbox" id="sStripUp"></label>
@@ -862,7 +1050,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22k';
+var BUILD = 'build 2026-09-22w';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -877,7 +1065,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'',                  // never in the file: this page is public
-  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -935,7 +1123,7 @@ var wake = null;
 var logLines = [];
 var FAN = {ready:false, names:{}, defs:{}, roster:[], leagues:[], label:'',
            week:0, mine:[], pts:{}, ptsAt:0, match:null, owner:{},
-           seen:{}, plays:[], flip:false, proj:{}, projAt:0, season:'', foes:[]};
+           seen:{}, plays:[], flip:false, proj:{}, projAt:0, season:'', foes:[], own:null, lineup:{}};
 
 /* ---------------- settings ---------------- */
 function load(){
@@ -1066,6 +1254,73 @@ function poll(){
     });
 }
 
+/* ---- looking ahead ----
+   ESPN's scoreboard only ever answers for one week, and on a Tuesday the week it
+   picks is the one that just finished — every game final, nothing upcoming, and a
+   board with nothing to count down to. It also rejects a date range outright
+   (dates=A-B comes back 400), so this walks forward a day at a time until it
+   finds one with games on it, then asks for that whole week in one go. That is
+   what puts Thursday through Monday on the screen rather than just the next game.
+   It only runs while there is genuinely nothing on, and at most every ten
+   minutes. */
+var AHEAD = {at:0, busy:false, games:[], note:''};
+function ymd(d){ return d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2); }
+// a kickoff still ahead of us, with a little slack for one that has just started
+// but whose state has not flipped yet
+function upcoming(g){ return g.state === 'pre' && new Date(g.date).getTime() > vnow() - 3 * 3600e3; }
+function aheadGet(url){
+  return fetch(url + '&_=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+function aheadTick(){
+  if (REPLAY || DEMO || AHEAD.busy) return;
+  var now = window.__games || [];
+  if (now.some(function(g){ return g.state === 'in' || upcoming(g); })){
+    AHEAD.games = []; AHEAD.note = ''; return;
+  }
+  if (Date.now() - AHEAD.at < 600000) return;
+  AHEAD.busy = true; AHEAD.at = Date.now();
+  AHEAD.note = 'looking ahead\u2026';
+  aheadWalk(0, 0);
+}
+function aheadWalk(n, fails){
+  if (n > 10 || fails > 4){
+    AHEAD.busy = false;
+    AHEAD.note = fails > 4 ? 'could not reach the schedule feed'
+                           : 'nothing scheduled in the next 10 days';
+    return;
+  }
+  var d = new Date(vnow() + n * 86400000);
+  aheadGet(API + '?limit=100&dates=' + ymd(d)).then(function(j){
+    var got = parse(j).filter(upcoming);
+    if (!got.length) return aheadWalk(n + 1, fails);
+    // that day's week, whole, so the panels cover the slate and not one game
+    var wk = j && j.week && j.week.number,
+        st = j && j.season && j.season.type,
+        yr = j && j.season && j.season.year;
+    if (!wk || !st || !yr) return aheadDone(got);
+    return aheadGet(API + '?limit=100&dates=' + yr + '&seasontype=' + st + '&week=' + wk)
+      .then(function(w){
+        var all = parse(w).filter(upcoming);
+        aheadDone(all.length >= got.length ? all : got);
+      }, function(){ aheadDone(got); });
+  }, function(){ return aheadWalk(n + 1, fails + 1); })
+   .catch(function(){ AHEAD.busy = false; AHEAD.note = 'the schedule feed came back in a shape I could not read'; });
+}
+function aheadDone(list){
+  list.forEach(function(g){ tidy(g); });
+  var had = AHEAD.games.length;
+  AHEAD.games = list; AHEAD.busy = false; AHEAD.note = '';
+  if (list.length === had) return;
+  LOBSIG = null;
+  /* The matchup totals are worked out when the fantasy points land, which is
+     before this arrives. Without a second pass every team projection on the
+     screen stays at whatever it was when no game could be found for anybody —
+     zero — for the next five minutes. */
+  if (FAN.ready && FAN.week) fanPoints();
+  render();
+}
+
 /* Fetched snapshots sit here until they're older than the delay, so the whole
    board — scores as well as alerts — stays level with a stream that runs behind. */
 function stash(data){
@@ -1076,10 +1331,17 @@ function stash(data){
 function drain(){
   var cut = Date.now() - cfg.delay * 1000;
   while (buffer.length && buffer[0].at <= cut) ingest(buffer.shift().data);
-  if (!prev && buffer.length){
+  /* The first snapshot sits in the buffer for the length of the delay, and this
+     says so rather than leaving a blank screen. It must not tread on a lobby the
+     look-ahead has already drawn, though — that arrives before the first
+     snapshot clears, and with a 40s delay this note was painting over it every
+     poll. Writing here also invalidates the lobby's cache, or the next render
+     would see nothing had changed and leave this note up for good. */
+  if (!prev && buffer.length && !document.body.classList.contains('lobbying')){
     var e = document.getElementById('empty');
     e.hidden = false;
     e.textContent = 'Holding scores back ' + cfg.delay + 's to match your stream.';
+    LOBSIG = null;
   }
 }
 
@@ -1860,6 +2122,11 @@ function render(){
 }
 function renderBoard(){
   var games = window.__games || [];
+  /* The lobby counts down to the next kickoff whenever it is, so it works off
+     the whole upcoming list rather than whatever the strips are filtered to. */
+  var allSoon = games.filter(upcoming);
+  // nothing upcoming in this week's feed: fall back on the look-ahead
+  if (!allSoon.length && AHEAD.games.length) allSoon = AHEAD.games.slice();
   if (cfg.today) games = games.filter(function(g){ return isToday(g.date); });
 
   var live = [], soon = [], done = [];
@@ -1902,8 +2169,11 @@ function renderBoard(){
   // the live area is measured — otherwise fit() sizes cards against a live area that
   // the finals strip is about to shrink, which is what broke late in the day.
   var up = document.getElementById('upcoming');
-  up.hidden = !soon.length || hideBoth || !cfg.stripUp;
-  up.querySelector('.items').innerHTML = dayRows(soon, function(g){
+  // on a dead Tuesday the week's feed has nothing left in it, so the strip shows
+  // the look-ahead rather than sitting empty under a lobby full of next week
+  var upList = soon.length ? soon : (AHEAD.games || []);
+  up.hidden = !upList.length || hideBoth || !cfg.stripUp;
+  up.querySelector('.items').innerHTML = dayRows(upList, function(g){
     return '<span><b class="t">' + kickoff(g.date) + '</b>' +
       esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) +
       (g.net ? '<i class="net" style="font-style:normal">' + esc(g.net) + '</i>' : '') +
@@ -1929,16 +2199,40 @@ function renderBoard(){
     empty.classList.toggle('recap', !!rc);
     LASTSIG = '';
     document.body.classList.toggle('recapping', !!rc);
-    if (rc){ empty.innerHTML = rc; document.getElementById('live').innerHTML = ''; fitRecap(empty); return; }
+    if (rc){ empty.classList.remove('lobby'); document.body.classList.remove('lobbying'); LOBSIG = null;
+      empty.innerHTML = rc; document.getElementById('live').innerHTML = ''; fitRecap(empty); return; }
+    var wins = cfg.lobby !== false ? kickWindows(allSoon) : [];
+    INJ.ids = [];
+    wins.forEach(function(w){ w.games.forEach(function(g){ INJ.ids.push(g.id); }); });
+    empty.classList.toggle('lobby', !!wins.length);
+    document.body.classList.toggle('lobbying', !!wins.length);
+    document.getElementById('live').innerHTML = '';
+    if (wins.length){
+      var sig = lobbySig(wins);
+      if (sig !== LOBSIG){
+        LOBSIG = sig;
+        empty.innerHTML = lobbyHTML(wins);
+        tickCountdown();      // before the fit: the real clock is wider than a placeholder
+        fitLobby(empty);
+        lobbyPaintBet();      // a bet that landed this very poll is what caused this rebuild
+      } else tickCountdown();
+      return;
+    }
+    LOBSIG = null;
+    /* If it gets this far something unusual is going on, so it says what it
+       found rather than one grey sentence that could mean anything. */
+    var all = (window.__games || []);
     empty.textContent = soon.length
       ? 'Nothing kicked off yet. First game ' + dayWord(soon[0].date) +
         ' at ' + kickoff(soon[0].date) + '.'
-      : 'No games on the board right now.';
-    document.getElementById('live').innerHTML = '';
+      : 'No games on the board right now. \u2014 the feed has ' + all.length + ' game' +
+        (all.length === 1 ? '' : 's') + ', none of them upcoming' +
+        (AHEAD.note ? '; ' + AHEAD.note : '') + '.';
     return;
   }
-  empty.hidden = true;
-  empty.classList.remove('recap'); document.body.classList.remove('recapping');
+  empty.hidden = true; LOBSIG = null;
+  empty.classList.remove('recap', 'lobby');
+  document.body.classList.remove('recapping', 'lobbying');
 
   var n = live.length;
   var box = document.getElementById('live');
@@ -2075,6 +2369,507 @@ function recapHTML(soon, done){
 
 /* The recap shares the screen with whatever strips are showing, so its type is
    sized to the room left: start large, step down until nothing is cut off. */
+/* ---- the pregame lobby ----
+   Before anything has kicked off the board used to be one grey sentence. The
+   room is filling up at that point, so this fills it with the three things
+   worth knowing: how long until the first kick, who of mine and my opponent's
+   is on in each window, and the code friends scan to get their bets up. */
+/* A football day runs to 5 AM, so the day a kickoff belongs to is the calendar
+   day of its shifted time — the same shift isToday uses. */
+function fbDay(iso){
+  var d = new Date(new Date(iso).getTime() - 5 * 3600e3);
+  return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+}
+/* The windows the lobby counts down to: today's, or — on a Wednesday with
+   nothing on — the next day that has games, so the screen is still worth
+   looking at rather than one grey sentence. */
+/* The windows the lobby counts down to. On a game day that is today's kickoffs
+   and nothing else. On a Tuesday it is the whole week ahead — Thursday night
+   through Monday — because a screen showing only Thursday's one game would leave
+   the injury report and the lineups with nothing in them all week. */
+function kickWindows(soon){
+  if (!soon.length) return [];
+  var order = soon.slice().sort(byKick), today = null;
+  for (var i = 0; i < order.length && today === null; i++){
+    if (isToday(order[i].date)) today = fbDay(order[i].date);
+  }
+  var cut = today === null ? new Date(order[0].date).getTime() + 6 * 86400e3 : 0;
+  var out = [], seen = Object.create(null);
+  order.forEach(function(g){
+    var t = new Date(g.date).getTime();
+    if (today !== null ? fbDay(g.date) !== today : t > cut) return;
+    var k = fbDay(g.date) + ' ' + kickoff(g.date);
+    if (!seen[k]){
+      seen[k] = {when:kickoff(g.date), at:t, games:[], today:isToday(g.date), day:dayWord(g.date)};
+      out.push(seen[k]);
+    }
+    seen[k].games.push(g);
+  });
+  out.sort(function(a, b){ return a.at - b.at; });
+  return out;
+}
+// true once the windows run across more than one day, which changes the labels
+function spansDays(wins){
+  for (var i = 1; i < wins.length; i++) if (wins[i].day !== wins[0].day) return true;
+  return false;
+}
+// "1:00 PM" today, "Sunday 1:00 PM" when the countdown runs past midnight
+function winWhen(w){ return (w.today ? '' : w.day + ' ') + w.when; }
+// on a panel the day is only worth repeating when the panel covers several
+function winLabel(w, spans){ return spans ? w.day + ' ' + w.when : w.when; }
+/* Starters only, and both rosters whatever the card setting says: the point of
+   this screen is what there is to sweat, which includes what he is up against. */
+function lobbyPlayers(w){
+  var abbr = Object.create(null);
+  w.games.forEach(function(g){
+    [g.away.abbr, g.home.abbr].forEach(function(a){ abbr[a] = 1; if (ALIAS[a]) abbr[ALIAS[a]] = 1; });
+  });
+  var take = function(list, foe){
+    return (list || []).filter(function(e){ return e.starter && e.team && abbr[e.team]; })
+      .map(function(e){ return {e:e, foe:foe}; });
+  };
+  return take(FAN.roster, false).concat(take(FAN.foes, true));
+}
+/* Everything the lobby draws goes in here, so a panel with new content rebuilds
+   and a repaint that would come out identical does not. The rotation keeps its
+   place across a rebuild either way, because the page index lives on LOB. */
+function lobbySig(wins){
+  return wins.map(function(w){ return w.at + '/' + w.when + '/' + w.games.length + '/' +
+    lobbyPlayers(w).length; }).join('|') + '#' + GUEST.code + '#' +
+    (FAN.match && FAN.match.me ? fmtPts(FAN.match.me.proj || 0) + '/' + fmtPts(FAN.match.me.pts || 0) : '') +
+    (FAN.match && FAN.match.opp ? '/' + fmtPts(FAN.match.opp.pts || 0) : '') + '#' + (cfg.fanProj !== false) +
+    '#' + BETS.map(function(b){ return b.id + (b.by || ''); }).join(',') +
+    '#' + (FAN.others || []).length + '#' + (FAN.roster || []).length + '/' + (FAN.foes || []).length +
+    '#' + INJ.list.length +
+    '#' + [cfg.lobSlate, cfg.lobWhen, cfg.lobSlip, cfg.lobH2H, cfg.lobLeague, cfg.lobInj].join('') +
+    '#' + window.innerWidth + 'x' + window.innerHeight;
+}
+var LOBSIG = null;
+/* ---- the pre-kickoff lobby ----
+   Two things are fixed at the top: the countdown to the first kick, and the code
+   people scan to put a bet up. Everything else — the slate, whoever is on when,
+   the bet slip, the fantasy head-to-head, the rest of the league, the injury
+   report — takes turns on a stage underneath, because any one of them alone
+   leaves two-thirds of a television empty. */
+var LOB = {page:0, at:0, bet:null, betB:null, betAt:0};
+
+function lobbyHTML(wins){
+  if (!wins.length) return '';
+  var w0 = wins[0], first = w0.games[0];
+  var m = FAN.ready && FAN.match && FAN.match.me ? FAN.match : null;
+  var proj = '';
+  if (m && cfg.fanProj !== false){
+    proj = '<span class="proj"><span class="me">★ ' + esc(m.me.name) + ' ' + fmtPts(m.me.proj) + '</span>' +
+      (m.opp ? ' projected vs <span class="them">' + esc(m.opp.name) + ' ' + fmtPts(m.opp.proj) + '</span>' : '') + '</span>';
+  }
+  var head = '<div class="cdbox"><div class="cdlbl">KICKOFF IN</div>' +
+    '<span class="cd" data-kick="' + w0.at + '">···</span>' +
+    '<span class="cdsub"><b>' + esc(first.away.abbr) + ' at ' + esc(first.home.abbr) + '</b> · ' +
+    esc(winWhen(w0)) + (first.net ? ' · ' + esc(first.net) : '') + '</span>' + proj + '</div>';
+
+  var qr = '<div class="qr">';
+  if (GUEST.code){
+    var svg = '';
+    try { svg = QR.svg(guestLink(), 300); } catch(e){ svg = ''; }
+    qr += svg + '<div class="code">' + esc(GUEST.code) + '</div>' +
+      '<div class="cap">Scan to add a bet. Put your name in once and it goes up with your name on it.</div>';
+  } else {
+    qr += '<h3>FRIENDS’ BETS</h3><div class="cap">Settings → Bets → “Let friends add bets” puts a code here for people to scan.</div>';
+  }
+  qr += '</div>';
+
+  var panes = lobbyPanes(wins);
+  if (!panes.length) return head + qr;
+  var i0 = LOB.page % panes.length;
+  var stage = '<div class="stage"><div class="panes">' +
+    panes.map(function(p, i){
+      return '<section class="pane' + (i === i0 ? ' on' : '') + '">' +
+        '<div class="ptitle">' + p.title + '</div>' + p.html + '</section>';
+    }).join('') +
+    '<div class="newbet" hidden></div></div>' +
+    '<div class="dots">' + panes.map(function(_, i){
+      return '<i class="' + (i === i0 ? 'on' : '') + '"></i>'; }).join('') + '</div></div>';
+  return head + qr + stage;
+}
+
+/* Only panels with something on them join the rotation: an empty bet slip or a
+   league with no projections yet would otherwise be a blank screen on a timer. */
+function lobbyPanes(wins){
+  var out = [];
+  var add = function(on, title, html){ if (html && on !== false) out.push({title:title, html:html}); };
+  add(cfg.lobSlate,  slateTitle(wins),      paneSlate(wins));
+  add(cfg.lobWhen,   'WHO’S ON WHEN',      paneWhen(wins));
+  add(cfg.lobSlip,   'ON THE BOARD',        paneSlip());
+  add(cfg.lobH2H,    'MY MATCHUP',          paneH2H());
+  add(cfg.lobLeague, 'REST OF THE LEAGUE',  paneLeague());
+  return out;
+}
+
+/* "TODAY’S SLATE" on a Sunday, "SUNDAY’S SLATE" when the board is up on a
+   Wednesday and counting down to it. */
+function slateTitle(wins){
+  var w = wins[0];
+  if (!w || w.today) return 'TODAY’S SLATE';
+  if (spansDays(wins)) return 'COMING UP';
+  return (w.day === 'tomorrow' ? 'TOMORROW' : w.day.toUpperCase()) + '’S SLATE';
+}
+function paneSlate(wins){
+  var bg = BETS.length ? betGameIds() : Object.create(null), spans = spansDays(wins);
+  var cells = [];
+  wins.forEach(function(w){
+    w.games.forEach(function(g){
+      var n = fanCount(g), bet = !!bg[g.id];
+      var line = cfg.odds && g.odds && g.odds.text
+        ? esc(g.odds.text) + (g.odds.ou !== null && g.odds.ou !== undefined ? ' · o/u ' + esc(String(g.odds.ou)) : '') : '';
+      var mk = (n ? '<span class="mk">★' + n + '</span>' : '') +
+               (bet && n ? ' ' : '') + (bet ? '<span class="mk b">BET</span>' : '');
+      cells.push('<div class="sg' + (n ? ' mine' : '') + (bet && !n ? ' bet' : '') + '">' +
+        '<b>' + esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) + '</b>' +
+        '<div>' + esc(winLabel(w, spans)) + (g.net ? ' · ' + esc(g.net) : '') + '</div>' +
+        (line || mk ? '<div>' + line + (line && mk ? ' · ' : '') + mk + '</div>' : '') + '</div>');
+    });
+  });
+  return cells.length ? '<div class="slate">' + cells.join('') + '</div>' : '';
+}
+
+function paneWhen(wins){
+  var any = false, spans = spansDays(wins);
+  var html = wins.map(function(w){
+    var pl = lobbyPlayers(w), mine = 0;
+    pl.forEach(function(x){ if (!x.foe) mine++; });
+    if (pl.length) any = true;
+    var body;
+    if (pl.length){
+      /* Grouped by the game each one is in, because "who have I got on" and
+         "which game do I put on" are the same question at this hour. */
+      var byGame = [], seen = Object.create(null);
+      w.games.forEach(function(g){
+        var ab = Object.create(null);
+        [g.away.abbr, g.home.abbr].forEach(function(a){ ab[a] = 1; if (ALIAS[a]) ab[ALIAS[a]] = 1; });
+        var on = pl.filter(function(x){ return !seen[x.e.id] && x.e.team && ab[x.e.team]; });
+        on.forEach(function(x){ seen[x.e.id] = 1; });
+        if (on.length) byGame.push({g:g, on:on});
+      });
+      body = byGame.map(function(k){
+        return '<div class="gg">' + esc(k.g.away.abbr) + (k.g.neutral ? ' vs ' : ' at ') + esc(k.g.home.abbr) +
+          (k.g.net ? '<i>' + esc(k.g.net) + '</i>' : '') + '</div><ul>' + k.on.map(function(x){
+            var e = x.e;
+            return '<li class="' + (x.foe ? 'foe' : '') + '">' +
+              (e.num ? '<i class="jn">#' + esc(e.num) + '</i>' : '') + esc(shortName(e.name)) +
+              '<i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i></li>';
+          }).join('') + '</ul>';
+      }).join('');
+    } else {
+      body = '<ul>' + w.games.slice(0, 8).map(function(g){
+        return '<li class="plain">' + esc(g.away.abbr) + ' at ' + esc(g.home.abbr) +
+          (g.net ? '<i>' + esc(g.net) + '</i>' : '') + '</li>';
+      }).join('') + '</ul>';
+    }
+    return '<div class="win"><div class="hd"><b>' + esc(winLabel(w, spans)) + '</b><i>' + w.games.length + ' game' +
+      (w.games.length === 1 ? '' : 's') + (pl.length ? ' · \u2605' + mine + ' vs ' + (pl.length - mine) : '') +
+      '</i></div>' + body + '</div>';
+  }).join('');
+  // with no roster loaded this panel is the slate again, so it steps aside
+  return any ? '<div class="wins">' + html + '</div>' : '';
+}
+/* Everything riding today, whoever put it up. Before kickoff every bet is still
+   pending, so this is a list of what is at stake rather than how it is going. */
+function paneSlip(){
+  if (!BETS.length) return '';
+  var rows = BETS.slice().sort(function(a, b){ return (b.added || 0) - (a.added || 0); });
+  var risk = 0, win = 0;
+  var html = rows.map(function(b){
+    if (b.stake){ risk += b.stake; win += b.odds ? b.stake * (decimalOdds(b.odds) - 1) : 0; }
+    var amt = cfg.betMoney && b.stake
+      ? money(b.stake) + (b.odds ? ' → ' + money(b.stake * decimalOdds(b.odds)) : '') : '';
+    return '<div class="sb">' + (b.by ? '<span class="by">' + esc(b.by) + '</span>' : '') +
+      '<span class="w">' + esc(betWords(b)) + '</span>' +
+      (amt ? '<span class="amt">' + esc(amt) + '</span>' : '') + '</div>';
+  }).join('');
+  var sum = rows.length + ' bet' + (rows.length === 1 ? '' : 's');
+  var who = Object.create(null);
+  rows.forEach(function(b){ if (b.by) who[b.by] = 1; });
+  var names = Object.keys(who);
+  if (names.length) sum += ' · ' + names.length + ' friend' + (names.length === 1 ? '' : 's') + ' in';
+  if (cfg.betMoney && risk) sum += ' · <b>' + money(risk) + '</b> at risk · <b>' + money(win) + '</b> to win';
+  return '<div class="slip">' + html + '<div class="slipsum">' + sum + '</div></div>';
+}
+
+/* A bet in the words it was written in, which is what people recognise when it
+   goes up on the screen. A parlay is its legs joined back together. */
+function betWords(b){
+  if (b.src) return b.src.replace(/\s+/g, ' ').trim();
+  return (b.legs || []).map(function(l){ return l.label; }).join(' + ');
+}
+
+/* Starters in the order a lineup is usually read — QB, RB, WR, TE, then the
+   flex-ish leftovers, kicker and defence last — rather than whatever order the
+   roster came back in, with each player's points beside him. */
+var POSORD = {QB:0, RB:1, WR:2, TE:3, K:6, DEF:7, DST:7, 'D/ST':7};
+function posRank(p){
+  var k = String(p || '').toUpperCase();
+  return POSORD[k] === undefined ? 5 : POSORD[k];
+}
+function lineupOrder(list){
+  return (list || []).filter(function(e){ return e.starter; })
+    .map(function(e, i){ return {e:e, i:i}; })
+    .sort(function(x, y){ return posRank(x.e.pos) - posRank(y.e.pos) || x.i - y.i; })
+    .map(function(x){ return x.e; });
+}
+// a player's projection for the week, in the league's own scoring
+function fanProjOf(e){
+  if (!e || e.id === undefined) return null;
+  var v = FAN.proj && FAN.proj[e.id];
+  return typeof v === 'number' ? v : null;
+}
+function paneH2H(){
+  var m = FAN.ready && FAN.match && FAN.match.me ? FAN.match : null;
+  if (!m || !(FAN.roster || []).length) return '';
+  var showProj = cfg.fanProj !== false;
+  var hurt = cfg.lobInj === false ? {} : injByName();
+  var side = function(who, list, cls){
+    if (!who) return '';
+    var li = lineupOrder(list).map(function(e){
+      var v = fanPts(e), pj = showProj ? fanProjOf(e) : null, ij = hurt[norm(e.name)];
+      /* The jersey number is always in the markup even when Sleeper has not got
+         one, so a player without one does not shunt his whole line left. */
+      return '<li><i class="jn">' + (e.num ? '#' + esc(e.num) : '') + '</i>' + esc(shortName(e.name)) +
+        '<i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i>' +
+        (ij ? '<b class="ijb ' + ij.c + '">' + ij.st + '</b>' : '') +
+        (v === null ? '' : '<b class="pp">' + fmtPts(v) + '</b>') +
+        (pj === null ? '' : '<i class="pj">/ ' + fmtPts(pj) + '</i>') + '</li>';
+    }).join('');
+    return '<div class="' + cls + '"><div class="cap"><b>' + esc(who.name) + '</b>' +
+      '<span class="pj">' + fmtPts(who.pts) +
+      (showProj ? ' <i>/ ' + fmtPts(who.proj) + '</i>' : '') + '</span>' +
+      '</div><ul>' + li + '</ul></div>';
+  };
+  return '<div class="h2h">' + side(m.me, FAN.roster, 'me') + side(m.opp, FAN.foes, 'them') + '</div>';
+}
+function paneLeague(){
+  if (!FAN.others || !FAN.others.length) return '';
+  var m = FAN.ready && FAN.match && FAN.match.me ? FAN.match : null;
+  /* One box per head-to-head rather than a run-on line: four matchups laid out
+     as a single row of names and numbers read as one long sentence. Mine leads,
+     in the colours the rest of the board uses — me violet, my opponent red. */
+  var box = function(pair, cls){
+    var up = pair[0].pts >= pair[1].pts;
+    var row = function(x, win, who){
+      return '<div class="lgr' + (win ? ' up' : '') + (who ? ' ' + who : '') + '">' +
+        '<span class="nm">' + esc(x.name) + '</span>' +
+        '<span class="pj">' + fmtPts(x.pts) +
+        (cfg.fanProj !== false ? ' <i>/ ' + fmtPts(x.proj) + '</i>' : '') + '</span></div>';
+    };
+    return '<div class="lgbox' + (cls ? ' ' + cls : '') + '">' +
+      row(pair[0], up, cls ? 'me' : '') + row(pair[1], !up, cls ? 'foe' : '') + '</div>';
+  };
+  var out = [];
+  if (m && m.opp) out.push(box([{name:m.me.name, pts:m.me.pts, proj:m.me.proj},
+                                {name:m.opp.name, pts:m.opp.pts, proj:m.opp.proj}], 'mine'));
+  FAN.others.forEach(function(p){ if (p.length === 2) out.push(box(p, '')); });
+  return out.length ? '<div class="lgs">' + out.join('') + '</div>' : '';
+}
+/* ---- injury report ----
+   ESPN's league-wide injuries endpoint answers with a single team, so the source
+   here is the per-game summary instead: each one carries both sides' reports, and
+   the games on the lobby's slate are exactly the ones worth asking about. One
+   request a second until the slate is covered, and the whole sweep repeats every
+   ten minutes. */
+var INJ = {at:0, busy:false, list:[], q:[], next:[], ids:[], note:''};
+function injStatus(s){
+  s = String(s || '').toLowerCase();
+  if (/^active$/.test(s)) return null;
+  if (/out|injured reserve|\bir\b|suspend|inactive|pup|did not/.test(s)) return {k:'OUT', c:'out'};
+  if (/doubt/.test(s)) return {k:'DOUBT', c:'out'};
+  if (/quest/.test(s)) return {k:'QUES', c:'q'};
+  if (/probab|limited/.test(s)) return {k:'PROB', c:'q'};
+  return null;
+}
+var LONGPOS = {'wide receiver':'WR', 'running back':'RB', 'quarterback':'QB', 'tight end':'TE',
+  'place kicker':'K', 'kicker':'K', 'fullback':'FB', 'center':'C', 'guard':'G', 'offensive tackle':'OT',
+  'defensive end':'DE', 'defensive tackle':'DT', 'linebacker':'LB', 'cornerback':'CB',
+  'safety':'S', 'punter':'P', 'long snapper':'LS'};
+function shortPos(p){
+  var t = String(p || '').trim();
+  if (!t) return '';
+  if (t.length <= 4) return t.toUpperCase();
+  return LONGPOS[t.toLowerCase()] || t.slice(0, 3).toUpperCase();
+}
+/* ESPN has moved this payload's shape around more than once, so rather than
+   trusting a path this walks whatever comes back for anything that looks like an
+   athlete with a status on it. A shape it cannot read leaves the panel out. */
+function injHarvest(j){
+  var out = [], depth = 0;
+  (function walk(n, team){
+    if (!n || typeof n !== 'object' || depth > 9) return;
+    depth++;
+    if (n.abbreviation && n.displayName && !n.athlete) team = n.abbreviation;
+    var a = n.athlete;
+    if (a && (n.status || n.type)){
+      var st = injStatus(n.status && n.status.name ? n.status.name : (n.status || (n.type && (n.type.description || n.type.name))));
+      var nm = a.displayName || a.shortName || '';
+      if (st && nm){
+        var po = a.position || {};
+        out.push({name:nm, pos:shortPos(po.abbreviation || po.displayName || po.name || ''),
+          team:(a.team && a.team.abbreviation) || team || '', st:st.k, c:st.c});
+      }
+    }
+    for (var k in n){
+      var v = n[k];
+      if (v && typeof v === 'object') walk(v, team);
+    }
+    depth--;
+  })(j, '');
+  return out;
+}
+function injTick(){
+  if (REPLAY || DEMO || cfg.lobInj === false || INJ.busy) return;
+  if (!document.body.classList.contains('lobbying')) return;
+  if (!INJ.q.length){
+    if (Date.now() - INJ.at < 600000 || !INJ.ids.length) return;
+    INJ.at = Date.now();
+    INJ.q = INJ.ids.slice(0, 20);
+    INJ.next = [];
+  }
+  var id = INJ.q.shift();
+  INJ.busy = true;
+  fetch(SUM + '?event=' + encodeURIComponent(id) + '&_=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(j){ INJ.next = INJ.next.concat(injHarvest(j)); })
+    .catch(function(){})
+    .then(function(){
+      INJ.busy = false;
+      if (INJ.q.length) return;
+      var seen = Object.create(null), list = [];
+      INJ.next.forEach(function(x){
+        var k = norm(x.name) + '|' + x.team;
+        if (seen[k]) return;
+        seen[k] = 1; list.push(x);
+      });
+      var had = INJ.list.length;
+      INJ.list = list;
+      if (list.length !== had){ LOBSIG = null; render(); }
+    });
+}
+/* Injuries keyed by name, for the stamp on the matchup panel. This was a panel
+   of its own for a while, grouped by fantasy team, but ESPN's league-wide feed
+   only ever named one or two of the players anybody actually rosters — so what
+   is left is the half that earns its space: a flag beside the man in a lineup. */
+function injByName(){
+  var by = Object.create(null);
+  (INJ.list || []).forEach(function(x){ if (!by[norm(x.name)]) by[norm(x.name)] = x; });
+  return by;
+}
+
+/* ---- the rotation ----
+   Driven off the same one-second tick as the countdown. Panels are already in
+   the DOM, so a turn is a class change and nothing is measured again. */
+function paintLobbyPage(){
+  var panes = document.querySelectorAll('#empty.lobby .pane');
+  if (!panes.length) return;
+  var i = LOB.page % panes.length, dots = document.querySelectorAll('#empty.lobby .dots i');
+  for (var k = 0; k < panes.length; k++) panes[k].classList.toggle('on', k === i && !LOB.bet);
+  for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === i);
+}
+function lobbyTick(){
+  var el = document.querySelector('#empty.lobby');
+  if (!el){ LOB.bet = null; return; }
+  if (LOB.bet){
+    if (Date.now() - LOB.betAt < 11000) return;
+    LOB.bet = null; LOB.betB = null;
+    var nb = el.querySelector('.newbet');
+    if (nb) nb.hidden = true;
+    LOB.at = Date.now();
+    paintLobbyPage();
+    return;
+  }
+  var panes = el.querySelectorAll('.pane');
+  if (panes.length < 2) return;
+  var every = Math.max(4, Number(cfg.lobbyEvery) || 12) * 1000;
+  if (Date.now() - LOB.at < every) return;
+  LOB.at = Date.now();
+  LOB.page = (LOB.page + 1) % panes.length;
+  paintLobbyPage();
+}
+
+/* A bet arriving while the lobby is up takes the stage, so whoever just scanned
+   the code sees it land instead of wondering whether it went through. */
+var BETIDS = null;
+function noteNewBets(){
+  if (REPLAY) return;
+  var first = BETIDS === null;
+  if (first) BETIDS = Object.create(null);
+  var newest = null;
+  BETS.forEach(function(b){
+    if (BETIDS[b.id]) return;
+    BETIDS[b.id] = 1;
+    if (first) return;
+    if (!newest || (b.added || 0) > (newest.added || 0)) newest = b;
+  });
+  if (newest) lobbyNewBet(newest);
+}
+function lobbyNewBet(b){
+  if (cfg.lobbyBets === false) return;
+  LOB.bet = b.id; LOB.betB = b; LOB.betAt = Date.now();
+  if (lobbyPaintBet() && cfg.sound) tones(SOUNDS.SWEAT);
+}
+/* Drawing the flash is separate from raising it: the bet that raises it also
+   changes the lobby's signature, so the panel is rebuilt underneath and the
+   flash has to be put back afterwards. */
+function lobbyPaintBet(){
+  var box = document.querySelector('#empty.lobby .newbet'), b = LOB.betB;
+  if (!box || !b || !LOB.bet) return false;
+  box.innerHTML = '<div class="t">' + (b.by ? 'NEW BET' : 'BET ADDED') + '</div><div class="w">' +
+    (b.by ? '<span class="who">' + esc(b.by) + '</span> · ' : '') + esc(betWords(b)) +
+    (cfg.betMoney && b.stake ? ' · ' + esc(money(b.stake)) : '') + '</div>';
+  box.hidden = false;
+  paintLobbyPage();
+  return true;
+}
+
+
+/* The recap fills its space because there is a lot of it. The lobby often has
+   four names on it, so it grows into the room instead of sitting in a band
+   across the top of a dark screen. */
+/* Every panel is measured, not just the one showing: they share a cell, so the
+   type has to suit the tallest of them or the rotation would resize the screen
+   every few seconds. A panel clips itself, which the outer box cannot see — the
+   same trap the team record used to fall into — so each one is checked directly. */
+function lobbyOver(el){
+  if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) return true;
+  var pn = el.querySelectorAll('.pane, .panes');
+  for (var i = 0; i < pn.length; i++){
+    if (pn[i].scrollHeight > pn[i].clientHeight + 1 || pn[i].scrollWidth > pn[i].clientWidth + 1) return true;
+  }
+  return false;
+}
+function fitLobby(el){
+  var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
+  var over = function(){ return lobbyOver(el); };
+  var fs = su * 1.35;
+  el.style.fontSize = fs.toFixed(1) + 'px';
+  for (var t = 0; t < 40 && fs > 11 && over(); t++){ fs *= 0.94; el.style.fontSize = fs.toFixed(1) + 'px'; }
+  for (var g = 0; g < 30 && fs < su * 3.0; g++){
+    var next = fs * 1.05;
+    el.style.fontSize = next.toFixed(1) + 'px';
+    if (over()){ el.style.fontSize = fs.toFixed(1) + 'px'; break; }
+    fs = next;
+  }
+}
+function tickCountdown(){
+  var el = document.querySelector('#empty.lobby .cd');
+  if (!el) return;
+  var left = Number(el.getAttribute('data-kick')) - vnow();
+  if (left <= 0){ el.textContent = 'KICKING OFF'; el.classList.add('soon'); return; }
+  var t = Math.floor(left / 1000), h = Math.floor(t / 3600), mm = Math.floor(t / 60) % 60, ss = t % 60;
+  var p2 = function(n){ return (n < 10 ? '0' : '') + n; };
+  // days get their own field: a Wednesday countdown reading 96:14:02 means nothing
+  el.textContent = h >= 24 ? Math.floor(h / 24) + 'd ' + p2(h % 24) + ':' + p2(mm) + ':' + p2(ss)
+                 : h ? h + ':' + p2(mm) + ':' + p2(ss) : mm + ':' + p2(ss);
+  el.classList.toggle('soon', left < 900000);
+}
+setInterval(function(){ tickCountdown(); lobbyTick(); injTick(); aheadTick(); }, 1000);
+
 function fitRecap(el){
   var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
   var fs = su * 1.35;
@@ -2812,6 +3607,12 @@ function surnameOf(name){
   }
   return norm(last);
 }
+/* One key for the same player written two ways. ESPN says "Brian Robinson Jr."
+   where Sleeper says "Brian Robinson", and norm() keeps the suffix, so the two
+   never met. This drops generational suffixes before normalising. */
+function fanKey(name){
+  return norm(String(name || '').replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, ''));
+}
 function isTeamId(id){ return /^[A-Z]{2,4}$/.test(id); }
 function fanNote(msg){ document.getElementById('fanNote').textContent = msg; }
 function sget(path){
@@ -2841,7 +3642,12 @@ function sleeperConnect(){
     cfg.sleeperUser = u; cfg.sleeperId = user.user_id; save();
     return sget('/state/nfl');
   }).then(function(st){
-    FAN.week = st.display_week || st.week || 0;      // live scoring is per week
+    /* Sleeper carries two week numbers and they disagree from Monday night until
+       Wednesday: `week` is the one about to be played, `display_week` lags so the
+       app can keep showing the result that just finished. On a Tuesday the board
+       wants the matchup ahead, and on a Sunday the two agree, so `week` is right
+       in both cases. */
+    FAN.week = st.week || st.display_week || 0;
     FAN.season = st.league_season || st.season || '';
     return sget('/user/' + cfg.sleeperId + '/leagues/nfl/' + (st.league_season || st.season));
   }).then(function(lgs){
@@ -2880,9 +3686,13 @@ function loadRoster(){
         names[u.user_id] = (u.metadata && u.metadata.team_name) || u.display_name || 'team';
       });
       FAN.owner[l.league_id] = {};
+      FAN.lineup[l.league_id] = {};
       rs.forEach(function(r){
         FAN.owner[l.league_id][r.roster_id] = names[r.owner_id] ||
           ('roster ' + r.roster_id);
+        // their standing lineup, as a fallback for a week they have not set yet
+        FAN.lineup[l.league_id][r.roster_id] =
+          (r.starters || []).filter(function(x){ return x && x !== '0'; });
         if (String(r.owner_id) !== String(cfg.sleeperId)) return;
         FAN.mine.push({league:l.league_id, roster:r.roster_id});
         (r.players || []).forEach(function(x){ if (x) ids[x] = 1; });
@@ -3007,6 +3817,17 @@ var POS_ORDER = {QB:1, RB:2, WR:3, TE:4, K:5, DEF:6};
 /* Everyone of mine playing in this game, away side first, then by position. */
 /* The opponent's starters, in the same shape as my own roster entries, so the
    card rows can treat both the same way. */
+/* A team whose owner has not set a lineup for the coming week comes back from
+   the matchups endpoint with an empty starters list. Read literally that is a
+   team with nobody playing, which is how one box on the league panel showed a
+   projected 0.0 against an opponent on 138.7. Their standing lineup from the
+   roster endpoint stands in until they set one. */
+function startersFor(league, r){
+  var st = ((r && r.starters) || []).filter(function(x){ return x && x !== '0'; });
+  if (st.length) return st;
+  var ln = FAN.lineup && FAN.lineup[league];
+  return (ln && r && ln[r.roster_id]) || [];
+}
 function rosterFrom(ids){
   var map = (pcache().map) || {};
   return (ids || []).filter(function(id){ return id && id !== '0'; })
@@ -3082,9 +3903,20 @@ var learning = false;
 function learnPlayers(ids){
   var map = (pcache().map) || {};
   var missing = (ids || []).filter(function(id){
-    return id && id !== '0' && !isTeamId(id) && !map[id];
+    if (!id || id === '0' || isTeamId(id)) return false;
+    // an entry cached before jersey numbers were kept has a name but no number
+    return !map[id] || map[id].j === undefined || map[id].j === '';
   });
-  if (!missing.length || learning) return;
+  if (!missing.length) return;
+  /* A second caller while a pull is in flight used to be dropped on the floor and
+     not retried until the next fantasy poll, five minutes later — which is how
+     the rest of the league's names went missing from the injury report. Its ids
+     are queued instead and picked up as soon as this pull finishes. */
+  if (learning){
+    LEARNQ = (LEARNQ || []).concat(missing);
+    if (LEARNQ.length > 1200) LEARNQ.length = 1200;
+    return;
+  }
   learning = true;
   fetch(SLEEP + '/players/nfl?active=true')
     .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
@@ -3098,11 +3930,18 @@ function learnPlayers(ids){
       });
       var c = pcache();
       pcache({at: c.at || Date.now(), map: map});
+      /* The opponent's side was built from this cache before the fetch returned,
+         so every one of them read "player". Rebuild it now the names are in. */
+      if (FAN.foeIds && FAN.foeIds.length){ FAN.foes = rosterFrom(FAN.foeIds); LOBSIG = null; render(); }
       paintFanBar();
     })
     .catch(function(){})
-    .then(function(){ learning = false; });
+    .then(function(){
+      learning = false;
+      if (LEARNQ && LEARNQ.length){ var q = LEARNQ; LEARNQ = null; learnPlayers(q); }
+    });
 }
+var LEARNQ = null;
 
 /* Sleeper's weekly projections, in the league's own flavour of scoring. They do
    not change during the afternoon, so this is pulled twice an hour at most. */
@@ -3133,7 +3972,14 @@ function fanProjections(){
    of it once final, and the share of the clock left while it is being played. */
 function shareLeft(abbr){
   var g = gameFor(abbr);
-  if (!g) return 0;                                   // bye, or not on today's board
+  /* No game found means one of two very different things. On a game day it means
+     a bye, and the right answer is nothing left to play. On a Tuesday it usually
+     just means the schedule feed has not handed us that team's fixture yet — and
+     answering nought there is what left every projected total short, because a
+     player whose team could not be found contributed only his banked points, and
+     before the week starts those are zero. The look-ahead being in use is the
+     tell: it is only ever populated when nothing has been played. */
+  if (!g) return AHEAD.games.length ? 1 : 0;
   if (g.state === 'pre') return 1;
   if (g.state !== 'in') return 0;
   if (g.period > 4) return 0.04;                      // overtime: a few snaps
@@ -3142,12 +3988,20 @@ function shareLeft(abbr){
 }
 function gameFor(abbr){
   if (!abbr) return null;
-  var out = null;
-  (window.__games || []).forEach(function(x){
-    if (x.away.abbr === abbr || x.home.abbr === abbr ||
-        x.away.abbr === ALIAS[abbr] || x.home.abbr === ALIAS[abbr]) out = x;
-  });
-  return out;
+  var hit = function(list){
+    var out = null;
+    (list || []).forEach(function(x){
+      if (x.away.abbr === abbr || x.home.abbr === abbr ||
+          x.away.abbr === ALIAS[abbr] || x.home.abbr === ALIAS[abbr]) out = x;
+    });
+    return out;
+  };
+  /* While the look-ahead is in use, this week's feed is last week's finals and
+     nothing else — so consulting it says every team has already played, which is
+     how a whole league's projections collapsed to zero on a Tuesday. In that
+     state only the look-ahead counts. */
+  if (AHEAD.games.length) return hit(AHEAD.games);
+  return hit(window.__games);
 }
 
 /* Where a team lands if the rest of the day goes to projection: what each
@@ -3203,7 +4057,9 @@ function projectedTotal(startersList, pts){
 function leftToPlay(startersList){
   var map = (pcache().map) || {}, n = 0;
   var byAbbr = Object.create(null);
-  (window.__games || []).forEach(function(g){
+  var ahead = (AHEAD.games || []).length > 0;
+  // same reasoning as gameFor: on an off-day the current feed is last week's
+  (ahead ? AHEAD.games : (window.__games || [])).forEach(function(g){
     byAbbr[g.away.abbr] = g; byAbbr[g.home.abbr] = g;
   });
   var unknown = 0;
@@ -3213,7 +4069,8 @@ function leftToPlay(startersList){
     var ab = isTeamId(id) ? id : ((map[id] && map[id].t) || (re && re.team));
     if (!ab){ unknown++; return; }
     var g = byAbbr[ab] || byAbbr[ALIAS[ab]];
-    if (g && g.state !== 'post') n++;
+    // same reasoning as shareLeft: off-day, an unknown fixture is one still to come
+    if (g ? g.state !== 'post' : ahead) n++;
   });
   LEFTUNKNOWN = unknown;
   return n;
@@ -3237,10 +4094,11 @@ function pointsOf(r){
 /* Only starters count toward the matchup, so only starters get a banner or a
    spot in the ticker. Sleeper's points list covers the whole roster: Monday
    night it would have announced a benched Matthew Stafford's touchdowns. */
-function startersOf(r){
+function startersOf(r, league){
   var pp = pointsOf(r), out = {};
-  if (!r || !r.starters) return pp;
-  r.starters.forEach(function(id){ if (id && id !== '0' && pp[id] !== undefined) out[id] = pp[id]; });
+  var st = league !== undefined ? startersFor(league, r) : ((r && r.starters) || []);
+  if (!r || !st.length) return pp;
+  st.forEach(function(id){ if (id && id !== '0' && pp[id] !== undefined) out[id] = pp[id]; });
   return out;
 }
 function rosterEntry(id){
@@ -3345,28 +4203,41 @@ function applyPoints(got){
           (rows || []).forEach(function(r){
             if (mineRow && r !== mineRow && String(r.matchup_id) === String(mineRow.matchup_id)) oppRow = r;
           });
-          noteMoves(startersOf(mineRow), 'me');
-          noteMoves(startersOf(oppRow), 'opp');
+          noteMoves(startersOf(mineRow, m.league), 'me');
+          noteMoves(startersOf(oppRow, m.league), 'opp');
           // league ticker: every other team's starters too, tagged with the owner
           if (cfg.fanLeague){
             var lnames = FAN.owner[m.league] || {};
             (rows || []).forEach(function(r){
               if (!r || r === mineRow || r === oppRow) return;
-              noteMoves(startersOf(r), 'lg', lnames[r.roster_id] || ('roster ' + r.roster_id));
+              noteMoves(startersOf(r, m.league), 'lg', lnames[r.roster_id] || ('roster ' + r.roster_id));
             });
           }
         }
+        /* Points for every roster in the league, not just mine: the matchup panel
+           puts a number beside the opponent's players too, and the injury report
+           needs to know whose team each name belongs to. */
+        var lnames2 = FAN.owner[m.league] || {};
+        if (m === FAN.mine[0]) FAN.own = Object.create(null);
         (rows || []).forEach(function(r){
-          if (String(r.roster_id) !== String(m.roster)) return;
+          var mine = String(r.roster_id) === String(m.roster);
           var pp = r.players_points;
           // older shapes carry only the starters' points, in array order
           if (!pp && r.starters && r.starters_points){
             pp = {};
-            r.starters.forEach(function(id, i){
+            (r.starters || []).forEach(function(id, i){
               if (id && id !== '0' && typeof r.starters_points[i] === 'number') pp[id] = r.starters_points[i];
             });
           }
-          for (var id in (pp || {})) FAN.pts[id] = pp[id];
+          for (var id in (pp || {})) if (mine || FAN.pts[id] === undefined) FAN.pts[id] = pp[id];
+          if (m !== FAN.mine[0] || !FAN.own) return;
+          var who = lnames2[r.roster_id] || ('roster ' + r.roster_id);
+          var st = Object.create(null);
+          startersFor(m.league, r).forEach(function(id){ if (id && id !== '0') st[id] = 1; });
+          var all = (r.players && r.players.length) ? r.players : (r.starters || []);
+          all.forEach(function(id){
+            if (id && id !== '0') FAN.own[id] = {who:who, starter:!!st[id], mine:mine};
+          });
         });
     })();
   });
@@ -3382,13 +4253,16 @@ function otherMatchups(rows, m){
   (rows || []).forEach(function(r){ if (String(r.roster_id) === String(m.roster)) mineId = r.matchup_id; });
   (rows || []).forEach(function(r){
     if (r.matchup_id === null || r.matchup_id === undefined || r.matchup_id === mineId) return;
-    all = all.concat(r.starters || []);
+    // whole rosters, not just starters: the injury report says whose bench a
+    // hurt player is sitting on, and these ids are useless without names
+    all = all.concat((r.players && r.players.length) ? r.players : startersFor(m.league, r));
     // projected finish the same way as the matchup up top: banked + projection for what's left
     (by[r.matchup_id] = by[r.matchup_id] || []).push({name: names[r.roster_id] || ('roster ' + r.roster_id),
-      pts: Number(r.points) || 0, proj: (Number(r.points) || 0) + projectedTotal(r.starters, {})});
+      pts: Number(r.points) || 0, proj: (Number(r.points) || 0) + projectedTotal(startersFor(m.league, r), {})});
   });
-  // their players' NFL teams, so the part still to play can be worked out
-  if (cfg.fanLeague) learnPlayers(all);
+  // their players' NFL teams, so the part still to play can be worked out — and
+  // their names, which is what lets the injury report group by fantasy team
+  if (cfg.fanLeague || cfg.lobInj !== false) learnPlayers(all);
   return Object.keys(by).sort(function(a, b){ return a - b; })
     .map(function(k){ return by[k]; }).filter(function(p){ return p.length === 2; });
 }
@@ -3416,17 +4290,19 @@ function matchupOf(rows, m){
     }
   }
   var names = FAN.owner[m.league] || {};
-  learnPlayers((mine.starters || []).concat((opp && opp.starters) || []));
+  var myStart = startersFor(m.league, mine), oppStart = startersFor(m.league, opp);
+  learnPlayers(myStart.concat(oppStart));
   fanProjections();
-  FAN.foes = rosterFrom(opp && opp.starters);
+  FAN.foeIds = oppStart;
+  FAN.foes = rosterFrom(FAN.foeIds);
   var side = function(r){
     if (!r) return null;
-    var pts = pointsOf(r);
+    var pts = pointsOf(r), st = startersFor(m.league, r);
     return {name: names[r.roster_id] || ('roster ' + r.roster_id),
             pts: Number(r.points) || 0,
-            left: leftToPlay(r.starters), unknown: LEFTUNKNOWN,
-            proj: projectedTotal(r.starters, pts),
-            vr: spreadLeft(r.starters)};
+            left: leftToPlay(st), unknown: LEFTUNKNOWN,
+            proj: projectedTotal(st, pts),
+            vr: spreadLeft(st)};
   };
   return {me: side(mine), opp: side(opp)};
 }
@@ -4923,6 +5799,7 @@ function betChip(b){
 
 var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
 function paintBets(){
+  noteNewBets();
   var el = document.getElementById('bets');
   if (!el) return;
   var fresh = BETS.filter(function(b){ return Date.now() - (b.added || 0) < 5 * 86400000; });
@@ -5952,6 +6829,13 @@ bind('sFanWin','fanWin','bool'); bind('sFanLeague','fanLeague','bool');
 document.getElementById('sFanLeague').addEventListener('change', paintFanBar); bind('sRecap','recap','bool'); bind('sAutoUpd','autoUpdate','bool');
 document.getElementById('sFanWin').addEventListener('change', paintFanBar);
 document.getElementById('sRecap').addEventListener('change', render);
+bind('sLobby','lobby','bool');
+[['sLobSlate','lobSlate'],['sLobWhen','lobWhen'],['sLobSlip','lobSlip'],['sLobH2H','lobH2H'],
+ ['sLobLeague','lobLeague'],['sLobInj','lobInj'],['sLobBets','lobbyBets']].forEach(function(x){ bind(x[0], x[1], 'bool'); });
+bind('sLobEvery','lobbyEvery','num');
+['sLobby','sLobSlate','sLobWhen','sLobSlip','sLobH2H','sLobLeague','sLobInj'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', function(){ LOBSIG = null; LOB.page = 0; render(); });
+});
 bind('sFanRoll','fanRoll','bool');
 bind('sFanAlerts','fanAlerts','str'); bind('sFanMin','fanMin','num');
 bind('sRecord','record','bool');
