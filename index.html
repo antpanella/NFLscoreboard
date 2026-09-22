@@ -829,7 +829,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22c';
+var BUILD = 'build 2026-09-22d';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -953,12 +953,14 @@ var toneOk = 0, toneMiss = 0, toneWhy = '';
    changes, or the tab sits in the background — and a parked context accepts
    every call and plays nothing. So check the state on every alert, wake it, and
    replay once it is running rather than dropping the chime on the floor. */
+function soundName(l){ for (var k in SOUNDS) if (SOUNDS[k] === l) return k; return 'custom'; }
 function tones(list){
-  if (!cfg.sound){ toneWhy = 'sound switched off'; return; }
+  if (!cfg.sound){ toneWhy = 'sound switched off'; flog('chime', {sound:soundName(list), heard:false, why:'sound off'}); return; }
   if (!audio){
     unlockAudio();
-    if (!audio){ toneMiss++; toneWhy = 'no audio context'; return; }
+    if (!audio){ toneMiss++; toneWhy = 'no audio context'; flog('chime', {sound:soundName(list), heard:false, why:'no audio'}); return; }
   }
+  flog('chime', {sound:soundName(list), heard:audio.state === 'running', why:audio.state === 'running' ? '' : 'audio ' + audio.state});
   if (audio.state !== 'running'){
     toneMiss++; toneWhy = 'context was ' + audio.state + ', woke it';
     try {
@@ -1016,6 +1018,7 @@ function poll(){
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       clearTimeout(kill);
+      if (FLOG.fails) flog('feed', {back:true, after:FLOG.fails}); FLOG.fails = 0;
       fails = 0; lastGood = Date.now();
       record('sb', '', data);
       stash(data);
@@ -1024,6 +1027,7 @@ function poll(){
     .catch(function(){
       clearTimeout(kill);
       fails++;
+      if (++FLOG.fails === 1) flog('feed', {down:true});
       paintStatus();
       schedule();
     });
@@ -1691,7 +1695,8 @@ function push(game, kind, body, quiet, team, hot, whoList){
     for (var qi = 0; qi < queue.length; qi++){
       if (!queue[qi].mine && !queue[qi].hot){ drop = qi; break; }
     }
-    queue.splice(drop < 0 ? 0 : drop, 1);
+    var gone = queue.splice(drop < 0 ? 0 : drop, 1)[0];
+    if (gone) flog('dropped', {kind:gone.kind, body:gone.body});
   }
   logLines.unshift({kind:kind, who:who, body:body, mine:hit ? hit.name : '', at:new Date()});
   if (logLines.length > 12) logLines.pop();
@@ -1754,6 +1759,8 @@ function next(){
   document.getElementById('alertBody').textContent = a.body;
   document.getElementById('alertScore').textContent = a.score;
   box.className = 'show' + (split ? ' split' : '');
+  flog('banner', {kind:a.kind, who:a.who || '', body:a.body, score:a.score,
+    tag:document.getElementById('alertTag').textContent, waiting:queue.length});
   tones(a.sound);
   if (a.flash) gvFlash(a.flash, a.flashAlt, a.flashTeam);
 
@@ -3973,6 +3980,7 @@ function gvStop(quiet){
    colours running, which looked exactly like the wrong show firing. The newer
    score now waits out the gap and then takes over; only older ones are dropped. */
 function gvFlash(hex, alt, abbr){
+  if (cfg.govee) flog('lights', {team:abbr || '', hex:hex});
   if (!cfg.govee || !cfg.goveeDev || !cfg.goveeSku || REPLAY) return;
   var wait = cfg.goveeGap * 1000 - (Date.now() - gvLast);
   if (wait > 0){
@@ -4015,7 +4023,9 @@ function loadBets(){
   catch(e){ return []; }
 }
 function saveBets(){
+  if (REPLAY) return;                       // a replay's bets are the recording's, not yours
   try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  flogBets();
   if (syncOn()) betsPush();
 }
 
@@ -4030,10 +4040,14 @@ function syncOn(){ return !!(cfg.betSync && cfg.goveeUrl && (cfg.goveeKey || cfg
 function betToken(){ return cfg.goveeKey || cfg.guestCode; }
 function isGuest(){ return !cfg.goveeKey && !!cfg.guestCode; }
 function mineBet(b){ return !isGuest() || (b.by || '') === (cfg.myName || '').trim(); }
-function syncNote(t){ var el = document.getElementById('betSyncNote'); if (el) el.textContent = t; }
+function syncNote(t){
+  var el = document.getElementById('betSyncNote'); if (el) el.textContent = t;
+  if (/could not|refused|says|said|switched off/i.test(t)) flog('relay', {bets:t});
+}
 function betKey(b){ return JSON.stringify({s:b.src, st:b.stake, o:b.odds, l:b.legs, by:b.by || ''}); }
 
 function betsPush(){
+  if (REPLAY) return;                       // never send a recording's bets to the relay
   if (SYNC.busy){ SYNC.again = true; return; }
   var base = SYNC.base || {}, ops = [], seen = {};
   BETS.forEach(function(b){
@@ -4059,7 +4073,7 @@ function betsPush(){
 }
 
 function betsPull(){
-  if (!syncOn() || SYNC.busy) return;
+  if (!syncOn() || SYNC.busy || REPLAY) return;
   fetch(gvBase() + '/bets?key=' + encodeURIComponent(betToken()), {cache:'no-store'})
     .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
     .then(function(x){
@@ -4082,8 +4096,10 @@ function takeBets(list){
   var before = JSON.stringify(BETS.map(betKey));
   SYNC.base = {};
   (list || []).forEach(function(b){ if (!b.deleted && b.legs) SYNC.base[b.id] = betKey(b); });
+  if (REPLAY) return;
   BETS = live;
   try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  flogBets();
   syncNote('Shared through the relay \u00b7 ' + live.length + ' bet' + (live.length === 1 ? '' : 's') +
     ' \u00b7 checked ' + new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', second:'2-digit'}));
   if (JSON.stringify(BETS.map(betKey)) !== before){
@@ -5059,12 +5075,12 @@ function recSession(){
 
 /* How often each kind of frame is worth keeping. The scoreboard changes every
    poll, but ten seconds is plenty to replay a game faithfully. */
-var REC_EVERY = {sb:10000, sum:30000, mu:20000};
+var REC_EVERY = {sb:10000, sum:30000, mu:20000, log:0};
 
 function record(kind, key, data){
   if (!cfg.record || REPLAY || (DEMO && !REC_FORCE)) return;
   var k = kind + ':' + (key || ''), now = Date.now();
-  if (REC.last[k] && now - REC.last[k] < REC_EVERY[kind]) return;
+  if (REC_EVERY[kind] && REC.last[k] && now - REC.last[k] < REC_EVERY[kind]) return;
   REC.last[k] = now;
   var slim = kind === 'sb' ? trimScoreboard(data) : (kind === 'sum' ? trimSummary(data) : data);
   var session = recSession();
@@ -5084,6 +5100,66 @@ function record(kind, key, data){
   }).catch(function(){});
   if (REC.n === 1) recPrune();
 }
+
+/* ---- the flight log ----
+   The feeds say what happened in the game; this says what the board did about
+   it — every banner it showed, every chime and whether the browser let it
+   play, settings and bets as they change, the window going into the background,
+   errors, and once a minute the text of every card. It rides in the same
+   recording and the same export, so a Sunday can be checked line by line
+   against what the room actually saw and heard. Tokens and codes are never
+   written down. */
+var FLOG = {cfg:'', bets:'', snapAt:0, fails:0};
+function flog(type, data){
+  if (REPLAY || (DEMO && !REC_FORCE)) return;
+  if ((RSYNC && RSYNC.phone) || document.body.classList.contains('phone')) return;
+  try { record('log', type, data || {}); } catch(e){}
+}
+function safeCfg(){
+  var o = {};
+  for (var k in cfg) if (k !== 'goveeKey' && k !== 'guestCode') o[k] = cfg[k];
+  return o;
+}
+function flogCfg(){
+  var now = safeCfg(), txt = JSON.stringify(now);
+  if (txt === FLOG.cfg) return;
+  var was = FLOG.cfg ? JSON.parse(FLOG.cfg) : null, changed = {};
+  for (var k in now) if (!was || JSON.stringify(was[k]) !== JSON.stringify(now[k])) changed[k] = now[k];
+  FLOG.cfg = txt;
+  if (was && Object.keys(changed).length) flog('cfg', changed);
+}
+function flogBets(){
+  // the whole bet, parsed legs and all, so a replay can put the same bets back
+  var list = JSON.parse(JSON.stringify(BETS));
+  var txt = JSON.stringify(list);
+  if (txt === FLOG.bets) return;
+  FLOG.bets = txt;
+  flog('bets', {list:list});
+}
+function flogSnap(){
+  var live = (window.__games || []).some(function(g){ return g.state === 'in'; });
+  var rec = document.getElementById('empty').classList.contains('recap');
+  if (!live && !rec) return;
+  var txt = function(el, n){ return el ? el.innerText.replace(/\s+/g, ' ').trim().slice(0, n || 400) : ''; };
+  var cards = [].map.call(document.querySelectorAll('#live .game'), function(c){
+    return {g:c.getAttribute('data-g'), cls:c.className, text:txt(c, 360)};
+  });
+  flog('snap', {cards:cards, side:txt(document.querySelector('.pside'), 600),
+    header:txt(document.getElementById('statusText'), 80), fan:txt(document.getElementById('fanBar'), 300),
+    bets:txt(document.querySelector('#bets h2'), 120), recap:rec ? txt(document.getElementById('empty'), 600) : '',
+    spot:SPOT.id || '', prime:document.getElementById('live').classList.contains('prime'),
+    cols:getComputedStyle(document.documentElement).getPropertyValue('--cols').trim(),
+    hidden:document.hidden, w:innerWidth, h:innerHeight});
+}
+setInterval(function(){ flogCfg(); flogSnap(); }, 60000);
+window.addEventListener('error', function(e){
+  flog('error', {msg:String(e.message || ''), at:(e.filename || '').split('/').pop() + ':' + (e.lineno || 0)});
+});
+window.addEventListener('unhandledrejection', function(e){
+  var r = e.reason; flog('error', {msg:'promise: ' + String((r && r.message) || r || '')});
+});
+document.addEventListener('visibilitychange', function(){ flog('window', {hidden:document.hidden}); });
+document.addEventListener('fullscreenchange', function(){ flog('fullscreen', {on:!!document.fullscreenElement}); });
 
 /* Drop what the board never reads, so a whole Sunday stays a few megabytes. */
 function trimScoreboard(d){
@@ -5178,8 +5254,9 @@ function recLoad(id){
   }).then(sortFrames);
 }
 function sortFrames(frames){
-  var out = {sb:[], sum:{}, mu:{}, start:Infinity, end:0};
+  var out = {sb:[], sum:{}, mu:{}, log:[], start:Infinity, end:0};
   frames.sort(function(a, b){ return a.t - b.t; }).forEach(function(f){
+    if (f.kind === 'log'){ out.log.push(f); return; }      // the flight log doesn't set the replay's span
     out.start = Math.min(out.start, f.t); out.end = Math.max(out.end, f.t);
     if (f.kind === 'sb') out.sb.push(f);
     else (out[f.kind][f.key] = out[f.kind][f.key] || []).push(f);
@@ -5207,6 +5284,10 @@ function startReplay(id, speed, from){
     stopDemoIfAny();
     REPLAY = day; REPLAY.id = id; REPLAY.speed = speed || 16; REPLAY.t0 = Date.now();
     if (from) REPLAY.start = Math.max(day.start, from);
+    /* Recordings from build 2026-09-22d on carry the bets as they were that
+       night; those are what the replay shows. Older ones keep today's bets. */
+    REPLAY.bets = (day.log || []).filter(function(f){ return f.key === 'bets' && f.data && f.data.list; });
+    if (REPLAY.bets.length){ REPLAY.liveBets = BETS; BETS = replayBets() || []; }
     // a clean slate, as if the board had just been opened at that moment
     prev = null; fired = Object.create(null); queue = []; showing = false;
     clearTimeout(alertTimer); document.getElementById('alert').className = '';
@@ -5217,8 +5298,13 @@ function startReplay(id, speed, from){
     paintReplay();
   });
 }
+function replayBets(){
+  var f = frameAt(REPLAY.bets);
+  return f ? JSON.parse(JSON.stringify(f.data.list)) : null;
+}
 function stopReplay(){
   if (!REPLAY) return;
+  if (REPLAY.liveBets) BETS = REPLAY.liveBets;
   REPLAY = null;
   prev = null; fired = Object.create(null); BOX = Object.create(null);
   DEEP = Object.create(null); BETSEEN = null; FAN.seen = {}; FAN.plays = [];
@@ -5231,6 +5317,10 @@ function stopDemoIfAny(){
 }
 function replayTick(){
   if (vnow() > REPLAY.end + 5000){ var id = REPLAY.id; stopReplay(); recNote('Replay of ' + id + ' finished.'); return true; }
+  if (REPLAY.bets && REPLAY.bets.length){
+    var bf = frameAt(REPLAY.bets);
+    if (bf && bf !== REPLAY.betFrame){ REPLAY.betFrame = bf; BETS = JSON.parse(JSON.stringify(bf.data.list)); }
+  }
   var f = frameAt(REPLAY.sb);
   if (f){ lastGood = Date.now(); fails = 0; ingest(f.data); }
   paintStatus();
@@ -5242,7 +5332,7 @@ function replayTick(){
    something on the board needs checking against what actually happened. */
 function recExport(id){
   return recLoad(id).then(function(day){
-    var frames = day.sb.slice();
+    var frames = day.sb.concat(day.log || []);
     ['sum', 'mu'].forEach(function(k){
       for (var key in day[k]) frames = frames.concat(day[k][key].map(function(f){ return {t:f.t, kind:k, key:key, data:f.data}; }));
     });
@@ -5637,8 +5727,8 @@ function fullscreen(){
 function keepAwake(){
   if (!navigator.wakeLock) return;
   navigator.wakeLock.request('screen').then(function(w){
-    wake = w;
-    w.addEventListener('release', function(){ wake = null; });
+    wake = w; flog('awake', {on:true});
+    w.addEventListener('release', function(){ wake = null; flog('awake', {on:false}); });
   }).catch(function(){});
 }
 
@@ -5655,6 +5745,7 @@ function watchdog(){
   if (DEMO || REPLAY) return;
   var limit = cfg.interval * 1000 * 8 + 30000;
   if (slept || (WD.tried && now - WD.tried > limit)){
+    flog('restart', {slept:slept, gap:Math.round((now - WD.tried) / 1000)});
     WD.kicks++; fails = 0; clearTimeout(timer); poll();
   }
   var anyLive = (window.__games || []).some(function(g){ return g.state === 'in'; });
@@ -6121,6 +6212,10 @@ function paintRemote(){
 
 function boot(demo){
   document.getElementById('gate').remove();
+  FLOG.cfg = JSON.stringify(safeCfg());
+  flog('boot', {build:BUILD, ua:navigator.userAgent, w:innerWidth, h:innerHeight, dpr:window.devicePixelRatio || 1,
+                cfg:safeCfg(), bets:BETS.length});
+  flogBets();                               // the bets as the day starts, even if nobody touches them
   unlockAudio();
   keepAwake();
   fullscreen();
