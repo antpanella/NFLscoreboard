@@ -205,7 +205,11 @@ body.noyb .yb{display:none}
 .pside .who{display:flex;flex-wrap:wrap;gap:.25em 1.1em}
 .pside .who span{white-space:nowrap}
 .pside .who b{color:#C9A0FF}
-.pside .who .opp b{color:var(--sideline)}
+.pside .who .opp{color:#FFB3AC}
+.pside .who .opp b{color:#FF7A6E}
+.pside .who .opp em{color:#E06A60}
+.pside h3 .me{color:#C9A0FF}
+.pside h3 .them{color:#FF7A6E}
 .pside .who .bench{opacity:.6}
 .pside .who em{font-style:normal;color:var(--sideline);font-size:.8em;margin-left:.3em}
 .game.spot .lp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
@@ -336,9 +340,9 @@ body.nofan .fanrow{display:none}
 .fantasy{flex:1 1 auto;min-width:0;overflow:hidden;height:2.3em}  /* 2 x line-height */
 .fantasy .track{display:flex;flex-wrap:wrap;align-items:baseline;
   column-gap:calc(.3 * var(--u));row-gap:0;will-change:transform}
-/* a single entry may break between the name and its tag rather than be clipped */
-.fantasy .fp{white-space:normal}
-.fantasy .fp > *{white-space:nowrap}
+/* one player, one line: an entry never breaks. One too long for the row is
+   shrunk to fit it (fitFanLines) instead of wrapping its points underneath. */
+.fantasy .fp{white-space:nowrap;flex:none}
 .fantasy .fc{font-weight:700}
 .fantasy .fp b{font-weight:700;color:var(--chalk)}
 .fantasy .fp i{font-style:normal;font-weight:600;color:var(--fantasy);opacity:.85}
@@ -376,6 +380,13 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .strip .w{font-weight:700}
 .strip .l{opacity:.55}
 #finals .items>span{color:var(--sideline)}
+#alsolive h2 .sum{letter-spacing:.04em;font-weight:500;margin-left:.6em;color:var(--sideline);text-transform:none}
+#alsolive .items{flex-direction:row;flex-wrap:wrap;gap:.3rem 1.8rem}
+#alsolive .al{display:inline-flex;gap:.55rem;align-items:baseline;white-space:nowrap;cursor:pointer}
+#alsolive .al .w{color:var(--chalk);font-weight:700}
+#alsolive .al .l{opacity:.6}
+#alsolive .al i{font-style:normal;color:var(--sideline);font-size:.82em}
+#alsolive .al.rz i{color:var(--redzone);font-weight:700}
 /* bets: one chip per bet, in-danger first */
 #bets h2 .sum{letter-spacing:.04em;font-weight:500;margin-left:.6em;color:var(--sideline)}
 #bets h2 .sum .up{color:var(--live)} #bets h2 .sum .dn{color:var(--redzone)}
@@ -460,6 +471,10 @@ body.phone>*:not(#phone){display:none !important}
 #phone .rrow b{font-size:1.2rem;min-width:7em;text-align:center}
 #phone .rgames{display:flex;flex-direction:column;gap:.45rem}
 #phone .rgames button{text-align:left}
+#phone .rgames .rg{display:flex;gap:.45rem}
+#phone .rgames .rg button:first-child{flex:1}
+#phone .rgames button.solo{flex:none;font-size:.9rem;color:var(--sideline)}
+#phone .rgames button.solo.on{color:var(--flag);border-color:var(--flag)}
 #phone .rgames button.on{border-color:var(--flag);color:var(--flag)}
 #phone .rgames button.off{color:var(--sideline);font-weight:600}
 #phone.guest label:has(#sGvKey),#phone.guest label:has(#sGvUrl),#phone.guest #gvLeak{display:none}
@@ -598,6 +613,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 <main>
   <div id="live"></div>
   <div id="empty" hidden></div>
+  <section class="strip" id="alsolive" hidden><h2>ALSO LIVE <span class="sum">double-click the game to go back to all of them</span></h2><div class="items"></div></section>
   <section class="strip" id="upcoming" hidden><h2>KICKING OFF LATER</h2><div class="items"></div></section>
   <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
   <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
@@ -832,7 +848,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22e';
+var BUILD = 'build 2026-09-22i';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -841,7 +857,7 @@ var TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','
   'JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WSH'];
 
 var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
-  yards:35, dur:12, minShow:4, order:'kick', cfgSync:false, myName:'', guestCode:'', pinId:'', showNet:true, showWp:true, spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
+  yards:35, dur:12, minShow:4, order:'kick', focusId:'', cfgSync:false, myName:'', guestCode:'', pinId:'', showNet:true, showWp:true, spot:'auto', field:true, prime:true, fav:'', today:false, scale:1, delay:0,
   deep:true,
   govee:false,                  // never on by default: another copy of this page
   smooth:true,                  // must not flash someone else's light strip
@@ -1846,6 +1862,26 @@ function renderBoard(){
   if (cfg.order !== 'heat') live = holdOrder(live);
   // soon/done are ordered inside dayRows, which buckets them by calendar day first
 
+  /* Single-game view: a double-click on a card gives that game the whole board,
+     in the prime-time layout. The other live games shrink to one line each in
+     an ALSO LIVE strip (click one to switch). It lets go when the game ends. */
+  var focus = cfg.focusId && live.filter(function(g){ return String(g.id) === cfg.focusId; })[0];
+  if (cfg.focusId && !focus && !games.some(function(g){ return String(g.id) === cfg.focusId && g.state === 'pre'; })){
+    cfg.focusId = ''; save();
+  }
+  var others = focus ? live.filter(function(g){ return g !== focus; }) : [];
+  others.forEach(logPlay);           // keep their play-by-play going for when you switch
+  if (focus) live = [focus];
+  var al = document.getElementById('alsolive');
+  al.hidden = !others.length;
+  al.querySelector('.items').innerHTML = others.map(function(g){
+    var aw = g.away.score > g.home.score, hw = g.home.score > g.away.score;
+    return '<span class="al' + (g.redzone ? ' rz' : '') + '" data-g="' + esc(g.id) + '">' +
+      '<span class="' + (aw ? 'w' : 'l') + '">' + esc(g.away.abbr) + ' ' + g.away.score + '</span>' +
+      '<span class="' + (hw ? 'w' : 'l') + '">' + esc(g.home.abbr) + ' ' + g.home.score + '</span>' +
+      '<i>' + esc((g.redzone ? 'RZ \u00b7 ' : '') + quarter(g)) + '</i></span>';
+  }).join('');
+
   var hideBoth = cfg.liveOnly && live.length > 0;
 
   // Strips are laid out FIRST. They're flex:none, so they claim their height before
@@ -2098,8 +2134,9 @@ function primeSide(g, W, H){
       var v = fanPts(e) || 0;
       if (e.side === 'opp'){ nThem++; if (e.starter) them += v; } else { nMe++; if (e.starter) me += v; }
     });
-    var tot = '<i>\u2605 ' + nMe + ' \u00b7 ' + fmtPts(me) +
-      (nThem ? '  vs ' + nThem + ' \u00b7 ' + fmtPts(them) + '  (' + (me - them >= 0 ? '+' : '\u2212') + fmtPts(Math.abs(me - them)) + ')' : '') + '</i>';
+    // yours in violet, your opponent's in red — the same as on the cards
+    var tot = '<i><span class="me">\u2605 ' + nMe + ' \u00b7 ' + fmtPts(me) + '</span>' +
+      (nThem ? '  <span class="them">vs ' + nThem + ' \u00b7 ' + fmtPts(them) + '</span>' : '') + '</i>';
     out.push('<section><h3>FANTASY' + tot + '</h3><div class="who">' + mine.map(function(e){
       var v = fanPts(e);
       return '<span class="' + (e.side === 'opp' ? 'opp' : '') + (e.starter ? '' : ' bench') + '">' +
@@ -3013,9 +3050,8 @@ function fanLine(g){
   var net = sum - foeSum;
   var chip = '<span class="me">\u2605 ' + mineN + (any ? ' \u00b7 ' + fmtPts(sum) : '') + '</span>';
   if (foeN){
-    chip += '<span class="them">vs ' + foeN + (any ? ' \u00b7 ' + fmtPts(foeSum) : '') +
-      (any ? '<b class="' + (net >= 0 ? 'good' : 'bad') + '">' +
-        (net >= 0 ? '+' : '\u2212') + fmtPts(Math.abs(net)) + '</b>' : '') + '</span>';
+    // no difference column: it pushed the names over and made them wrap
+    chip += '<span class="them">vs ' + foeN + (any ? ' \u00b7 ' + fmtPts(foeSum) : '') + '</span>';
   }
   return '<div class="fanrow"><span class="fc' + (foeN ? ' two' : '') + '">' + chip + '</span>' +
     '<span class="fantasy" data-k="' + esc(g.id) + ':f"><span class="track">' +
@@ -3317,21 +3353,27 @@ function applyPoints(got){
    for the ticker. Points only: projections for the whole league would mean
    pulling every team's players, and the room cares about the score. */
 function otherMatchups(rows, m){
-  var names = FAN.owner[m.league] || {}, mineId = null, by = {};
+  var names = FAN.owner[m.league] || {}, mineId = null, by = {}, all = [];
   (rows || []).forEach(function(r){ if (String(r.roster_id) === String(m.roster)) mineId = r.matchup_id; });
   (rows || []).forEach(function(r){
     if (r.matchup_id === null || r.matchup_id === undefined || r.matchup_id === mineId) return;
-    (by[r.matchup_id] = by[r.matchup_id] || []).push({name: names[r.roster_id] || ('roster ' + r.roster_id), pts: Number(r.points) || 0});
+    all = all.concat(r.starters || []);
+    // projected finish the same way as the matchup up top: banked + projection for what's left
+    (by[r.matchup_id] = by[r.matchup_id] || []).push({name: names[r.roster_id] || ('roster ' + r.roster_id),
+      pts: Number(r.points) || 0, proj: (Number(r.points) || 0) + projectedTotal(r.starters, {})});
   });
+  // their players' NFL teams, so the part still to play can be worked out
+  if (cfg.fanLeague) learnPlayers(all);
   return Object.keys(by).sort(function(a, b){ return a - b; })
     .map(function(k){ return by[k]; }).filter(function(p){ return p.length === 2; });
 }
 function leagueChip(p){
   var a = p[0], b = p[1], aUp = a.pts >= b.pts;
+  var pj = function(x){ return (cfg.fanProj !== false && x.proj > x.pts + 0.05) ? '<i class="pj">/ ' + fmtPts(x.proj) + '</i>' : ''; };
   return '<span class="side lg">' +
-    '<b class="nm' + (aUp ? ' up' : '') + '">' + esc(a.name) + '</b><span class="pts' + (aUp ? ' up' : '') + '">' + fmtPts(a.pts) + '</span>' +
+    '<b class="nm' + (aUp ? ' up' : '') + '">' + esc(a.name) + '</b><span class="pts' + (aUp ? ' up' : '') + '">' + fmtPts(a.pts) + '</span>' + pj(a) +
     '<span class="vs">\u2013</span>' +
-    '<span class="pts' + (aUp ? '' : ' up') + '">' + fmtPts(b.pts) + '</span><b class="nm' + (aUp ? '' : ' up') + '">' + esc(b.name) + '</b></span>';
+    '<span class="pts' + (aUp ? '' : ' up') + '">' + fmtPts(b.pts) + '</span>' + pj(b) + '<b class="nm' + (aUp ? '' : ' up') + '">' + esc(b.name) + '</b></span>';
 }
 
 /* My row and my opponent's row out of the week's matchup list. */
@@ -3602,6 +3644,7 @@ function fit(cols, rows){
 
   fillCards(box, u2);
   fitSpot(box, cw, ch, gap);
+  fitFanLines(box);
   fitSide(box);
 }
 /* The prime-time panel starts large and steps down until everything in it fits.
@@ -3654,6 +3697,21 @@ function fillCards(box, u2){
                                      rowsSpill(c3)); t3++){
       v *= 0.93;
       c3.style.setProperty('--u2', v.toFixed(2) + 'px');
+    }
+  }
+}
+function fitFanLines(box){
+  var rows = box.querySelectorAll('.fantasy');
+  for (var i = 0; i < rows.length; i++){
+    var room = rows[i].clientWidth, fps = rows[i].querySelectorAll('.fp');
+    for (var k = 0; k < fps.length; k++){
+      var fp = fps[k];
+      fp.style.fontSize = '';
+      var w = fp.scrollWidth;
+      if (room > 0 && w > room){
+        // as big as the row allows, but never below 55% of the row's type
+        fp.style.fontSize = (Math.max(0.55, (room - 1) / w) * 100).toFixed(1) + '%';
+      }
     }
   }
 }
@@ -5781,6 +5839,9 @@ document.addEventListener('keydown', function(e){
   // being swallowed, which left the panel with no keyboard exit at all.
   if (e.key === 'Escape'){
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    if (!document.getElementById('panel').classList.contains('open') && cfg.focusId){
+      cfg.focusId = ''; save(); render(); return;
+    }
     if (!document.getElementById('panel').classList.contains('open') && SPOT.pin){
       SPOT.pin = null; cfg.pinId = ''; save(); render(); return;
     }
@@ -5800,16 +5861,35 @@ document.addEventListener('keydown', function(e){
   }
 });
 document.getElementById('gear').addEventListener('click', function(){ togglePanel(); });
+var CLICKT = null;
+document.getElementById('live').addEventListener('dblclick', function(e){
+  var c = e.target.closest && e.target.closest('.game');
+  if (!c) return;
+  clearTimeout(CLICKT); CLICKT = null;
+  var id = c.getAttribute('data-g');
+  cfg.focusId = cfg.focusId === id ? '' : id;         // double-click again to go back
+  SPOT.pin = null; cfg.pinId = ''; save();
+  render();
+});
+document.getElementById('alsolive').addEventListener('click', function(e){
+  var it = e.target.closest && e.target.closest('.al');
+  if (!it) return;
+  cfg.focusId = it.getAttribute('data-g'); save(); render();
+});
 document.getElementById('live').addEventListener('click', function(e){
   var c = e.target.closest && e.target.closest('.game');
-  if (!c || cfg.spot === 'off') return;
-  var id = c.getAttribute('data-g');
+  if (!c || cfg.spot === 'off' || cfg.focusId) return;
+  // wait out a possible second click: a double-click means single-game view
+  clearTimeout(CLICKT);
+  CLICKT = setTimeout(function(){ CLICKT = null; spotClick(c.getAttribute('data-g')); }, 260);
+});
+function spotClick(id){
   if (SPOT.pin === id){ SPOT.pin = null; SPOT.skip = id; SPOT.auto = null; }
   else if (SPOT.auto === id && !SPOT.pin){ SPOT.skip = id; SPOT.auto = null; }   // wave off a big moment
   else SPOT.pin = id;
   cfg.pinId = SPOT.pin || ''; save();
   render();
-});
+}
 document.getElementById('sClose').addEventListener('click', function(){ togglePanel(false); });
 document.getElementById('scrim').addEventListener('click', function(){ togglePanel(false); });
 
@@ -6117,7 +6197,7 @@ function remoteMode(){
     '<p class="note cfgSyncNote">Connecting\u2026</p>' +
     '<h4>Delay</h4><div class="rrow"><button data-d="-5">\u2212 5s</button><b id="rDelay"></b><button data-d="5">+ 5s</button></div>' +
     '<h4>Sound</h4><div class="rrow"><button id="rMute"></button></div>' +
-    '<h4>Spotlight</h4><div id="rGames" class="rgames"></div>' +
+    '<h4>Spotlight</h4><p class="note" style="margin-top:0">Tap a game to spotlight it. \u201cOnly this\u201d gives it the whole board.</p><div id="rGames" class="rgames"></div>' +
     '<h4>Lights</h4><div class="rrow"><button id="rStop">Stop the lights now</button></div>' +
     '<h4>Friends\u2019 bets</h4><p class="note" style="margin-top:0">Hold your phone up for a friend to scan. Bets only, under their own name.</p>' +
     '<div id="rGuestQR" class="qrbox"></div>' +
@@ -6202,12 +6282,19 @@ function paintRemote(){
   var m = document.getElementById('rMute'); if (m) m.textContent = cfg.sound ? 'Chimes on \u2014 tap to mute' : 'Muted \u2014 tap for chimes';
   var box = document.getElementById('rGames');
   if (!box) return;
-  if (cfg.spot === 'off'){ box.innerHTML = '<p class="note">Spotlight is off (Board tab).</p>'; return; }
   var games = RGAMES || [];
   box.innerHTML = (games.length ? games.map(function(g){
-      return '<button data-g="' + esc(g.id) + '" class="' + (cfg.pinId === g.id ? 'on' : '') + '">' + esc(g.txt) + '</button>';
+      return '<div class="rg"><button data-g="' + esc(g.id) + '" class="' + (cfg.pinId === g.id ? 'on' : '') + '"' + (cfg.spot === 'off' ? ' disabled title="Spotlight is off (Board tab)"' : '') + '>' + esc(g.txt) + '</button>' +
+        '<button data-f="' + esc(g.id) + '" class="solo' + (cfg.focusId === g.id ? ' on' : '') + '">' + (cfg.focusId === g.id ? 'All games' : 'Only this') + '</button></div>';
     }).join('') : '<p class="note">No games on right now.</p>') +
     (cfg.pinId ? '<button data-g="" class="off">Let go of the pinned game</button>' : '');
+  box.querySelectorAll('button[data-f]').forEach(function(bt){
+    bt.addEventListener('click', function(){
+      var id = bt.getAttribute('data-f');
+      cfg.focusId = cfg.focusId === id ? '' : id; cfg.pinId = '';
+      save(); paintRemote();
+    });
+  });
   box.querySelectorAll('button[data-g]').forEach(function(bt){
     bt.addEventListener('click', function(){
       var id = bt.getAttribute('data-g');
