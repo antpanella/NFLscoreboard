@@ -161,9 +161,12 @@ main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem
   box-shadow:0 0 0 calc(.03 * var(--u)) rgba(255,255,255,.4),0 0 calc(.2 * var(--u)) rgba(0,0,0,.5);
   background:
     linear-gradient(90deg,transparent 8.1%,rgba(255,255,255,.85) 8.1% 8.55%,transparent 8.55% 91.45%,rgba(255,255,255,.85) 91.45% 91.9%,transparent 91.9%),
-    repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.22) calc(10% - 1px) 10%) 8.33% 0/83.33% 100% no-repeat,
     linear-gradient(90deg,var(--ea,#333) 0 8.33%,#0B1A12 8.33% 91.67%,var(--eh,#333) 91.67% 100%)}
 .yb .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.55)}
+/* a line every ten yards, placed exactly: the old repeating stripe drifted at
+   small sizes, so the lines didn't land on any yard line in particular */
+.yb .yl{position:absolute;top:12%;bottom:12%;width:max(1.5px,calc(.03 * var(--u)));transform:translateX(-50%);background:rgba(255,255,255,.5)}
+.yb .yl.rzl{background:rgba(255,100,90,.85)}
 .yb .ltg{position:absolute;top:calc(-.05 * var(--u));bottom:calc(-.05 * var(--u));width:calc(.05 * var(--u));
   margin-left:calc(-.025 * var(--u));background:#FFD400;border-radius:1px}
 .yb .ball{position:absolute;top:50%;width:calc(.5 * var(--u));height:calc(.5 * var(--u));
@@ -829,7 +832,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22d';
+var BUILD = 'build 2026-09-22e';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2313,6 +2316,10 @@ function fieldBar(g){
   // end zones in the full jersey colour, brighter than the card behind them
   var ea = tint(g.away.color, g.away.alt, 0.45), eh = tint(g.home.color, g.home.alt, 0.45);
   var out = '<div class="yb" style="--ea:' + ea + ';--eh:' + eh + '"><span class="mid"></span>';
+  // 10, 20 … 40 from each goal line; the 20s are the red-zone edges
+  [10, 20, 30, 40, 60, 70, 80, 90].forEach(function(y){
+    out += '<span class="yl' + (y === 20 || y === 80 ? ' rzl' : '') + '" style="left:' + pct(y) + '"></span>';
+  });
   if (sp){
     if (sp.ltg !== null && sp.ltg > 0 && sp.ltg < 100) out += '<span class="ltg" style="left:' + pct(sp.ltg) + '"></span>';
     out += '<span class="ball ' + (sp.dir === false ? 'l' : sp.dir ? 'r' : 'c') + '" style="left:' + pct(sp.x) + '"></span>';
