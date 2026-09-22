@@ -103,6 +103,12 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .up .pj{color:var(--chalk);opacity:.8}
 #fanBar .play.theirs .star,#fanBar .play.theirs .pts{color:var(--redzone)}
 #fanBar .play.theirs .nm{color:var(--sideline)}
+#fanBar .play.lgp .star,#fanBar .play.lgp .pts{color:var(--flag)}
+#fanBar .play.lgp .nm{color:var(--chalk);opacity:.92}
+#fanBar .play.lgp .jn{color:var(--sideline)}
+#fanBar .play .own{flex:none;color:#0A1410;background:var(--sideline);font-weight:800;
+  font-size:calc(.68 * var(--su));letter-spacing:.05em;padding:.1em .45em;border-radius:3px;
+  max-width:11em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #status{flex:none;white-space:nowrap;display:flex;align-items:center;gap:.5rem;
   font-size:calc(.86 * var(--su));color:var(--sideline);font-weight:500}
 #dot{width:.6em;height:.6em;border-radius:50%;background:var(--live)}
@@ -266,11 +272,12 @@ body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{op
 .row img{height:calc(.9 * var(--tw,1) * var(--u));width:calc(.9 * var(--tw,1) * var(--u));
   object-fit:contain;flex:none}
 .row .abbr{font-weight:700;font-size:calc(var(--tw,1) * var(--u));letter-spacing:.01em;flex:0 0 auto}
-/* The record is the one thing on the row allowed to give way. It clips itself
-   rather than pushing the card over, which used to drag the whole board's type
-   size down by a fifth the moment records were switched on. */
-.row .rec{font-size:calc(.34 * var(--u));color:var(--sideline);font-weight:500;
-  flex:0 1 auto;min-width:0;overflow:hidden}
+/* The record used to be the one thing on the row allowed to give way: it clipped
+   itself rather than push the card over. The trouble is that a silent clip is
+   invisible to the fitting passes, so an over-full row never reported a spill and
+   never got smaller — it just served up "10-4-" forever. It now holds its size
+   like everything else, and an over-full row is a real spill the fitter can see. */
+.row .rec{font-size:calc(.34 * var(--u));color:var(--sideline);font-weight:500;flex:0 0 auto}
 .row .pts{flex:0 0 auto}
 .row .tos{display:flex;gap:calc(.07 * var(--tw,1) * var(--u));align-items:center;flex:none;
   margin-left:calc(.12 * var(--u))}
@@ -286,6 +293,13 @@ body.noto .row .tos{display:none}
 .row.lose .abbr,.row.lose .pts,.row.lose img{opacity:.55}
 body.tint .row.lose .abbr,body.tint .row.lose .pts{opacity:.72}
 body.tint .row.lose img{opacity:.8}
+/* A logo is the team's own colours sitting on the team's own tint, so a dark or
+   same-hue mark (the Jets' green oval on Jets green) all but disappears. A tight
+   light halo gives every mark an edge, and a soft dark one behind it does the
+   same for the marks that are mostly white. */
+body.tint .row img{filter:
+  drop-shadow(0 0 calc(.045 * var(--u)) rgba(255,255,255,.92))
+  drop-shadow(0 0 calc(.10 * var(--u)) rgba(0,0,0,.55))}
 
 .meta{display:flex;gap:calc(.28 * var(--u));align-items:baseline;
   font-size:calc(.42 * var(--u2));
@@ -713,7 +727,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   <h4>Header ticker</h4>
   <label>Matchup score in the header <input type="checkbox" id="sFanBar"></label>
   <label>Recent fantasy plays in the ticker <input type="checkbox" id="sFanPlays"></label>
-  <label>Rest of my league in the ticker <input type="checkbox" id="sFanLeague"></label>
+  <label>League ticker &mdash; every team's score and plays <input type="checkbox" id="sFanLeague"></label>
   <label>Projected totals <input type="checkbox" id="sFanProj"></label>
   <label>Win chance <input type="checkbox" id="sFanWin"></label>
   <label>Scroll the ticker <input type="checkbox" id="sFanRoll"></label>
@@ -848,7 +862,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22i';
+var BUILD = 'build 2026-09-22k';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3234,7 +3248,7 @@ function rosterEntry(id){
   for (var i = 0; i < all.length; i++) if (String(all[i].id) === String(id)) return all[i];
   return null;
 }
-function noteMoves(pp, side){
+function noteMoves(pp, side, who){
   var map = (pcache().map) || {};
   for (var id in pp){
     var was = FAN.seen[id];
@@ -3244,15 +3258,18 @@ function noteMoves(pp, side){
     if (d < 0.05) continue;
     var e = map[id];
     if (!e){ var re = rosterEntry(id); e = re ? {d:re.name, j:re.num, t:re.team} : {}; }
-    var play = {at:Date.now(), side:side, id:id, delta:d,
+    var play = {at:Date.now(), side:side, who:who || '', id:id, delta:d,
       name: isTeamId(id) ? id + ' D/ST' : shortName(e.d || 'someone'),
       full: isTeamId(id) ? (id + ' defense') : (e.d || ''),
       num: e.j || '', team: isTeamId(id) ? id : (e.t || ''),
       what: playWords(isTeamId(id) ? id : (e.t || ''), e.d || '')};
     FAN.plays.unshift(play);
-    fanBanner(play);
+    /* Banners and chimes stay on my own matchup. The league ticker is a glance,
+       not ten teams' worth of full-screen alerts. */
+    if (side !== 'lg') fanBanner(play);
   }
-  if (FAN.plays.length > 8) FAN.plays.length = 8;
+  var cap = cfg.fanLeague ? 16 : 8;
+  if (FAN.plays.length > cap) FAN.plays.length = cap;
 }
 
 /* A banner raised off the points themselves rather than off the play-by-play:
@@ -3330,6 +3347,14 @@ function applyPoints(got){
           });
           noteMoves(startersOf(mineRow), 'me');
           noteMoves(startersOf(oppRow), 'opp');
+          // league ticker: every other team's starters too, tagged with the owner
+          if (cfg.fanLeague){
+            var lnames = FAN.owner[m.league] || {};
+            (rows || []).forEach(function(r){
+              if (!r || r === mineRow || r === oppRow) return;
+              noteMoves(startersOf(r), 'lg', lnames[r.roster_id] || ('roster ' + r.roster_id));
+            });
+          }
         }
         (rows || []).forEach(function(r){
           if (String(r.roster_id) !== String(m.roster)) return;
@@ -3413,8 +3438,9 @@ var fanX = 0, fanHalf = 0, fanRun = false;
 
 function playChip(p){
   var age = Math.round((Date.now() - p.at) / 60000);
-  return '<span class="side play' + (p.side === 'opp' ? ' theirs' : '') + '">' +
+  return '<span class="side play' + (p.side === 'opp' ? ' theirs' : p.side === 'lg' ? ' lgp' : '') + '">' +
     '<span class="star">▲</span>' +
+    (p.side === 'lg' && p.who ? '<span class="own">' + esc(p.who) + '</span>' : '') +
     (p.num ? '<i class="jn">#' + esc(p.num) + '</i>' : '') +
     '<b class="nm">' + esc(p.name) + '</b>' +
     (p.what ? '<i>' + esc(p.what) + '</i>' : '') +
@@ -3449,14 +3475,19 @@ function paintFanBar(){
   if (!cfg.fanBar || !m || !m.me){ el.hidden = true; fanRun = false; return; }
 
   var items = [scoreChips(m)];
-  if (cfg.fanPlays !== false){
-    // the last few, newest first, until they are half an hour old
-    for (var i = 0; i < FAN.plays.length && items.length <= 6; i++){
-      if (Date.now() - FAN.plays[i].at < 1800000) items.push(playChip(FAN.plays[i]));
-    }
-  }
+  /* League mode turns the whole ticker over to the league: every matchup's
+     score, then scoring plays from all ten teams rather than just the two. */
   if (cfg.fanLeague && FAN.others && FAN.others.length){
     items.push('<span class="lgtag">LEAGUE</span>' + FAN.others.map(leagueChip).join('<span class="dot">\u00b7</span>'));
+  }
+  if (cfg.fanPlays !== false){
+    // the last few, newest first, until they are half an hour old
+    var max = cfg.fanLeague ? 11 : 6;
+    for (var i = 0; i < FAN.plays.length && items.length <= max; i++){
+      var pl = FAN.plays[i];
+      if (pl.side === 'lg' && !cfg.fanLeague) continue;   // left over from a toggle-off
+      if (Date.now() - pl.at < 1800000) items.push(playChip(pl));
+    }
   }
   var unit = '<span class="unit">' + items.join('<span class="dot">\u00b7</span>') +
     '<span class="dot">\u00b7</span></span>';
