@@ -447,6 +447,7 @@ body.phone>*:not(#phone){display:none !important}
   box-shadow:none;background:none;padding:0}
 #phone.remote #sClose,#phone.remote #ptabs button[data-tab="system"]{display:none}
 #phone.remote .tvonly{display:block}
+#phone.remote .tvqr{display:none}
 #phone.remote #phoneQR,#phone.remote #sQRToken,#phone.remote #qrNote,#phone.remote label:has(#sQRToken),
 #phone.remote #guestQR,#phone.remote #remoteQR,#phone.remote label:has(#sCfgSync),
 #phone.remote label:has(#sGuestMake),#phone.remote label:has(#sBetSync){display:none}
@@ -732,23 +733,19 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
     <button id="sBetClear" style="color:var(--sideline);font-size:1rem">Clear settled</button></label>
   <div id="betList"></div>
   <div class="tvonly">
-  <h4>From your phone</h4>
-  <label>Share bets through the relay <input type="checkbox" id="sBetSync"></label>
-  <p class="note" id="betSyncNote" style="margin-top:.3rem">Uses the same relay and token as the lights. Turn this on, then open the phone page and add bets there — they land on the board within ten seconds.</p>
-  <div id="phoneQR"></div>
-  <label>Put my token in the code <input type="checkbox" id="sQRToken"></label>
-  <p class="note" id="qrNote" style="margin-top:.3rem">Scan with your phone's camera to open the bet page.</p>
-  <p class="note" style="margin-top:.3rem">Or open: <b id="phoneUrl" style="color:var(--chalk);word-break:break-all"></b>
-    <button id="sCopyPhone" style="color:var(--sideline);font-size:.9rem;font-weight:600;margin-left:.3rem">copy</button></p>
+  <div class="tvqr">
+  <h4>Your phone</h4>
+  <label>Let my phone run the board and add my bets <input type="checkbox" id="sCfgSync"></label>
+  <div id="remoteQR" class="qrbox"></div>
+  <p class="note cfgSyncNote" style="margin-top:.3rem">One code for you: every setting, delay, mute, spotlight, the lights' stop button, and your bets &mdash; with a name field so your bets carry your name. It carries your token, so it only shows while this is ticked and Settings is open.</p>
+  <p class="note" id="betSyncNote" style="margin-top:.3rem"></p>
+  <label style="display:none">Share bets through the relay <input type="checkbox" id="sBetSync"></label>
   <h4>Friends' bets</h4>
   <label><button id="sGuestMake" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Let friends add bets</button>
     <button id="sGuestOff" hidden style="color:var(--sideline);font-size:1rem">Turn off</button></label>
   <div id="guestQR" class="qrbox"></div>
-  <p class="note" id="guestNote" style="margin-top:.3rem">Makes a QR code for friends. Their bets show on the board with their name, and they can only add or remove their own.</p>
-  <h4>Phone remote</h4>
-  <label>Let my phone change the board's settings <input type="checkbox" id="sCfgSync"></label>
-  <div id="remoteQR" class="qrbox"></div>
-  <p class="note cfgSyncNote" style="margin-top:.3rem">Every setting on your phone, plus delay, mute, spotlight and a stop button for the lights. The code carries your token, so it only shows while this is ticked and Settings is open.</p>
+  <p class="note" id="guestNote" style="margin-top:.3rem">One code for friends: bets only. Their bets show on the board with their name, and they can only add or remove their own &mdash; no settings, no lights.</p>
+  </div>
   <h4>Display</h4>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
   <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
@@ -832,7 +829,7 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-21z';
+var BUILD = 'build 2026-09-22c';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1110,6 +1107,12 @@ function readSummary(j){
   if (dc){
     if (!out.possession && dc.team && dc.team.id) out.possession = String(dc.team.id);
     var plays = dc.plays || [];
+    // each play's own quarter and clock, for the play-by-play list and for
+    // catching a scoreboard clock that has stopped updating
+    out.dplays = plays.slice(-8).map(function(p){
+      return {id:String(p.id || ''), period:(p.period && p.period.number) || 0,
+              clock:(p.clock && p.clock.displayValue) || '', type:(p.type && p.type.text) || ''};
+    });
     out.drive = {desc: String(dc.description || ''), team: (dc.team && (dc.team.abbreviation || dc.team.shortDisplayName)) || ''};
     if (!out.lastPlay && plays.length){
       var lp = plays[plays.length - 1] || {};
@@ -1180,15 +1183,42 @@ function deepTick(){
 }
 
 /* Detail overrides the scoreboard where the scoreboard is silent or stale. */
+var STUCK = Object.create(null);
 function overlay(games){
   for (var i = 0; i < games.length; i++){
     var g = games[i], d = DEEP[g.id];
     if (!d) continue;
     if (d.live) g.live = d.live;
     if (d.wp !== null && (g.wp === null || g.wp === undefined)) g.wp = d.wp;
+    var fresh = (Date.now() - (d.at || 0)) < 25000;
     if (!g.possession && d.possession) g.possession = d.possession;
-    if (!g.dd && d.dd) g.dd = d.dd;
-    if (!g.redzone && d.redzone) g.redzone = true;
+    // only a fresh detail may fill in the spot: an old one put a scored-on
+    // drive's down and distance back on the card after the touchdown
+    if (!g.dd && d.dd && fresh) g.dd = d.dd;
+    if (!g.redzone && d.redzone && fresh) g.redzone = true;
+    /* ESPN's scoreboard clock sometimes sticks. On Monday night it read 0:31 for
+       twelve minutes of the second quarter while plays ran at 3:11, 2:38, 2:00,
+       1:21. The game detail stamps each play with its own clock, so when the
+       newest play in the same quarter is more than a minute ahead of the
+       scoreboard, the scoreboard is the one that is wrong. */
+    var dp = d.dplays && d.dplays[d.dplays.length - 1];
+    if (dp && g.state === 'in' && dp.period === g.period){
+      var ps = clockSecs(dp.clock), ss = clockSecs(g.clock);
+      // a scoreboard clock that hasn't moved through three different plays is stuck
+      var st = STUCK[g.id];
+      if (!st || st.clock !== g.clock || st.period !== g.period) st = STUCK[g.id] = {clock:g.clock, period:g.period, ids:{}, n:0};
+      if (g.lastPlayId && !st.ids[g.lastPlayId]){ st.ids[g.lastPlayId] = 1; st.n++; }
+      // only when the detail has the very play the scoreboard is showing: a detail
+      // one play behind carries an older clock and would wind the clock backwards
+      var same = String(dp.id) === String(g.lastPlayId);
+      if (same && ps !== null && ss !== null && (ps - ss > 75 || (st.n >= 3 && ps > ss))){
+        st.fix = dp.clock; g.clock = dp.clock; g.clockStuck = true;
+      } else if (st.fix){
+        // still stuck, and the detail hasn't caught up with the newest play yet:
+        // hold the last good clock rather than flash the stuck one
+        g.clock = st.fix; g.clockStuck = true;
+      }
+    }
     /* Each game's detail only refreshes every ~20s, so an old play must not be
        paired with a score change the scoreboard just reported. */
     if (!g.lastPlay && d.lastPlay && (Date.now() - (d.at || 0)) < 25000){
@@ -1252,6 +1282,7 @@ function parse(data){
       // turnover and big-play alerts can never fire (both keys stay '' and match)
       lastPlayId: (sit.lastPlay && (sit.lastPlay.id || sit.lastPlay.text)) || '',
       lastPlay: (sit.lastPlay && sit.lastPlay.text) || '',
+      lastType: (sit.lastPlay && sit.lastPlay.type && sit.lastPlay.type.text) || '',
       who: names(sit)
     });
   }
@@ -1421,10 +1452,28 @@ function side(c){
 }
 
 /* ---------------- alerts ---------------- */
+/* "(Shotgun)", "(No Huddle, Shotgun)" and the like say how the offence lined
+   up — noise on a banner. */
+function cleanPlay(t){
+  return String(t || '').replace(/^\s*\((?:no huddle|shotgun|pistol|under center)[^)]*\)\s*/i, '').trim();
+}
+/* Tidy what the feeds say before anything reads it. ESPN writes the down both
+   as "2nd & 8" and "2nd and 8", and switching between them flickered the card
+   and lost the first-down line. The red zone is worked out from the ball's
+   spot: the feed keeps isRedZone set through the extra point and the TV break
+   after a touchdown, which left the card glowing red with nobody near the goal. */
+function tidy(g){
+  g.dd = String(g.dd || '').replace(/\s+and\s+(?=\d|goal)/i, ' & ').replace(/\s+/g, ' ').trim();
+  if (g.state !== 'in') return;
+  var sp = fieldSpot(g);
+  if (!sp) g.redzone = false;
+  else if (sp.dir !== null) g.redzone = (sp.dir ? 100 - sp.x : sp.x) <= 20;
+}
 function ingest(data){
   polls++;
   var games = parse(data);
   overlay(games);
+  games.forEach(function(g){ tidy(g); g.lastPlay = cleanPlay(g.lastPlay); });
   var wk = data && data.week && data.week.number;
   var sn = data && data.season;
   paintFanBar();
@@ -1439,6 +1488,10 @@ function ingest(data){
   }
   prev = map;
   window.__games = games;
+  /* Before kickoff the fantasy points are checked every five minutes; the first
+     game going live used to wait out that gap — Monday's first update came three
+     minutes after the opening kick. */
+  if (FAN.slow && FAN.ready && games.some(function(g){ return g.state === 'in'; })){ fanSchedule(); fanPoints(); }
   render();
   paintStatus();
   evaluateBets();
@@ -1528,10 +1581,17 @@ function detect(was, now){
   if (!now.lastPlay || now.lastPlayId === was.lastPlayId) return;
   var txt = now.lastPlay;
 
-  if (cfg.to && /\bintercept/i.test(txt)){
+  /* The play's type says who kept the ball. Going by the words alone, "FUMBLES
+     ... and recovers" — the runner falling on his own fumble — read as a
+     turnover, and Monday's Corum fumble raised one that never happened. */
+  var ty = now.lastType || '';
+  var picked = ty ? /interception/i.test(ty) : /\bintercept/i.test(txt);
+  var lost = ty ? /fumble recovery \(opponent\)|fumble return|muffed.*\(opponent\)/i.test(ty)
+               : (/fumble|muff/i.test(txt) && /RECOVERED by/.test(txt) && !/and recovers/i.test(txt));
+  if (cfg.to && picked){
     push(now, 'INTERCEPTED', txt, false); return;
   }
-  if (cfg.to && /fumble/i.test(txt) && /recover/i.test(txt)){
+  if (cfg.to && lost){
     push(now, 'TURNOVER', txt, false); return;
   }
   if (cfg.yards > 0){
@@ -1547,6 +1607,7 @@ function accentFor(kind, mine, hot){
   if (mine) return 'var(--fantasy)';
   if (hot) return 'var(--hot)';
   if (/TOUCHDOWN|FIELD GOAL|SAFETY|2-PT|2 POINTS|SCORE/.test(kind)) return 'var(--flag)';
+  if (/^BETS SETTLED/.test(kind)) return /ROUGH/.test(kind) ? 'var(--redzone)' : 'var(--live)';
   if (/CASHED|^LEG HIT/.test(kind)) return 'var(--live)';
   if (/^BUSTED|^PARLAY DEAD/.test(kind)) return 'var(--redzone)';
   if (/^SWEATING/.test(kind)) return '#FFB020';
@@ -1589,7 +1650,8 @@ function push(game, kind, body, quiet, team, hot, whoList){
     kind: kind,
     who: who,
     body: body,
-    score: game.away.abbr + ' ' + game.away.score + '  ' + game.home.abbr + ' ' + game.home.score,
+    // a fantasy banner for a player whose game isn't known carries no scoreline
+    score: game.noScore ? '' : game.away.abbr + ' ' + game.away.score + '  ' + game.home.abbr + ' ' + game.home.score,
     color: team ? team.color : '',
     logo: team ? team.logo : '',
     // the card's own two colours, so banner and box read as one thing
@@ -1610,10 +1672,14 @@ function push(game, kind, body, quiet, team, hot, whoList){
     flashAlt: team ? team.alt : '',
     flashTeam: team ? team.abbr : '',
     sound: /CASHED|^LEG HIT/.test(kind) ? SOUNDS.CASH
+         : /^BETS SETTLED/.test(kind) ? (/ROUGH/.test(kind) ? SOUNDS.BUST : SOUNDS.CASH)
          : /^BUSTED|^PARLAY DEAD/.test(kind) ? SOUNDS.BUST
          : /^SWEATING/.test(kind) ? SOUNDS.SWEAT
          : /^AGAINST/.test(kind) ? SOUNDS.AGAINST
+         : /^FANTASY/.test(kind) ? SOUNDS.FANTASY
          : (hit ? SOUNDS.FANTASY
+         // an interception has no sound of its own: it used to fall through to the big-play one
+         : /^INTERCEPTED|^TURNOVER/.test(kind) ? SOUNDS.TURNOVER
          : (hot ? SOUNDS.HOT
                 : (SOUNDS[kind.split(' — ')[0]] || SOUNDS['BIG PLAY'])))
   });
@@ -1674,7 +1740,10 @@ function next(){
   }
   document.getElementById('alertTag').textContent =
     /^AGAINST/.test(a.kind) ? 'AGAINST YOU' :
-    /CASHED|^LEG HIT|^BUSTED|^PARLAY DEAD|^SWEATING/.test(a.kind) ? 'MY BET' :
+    /^BETS SETTLED/.test(a.kind) ? 'BETS' :
+    /CASHED|^LEG HIT|^BUSTED|^PARLAY DEAD|^SWEATING/.test(a.kind)
+      // a friend's bet carries their name on the end of the headline
+      ? (/ \u00b7 ([^\u00b7]+)$/.test(a.kind) ? / \u00b7 ([^\u00b7]+)$/.exec(a.kind)[1] + '\u2019S BET' : 'MY BET') :
     a.mine ? 'YOUR ROSTER' : (a.hot ? 'RIGHT NOW' :
       (/INTERCEPT|TURNOVER|FUMBLE/.test(a.kind) ? 'TURNOVER' : ''));
 
@@ -1699,8 +1768,11 @@ function light(hex){
 function contrastOK(hex){ return /^#[0-9a-f]{6}$/i.test(hex); }
 
 /* ---------------- rendering ---------------- */
+/* A football day runs to 5 AM: a night game that ends after midnight still
+   belongs to the evening it started, so its recap doesn't vanish at 12:00.
+   Measured on the board's clock, which during a replay is the recording's. */
 function isToday(iso){
-  var d = new Date(iso), n = new Date();
+  var d = new Date(new Date(iso).getTime() - 5 * 3600e3), n = new Date(vnow() - 5 * 3600e3);
   return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
 }
 function kickoff(iso){
@@ -1712,7 +1784,7 @@ function dayKey(v){
 }
 // "today" / "tomorrow" / "Sunday" — for prose
 function dayWord(iso){
-  var d = new Date(iso), n = new Date();
+  var d = new Date(iso), n = new Date(vnow());
   if (dayKey(d) === dayKey(n)) return 'today';
   if (dayKey(d) === dayKey(new Date(n.getTime() + 864e5))) return 'tomorrow';
   return d.toLocaleDateString('en-US', {weekday:'long'});
@@ -1753,7 +1825,8 @@ function renderBoard(){
   var live = [], soon = [], done = [];
   games.forEach(function(g){
     if (g.state === 'in') live.push(g);
-    else if (g.state === 'post') done.push(g);
+    // finals from the last day and a half: Monday night doesn't need Thursday's
+    else if (g.state === 'post'){ if (vnow() - new Date(g.date).getTime() < 36 * 3600e3) done.push(g); }
     else soon.push(g);
   });
 
@@ -1894,7 +1967,8 @@ function recapHTML(soon, done){
       (m.opp ? ' \u2013 ' + fmtPts(m.opp.pts) : '') + '</div>' +
       '<div class="sub">' + esc(m.me.name) + (m.opp ? ' vs ' + esc(m.opp.name) : '') + '</div>' +
       '<div class="sub">' + (left ? (ahead ? 'Ahead' : 'Behind') + ' with ' + left + ' player' + (left === 1 ? '' : 's') + ' still to play' +
-        (wc !== null ? ' \u00b7 ' + Math.round(wc * 100) + '% to win' : '') : (m.opp ? (ahead ? 'Won' : 'Lost') : 'Final')) + '</div>' +
+        (wc !== null ? ' \u00b7 ' + Math.round(wc * 100) + '% to win' : '')
+        : (!m.opp ? 'Final' : (m.me.unknown || m.opp.unknown) ? (ahead ? 'Ahead' : 'Behind') : (ahead ? 'Won' : 'Lost'))) + '</div>' +
       (mine.length ? '<ul style="margin-top:.5em">' + mine.map(function(x){
         return '<li>' + esc(x.e.name) + '<span class="g">' + esc(x.e.pos || '') + '</span><span class="p">' + fmtPts(x.v) + '</span></li>';
       }).join('') + '</ul>' : '') + '</section>');
@@ -1961,11 +2035,14 @@ function fitRecap(el){
 var PLAYLOG = Object.create(null), PRIME_G = null;
 var LASTSIG = '', SKIPS = 0;
 function logPlay(g){
-  if (!g.lastPlay) return;
+  if (!g.lastPlay || /^official timeout/i.test(g.lastPlay)) return;      // TV breaks
   var log = PLAYLOG[g.id] || (PLAYLOG[g.id] = []);
   var id = String(g.lastPlayId || g.lastPlay);
-  if (log.length && log[0].id === id) return;
-  log.unshift({id:id, text:g.lastPlay, when: qLabel(g) + ' ' + (g.clock || ''),
+  if (log.some(function(p){ return p.id === id; })) return;
+  // the play's own quarter and clock; the scoreboard's is already the next snap
+  var d = DEEP[g.id], dp = d && d.dplays && d.dplays.filter(function(p){ return p.id === id; })[0];
+  var when = dp && dp.clock ? (dp.period > 4 ? 'OT' : 'Q' + dp.period) + ' ' + dp.clock : qLabel(g) + ' ' + (g.clock || '');
+  log.unshift({id:id, text:g.lastPlay, when: when, fixed: !!dp,
                big: /touchdown|intercept|fumble|field goal is good|safety/i.test(g.lastPlay)});
   if (log.length > 14) log.length = 14;
 }
@@ -1975,6 +2052,12 @@ function primeSide(g, W, H){
   var pu = Math.max(13, Math.min(W * 0.42 / 26, H / 17));
   var d = DEEP[g.id] || {}, out = [];
   var log = PLAYLOG[g.id] || [];
+  // plays logged before the detail caught up get their own clock once it has
+  (d.dplays || []).forEach(function(p){
+    log.forEach(function(e){
+      if (!e.fixed && e.id === p.id && p.clock){ e.when = (p.period > 4 ? 'OT' : 'Q' + p.period) + ' ' + p.clock; e.fixed = true; }
+    });
+  });
 
   var drive = d.drive && d.drive.desc ? '<i>' + esc((d.drive.team ? d.drive.team + ' \u00b7 ' : '') + d.drive.desc) + '</i>' : '';
   out.push('<section class="plays"><h3>PLAY BY PLAY' + drive + '</h3>' +
@@ -2208,7 +2291,7 @@ function fieldSpot(g){
   if (x === null || x < 0 || x > 100) return null;
   var toRight = g.possession && String(g.possession) === String(g.away.id) ? true
               : g.possession && String(g.possession) === String(g.home.id) ? false : null;
-  var d = /&\s*(\d+|goal)/i.exec(dd), ltg = null;
+  var d = /(?:&|\band)\s*(\d+|goal)/i.exec(dd), ltg = null;
   if (d && toRight !== null){
     var yds = /goal/i.test(d[1]) ? 100 : +d[1];
     ltg = Math.max(0, Math.min(100, toRight ? x + yds : x - yds));
@@ -2288,7 +2371,7 @@ function team(t, hasBall, losing, tos){
    a few seconds fast during a stoppage — it is a smoother display, not a truer one. */
 var CLK = Object.create(null);
 function noteClock(g){
-  var running = g.state === 'in' && !/halftime|end of|end /i.test(g.detail || '');
+  var running = g.state === 'in' && !g.clockStuck && !/halftime|end of|end /i.test(g.detail || '');
   var sec = clockSecs(g.clock);
   CLK[g.id] = {sec: sec, at: Date.now(), run: running && sec !== null && sec > 0};
 }
@@ -2331,7 +2414,13 @@ function paintStatus(){
   var dot = document.getElementById('dot'), txt = document.getElementById('statusText');
   if (!lastGood){ dot.className = 'dead'; txt.textContent = 'connecting'; return; }
   var age = Math.round((Date.now() - lastGood) / 1000);
-  if (fails === 0){
+  if (fails === 0 && document.hidden){
+    /* Monday the feed stopped for six minutes at 10:23 PM and came back slower:
+       the browser was treating the board as a background window. Say so. */
+    dot.className = 'stale';
+    txt.textContent = 'in the background \u2014 updates slowed';
+  }
+  else if (fails === 0){
     dot.className = '';
     txt.textContent = cfg.delay > 0
       ? 'holding ' + cfg.delay + 's behind TV'
@@ -3019,8 +3108,11 @@ function normCdf(z){
           Math.exp(-z * z / 2);
   return z >= 0 ? (1 + y) / 2 : (1 - y) / 2;
 }
+var LEFTUNKNOWN = 0;
 function winChance(m){
   if (!m || !m.me || !m.opp) return null;
+  // players whose NFL team isn't known yet could still be to play: no verdict
+  if (m.me.unknown || m.opp.unknown) return null;
   var gap = m.me.proj - m.opp.proj, v = (m.me.vr || 0) + (m.opp.vr || 0);
   if (v < 1){
     if (m.me.left || m.opp.left) return null;          // no projections to go on
@@ -3050,13 +3142,16 @@ function leftToPlay(startersList){
   (window.__games || []).forEach(function(g){
     byAbbr[g.away.abbr] = g; byAbbr[g.home.abbr] = g;
   });
+  var unknown = 0;
   (startersList || []).forEach(function(id){
     if (!id || id === '0') return;
-    var ab = isTeamId(id) ? id : (map[id] && map[id].t);
-    if (!ab) return;
+    var re = rosterEntry(id);
+    var ab = isTeamId(id) ? id : ((map[id] && map[id].t) || (re && re.team));
+    if (!ab){ unknown++; return; }
     var g = byAbbr[ab] || byAbbr[ALIAS[ab]];
     if (g && g.state !== 'post') n++;
   });
+  LEFTUNKNOWN = unknown;
   return n;
 }
 
@@ -3075,6 +3170,20 @@ function pointsOf(r){
   }
   return pp || {};
 }
+/* Only starters count toward the matchup, so only starters get a banner or a
+   spot in the ticker. Sleeper's points list covers the whole roster: Monday
+   night it would have announced a benched Matthew Stafford's touchdowns. */
+function startersOf(r){
+  var pp = pointsOf(r), out = {};
+  if (!r || !r.starters) return pp;
+  r.starters.forEach(function(id){ if (id && id !== '0' && pp[id] !== undefined) out[id] = pp[id]; });
+  return out;
+}
+function rosterEntry(id){
+  var all = (FAN.roster || []).concat(FAN.foes || []);
+  for (var i = 0; i < all.length; i++) if (String(all[i].id) === String(id)) return all[i];
+  return null;
+}
 function noteMoves(pp, side){
   var map = (pcache().map) || {};
   for (var id in pp){
@@ -3083,7 +3192,8 @@ function noteMoves(pp, side){
     if (was === undefined) continue;                 // first sight is not a play
     var d = pp[id] - was;
     if (d < 0.05) continue;
-    var e = map[id] || {};
+    var e = map[id];
+    if (!e){ var re = rosterEntry(id); e = re ? {d:re.name, j:re.num, t:re.team} : {}; }
     var play = {at:Date.now(), side:side, id:id, delta:d,
       name: isTeamId(id) ? id + ' D/ST' : shortName(e.d || 'someone'),
       full: isTeamId(id) ? (id + ' defense') : (e.d || ''),
@@ -3103,8 +3213,8 @@ function fanBanner(play){
   if (want === 'off' || (want === 'mine' && play.side !== 'me')) return;
   if (play.delta < (Number(cfg.fanMin) || 2)) return;
 
-  var g = gameFor(play.team) || {id:'fan-' + play.team, who:[],
-    away:{id:'fa', abbr:play.team || '??', score:0},
+  var g = gameFor(play.team) || {id:'fan-' + play.team, who:[], noScore:true,
+    away:{id:'fa', abbr:play.team || '', score:0},
     home:{id:'fh', abbr:'', score:0}};
   var kind = (play.side === 'me' ? 'FANTASY +' : 'AGAINST YOU +') + fmtPts(play.delta);
   var body = (play.num ? '#' + play.num + ' ' : '') + play.name +
@@ -3129,6 +3239,11 @@ function playWords(abbr, full){
   if (last && txt.toLowerCase().indexOf(last.toLowerCase()) < 0) return '';
   var yd = /for (\d+) yards?/i.exec(txt);
   var n = yd ? yd[1] + ' yd ' : '';
+  // the quarterback is named before "pass", the catcher after it
+  var li = txt.toLowerCase().indexOf((last || '').toLowerCase()), pi = txt.toLowerCase().indexOf(' pass');
+  var thrower = last && li >= 0 && pi > li;
+  if (thrower && /touchdown|\bTD\b/i.test(txt)) return n + 'TD pass';
+  if (thrower) return n + 'pass';
   if (/touchdown|\bTD\b/i.test(txt)) return n + 'TD';
   if (/field goal/i.test(txt)) return n + 'FG';
   if (/\bpass\b|complete/i.test(txt)) return n + 'catch';
@@ -3163,8 +3278,8 @@ function applyPoints(got){
           (rows || []).forEach(function(r){
             if (mineRow && r !== mineRow && String(r.matchup_id) === String(mineRow.matchup_id)) oppRow = r;
           });
-          noteMoves(pointsOf(mineRow), 'me');
-          noteMoves(pointsOf(oppRow), 'opp');
+          noteMoves(startersOf(mineRow), 'me');
+          noteMoves(startersOf(oppRow), 'opp');
         }
         (rows || []).forEach(function(r){
           if (String(r.roster_id) !== String(m.roster)) return;
@@ -3228,7 +3343,7 @@ function matchupOf(rows, m){
     var pts = pointsOf(r);
     return {name: names[r.roster_id] || ('roster ' + r.roster_id),
             pts: Number(r.points) || 0,
-            left: leftToPlay(r.starters),
+            left: leftToPlay(r.starters), unknown: LEFTUNKNOWN,
             proj: projectedTotal(r.starters, pts),
             vr: spreadLeft(r.starters)};
   };
@@ -3341,6 +3456,7 @@ function fanSchedule(){
   clearTimeout(FAN.ptsTimer);
   if (!FAN.ready || !FAN.mine.length) return;
   var live = (window.__games || []).some(function(g){ return g.state === 'in'; });
+  FAN.slow = !live;
   var every = Math.max(10, Number(cfg.fanEvery) || 20);
   FAN.ptsTimer = setTimeout(function(){
     fanPoints();
@@ -4101,17 +4217,21 @@ setInterval(function(){ if (remoteOn() && RSYNC.ready) cfgPull(); }, 4000);
    bets under the friend's name and remove only their own — it opens nothing
    else. A new code shuts out the old one; Turn off shuts out everyone. */
 var GUEST = {code:''};
-function guestNote(t){ var el = document.getElementById('guestNote'); if (el) el.textContent = t; }
+function guestNote(t){ ['guestNote', 'rGuestNote'].forEach(function(id){ var el = document.getElementById(id); if (el) el.textContent = t; }); }
 function guestLink(){
   return location.origin + location.pathname + '#bets&g=' + encodeURIComponent(GUEST.code) + '&r=' + encodeURIComponent(gvBase());
 }
 function paintGuest(){
-  var box = document.getElementById('guestQR'), mk = document.getElementById('sGuestMake'), off = document.getElementById('sGuestOff');
-  if (!box) return;
-  if (mk) mk.textContent = GUEST.code ? 'New code (locks out the old one)' : 'Let friends add bets';
-  if (off) off.hidden = !GUEST.code;
-  if (!GUEST.code){ box.innerHTML = ''; return; }
-  try { box.innerHTML = QR.svg(guestLink(), 190); } catch(e){ box.textContent = e.message; }
+  // the board's panel and the phone remote each have a copy of the friends' code
+  [['guestQR', 'sGuestMake', 'sGuestOff', 190], ['rGuestQR', 'rGuestMake', 'rGuestOff', 240]].forEach(function(ids){
+    var box = document.getElementById(ids[0]), mk = document.getElementById(ids[1]), off = document.getElementById(ids[2]);
+    if (!box) return;
+    if (mk) mk.textContent = GUEST.code ? 'New code (locks out the old one)' : 'Let friends add bets';
+    if (off) off.hidden = !GUEST.code;
+    if (!GUEST.code){ box.innerHTML = ''; return; }
+    try { box.innerHTML = QR.svg(guestLink(), ids[3]); } catch(e){ box.textContent = e.message; }
+  });
+  if (!GUEST.code) return;
   guestNote('Friends scan this, put their name in once, and add bets. The board shows each bet with their name. Code ' +
     GUEST.code + ' \u2014 they can\u2019t touch your lights, your settings or anyone else\u2019s bets.');
 }
@@ -4381,7 +4501,24 @@ function findPlayer(name, teamHint){
       }
     }
   }
-  return byLast.length === 1 ? byLast[0] : hit;
+  if (byLast.length === 1) return byLast[0];
+  /* A bet that names only a surname — "Stafford o2.5 pass TDs" — has no initial
+     to check, so it takes the one player of that name in the box scores. Before,
+     it never matched, and at the final whistle it was marked lost. */
+  var solo = String(name || '').replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim();
+  if (!hit && solo && !/[\s.]/.test(solo)){
+    var only = [], want1 = norm(solo);
+    for (var gid2 in BOX){
+      var g2 = gameById(gid2);
+      if (teamHint && g2 && g2.away.abbr !== teamHint && g2.home.abbr !== teamHint) continue;
+      for (var k2 in BOX[gid2]){
+        var r2 = BOX[gid2][k2];
+        if (surnameOf(r2.name) === want1) only.push({gid:gid2, rec:r2});
+      }
+    }
+    if (only.length === 1) return only[0];
+  }
+  return hit;
 }
 /* The game a player prop belongs to, with or without a box score yet. */
 function gameForLeg(leg){
@@ -4470,6 +4607,7 @@ function money(v){ return (v < 0 ? '−$' : '$') + Math.abs(v).toFixed(Math.abs(
    pass after loading just records where things stand. */
 function evaluateBets(){
   if (!BETS.length) { paintBets(); return; }
+  var settled = [];
   if (BETS.some(function(b){ return b.legs.some(function(l){
         return (l.type === 'prop' || l.type === 'td') && !l.team; }); })) fetchNames();
   var first = BETSEEN === null;
@@ -4496,11 +4634,31 @@ function evaluateBets(){
     var bk = b.id + ':bet', bw = BETSEEN[bk];
     BETSEEN[bk] = s.state;
     if (first || !cfg.betAlerts || bw === s.state) return;
-    if (s.state === 'won') betBanner(b, b.legs[b.legs.length - 1], s.legs[s.legs.length - 1],
-                                     b.parlay ? 'PARLAY CASHED' : 'CASHED', 'good');
-    if (s.state === 'lost' && !b.parlay) betBanner(b, b.legs[0], s.legs[0], 'BUSTED', 'bad');
+    if (s.state === 'won') settled.push({b:b, leg:b.legs[b.legs.length - 1], ls:s.legs[s.legs.length - 1],
+                                         kind:b.parlay ? 'PARLAY CASHED' : 'CASHED', tone:'good'});
+    if (s.state === 'lost' && !b.parlay) settled.push({b:b, leg:b.legs[0], ls:s.legs[0], kind:'BUSTED', tone:'bad'});
   });
+  /* The final whistle settles every bet on the game at once. Monday that was six
+     banners back to back, over a minute of them. Three or more at once become a
+     single summary; one or two still get their own. */
+  if (settled.length >= 3) settleBanner(settled);
+  else settled.forEach(function(x){ betBanner(x.b, x.leg, x.ls, x.kind, x.tone); });
   paintBets();
+}
+function settleBanner(list){
+  var won = 0, lost = 0, net = 0, who = {};
+  list.forEach(function(x){
+    var b = x.b, n = b.by || '';
+    if (x.tone === 'good'){ won++; if (b.stake && b.odds) net += b.stake * (decimalOdds(b.odds) - 1); }
+    else { lost++; if (b.stake) net -= b.stake; }
+    if (n){ var p = who[n] || (who[n] = [0, 0]); p[x.tone === 'good' ? 0 : 1]++; }
+  });
+  var g = (list[0].ls && list[0].ls.g) || gameFor(list[0].leg.team) || {id:'bets', who:[],
+    away:{id:'x', abbr:'', score:0}, home:{id:'y', abbr:'', score:0}};
+  var body = won + ' cashed \u00b7 ' + lost + ' busted' +
+    (cfg.betMoney && net ? ' \u00b7 ' + (net > 0 ? '+' : '') + money(net) : '') +
+    Object.keys(who).map(function(n){ return ' \u00b7 ' + n + ' ' + who[n][0] + '\u2013' + who[n][1]; }).join('');
+  push(g, won >= lost ? 'BETS SETTLED' : 'BETS SETTLED \u2014 ROUGH ONE', body, false, null, false, []);
 }
 
 function sweating(leg, ls){
@@ -4518,7 +4676,9 @@ function sweating(leg, ls){
 function betBanner(b, leg, ls, kind, tone){
   var g = (ls && ls.g) || gameFor(leg.team) || {id:'bet-' + b.id, who:[],
     away:{id:'x', abbr:leg.team || '', score:0}, home:{id:'y', abbr:'', score:0}};
-  var body = leg.label + legDetail(leg, ls);
+  var body = kind === 'PARLAY CASHED'
+    ? b.legs.map(function(l){ return l.label; }).join(' + ')
+    : leg.label + legDetail(leg, ls);
   if (b.parlay) body += ' · ' + b.legs.length + '-leg parlay';
   // money only on the moments that settle something — a leg hitting pays nothing yet
   if (cfg.betMoney && b.stake && /CASHED|BUSTED|PARLAY DEAD/.test(kind)){
@@ -4953,8 +5113,10 @@ function trimSummary(j){
   return {
     header: hc ? {competitions:[{situation:hc.situation, status:hc.status}]} : null,
     situation: j && j.situation,
-    boxscore: j && j.boxscore ? {players:j.boxscore.players} : null,
-    drives: dc ? {current:{team:dc.team, plays:(dc.plays || []).slice(-6)}} : null,
+    // team totals and the drive line too, so a replay shows the prime-time panel in full
+    boxscore: j && j.boxscore ? {players:j.boxscore.players, teams:j.boxscore.teams} : null,
+    drives: dc ? {current:{team:dc.team && {id:dc.team.id, abbreviation:dc.team.abbreviation},
+                           description:dc.description, plays:(dc.plays || []).slice(-6)}} : null,
     winprobability: (j && j.winprobability || []).slice(-2),
     pickcenter: j && j.pickcenter
   };
@@ -5459,7 +5621,7 @@ function togglePanel(force){
   p.classList.toggle('open', open);
   document.getElementById('scrim').classList.toggle('on', open);
   paintRemoteQR();
-  if (open && cfg.goveeKey && gvBase() && !GUEST.checked){ GUEST.checked = true; guestCall(null); }
+  if (open && cfg.goveeKey && gvBase()) guestCall(null);      // the phone may have made a new one
   // the header's SETTINGS button sits under the open panel, so focus the way out
   if (open) setTimeout(function(){ document.getElementById('sClose').focus(); }, 210);
   if (open && cfg.ptab === 'system') paintReplay();
@@ -5611,6 +5773,10 @@ document.getElementById('sGuestOff').addEventListener('click', function(){ guest
 document.getElementById('sCfgSync').checked = !!cfg.cfgSync;
 document.getElementById('sCfgSync').addEventListener('change', function(){
   cfg.cfgSync = this.checked; save();
+  if (cfg.cfgSync && !cfg.betSync){
+    // the same code adds your bets, so bet sharing comes on with it
+    cfg.betSync = true; document.getElementById('sBetSync').checked = true; save(); SYNC.base = null; startSync();
+  }
   if (cfg.cfgSync){
     if (!cfg.goveeKey) remoteNote('Needs the relay and your access token on the Lights tab first.');
     startRemote(true);          // the board's own settings are the starting point
@@ -5855,6 +6021,10 @@ function remoteMode(){
     '<h4>Sound</h4><div class="rrow"><button id="rMute"></button></div>' +
     '<h4>Spotlight</h4><div id="rGames" class="rgames"></div>' +
     '<h4>Lights</h4><div class="rrow"><button id="rStop">Stop the lights now</button></div>' +
+    '<h4>Friends\u2019 bets</h4><p class="note" style="margin-top:0">Hold your phone up for a friend to scan. Bets only, under their own name.</p>' +
+    '<div id="rGuestQR" class="qrbox"></div>' +
+    '<div class="rrow"><button id="rGuestMake">Let friends add bets</button><button id="rGuestOff" hidden>Turn off</button></div>' +
+    '<p class="note" id="rGuestNote"></p>' +
     '<p class="note">Everything on the other tabs is the board\u2019s own settings \u2014 change one here and the TV follows within a few seconds.</p>';
   var panel = document.getElementById('panel');
   var first = panel.querySelector('.ptab');
@@ -5873,10 +6043,41 @@ function remoteMode(){
   document.getElementById('rMute').addEventListener('click', function(){
     cfg.sound = !cfg.sound; document.getElementById('sSound').checked = cfg.sound; save(); paintRemote();
   });
+  document.getElementById('rGuestMake').addEventListener('click', function(){
+    if (GUEST.code && !confirm('Make a new code? Anyone using the old one is locked out.')) return;
+    guestCall({rotate:true});
+  });
+  document.getElementById('rGuestOff').addEventListener('click', function(){ guestCall({off:true}); });
+  guestCall(null);          // show the code that's already out there, if any
   document.getElementById('rStop').addEventListener('click', function(){
     if (!cfg.goveeDev) return remoteNote('No light picked on the board yet.');
     gvStop(true); remoteNote('Stop sent to the lights.');
   });
+  /* Your bets from the same page: shared through the relay like the bet page,
+     with a name so the board tags them. */
+  cfg.betSync = true; save();
+  var bsec = document.querySelector('.ptab[data-tab="bets"]');
+  var nm = document.createElement('label');
+  nm.innerHTML = 'Your name on your bets <input type="text" id="sMyName" maxlength="16" autocomplete="given-name" placeholder="optional">';
+  bsec.insertBefore(nm, bsec.firstChild);
+  var ni = nm.querySelector('input');
+  ni.value = cfg.myName || '';
+  ni.addEventListener('change', function(){ cfg.myName = ni.value.trim().slice(0, 16); save(); paintBetList(); });
+  // the syntax guide folds away under the list, as on the bet page
+  var help = document.getElementById('betHelp');
+  if (help){
+    var det = document.createElement('details');
+    det.id = 'phoneHelp';
+    det.innerHTML = '<summary>How to write each kind of bet</summary>';
+    det.appendChild(help);
+    var list = document.getElementById('betList');
+    list.parentNode.insertBefore(det, list.nextSibling);
+  }
+  var bst = document.createElement('p');
+  bst.className = 'note'; bst.id = 'betSyncNote';
+  var oldn = document.getElementById('betSyncNote'); if (oldn) oldn.id = 'betSyncNoteTv';
+  bsec.insertBefore(bst, nm.nextSibling);
+  startSync();
   showTab('remote');
   paintRemote();
   cfgPull().then(function(){ paintRemote(); remoteGames(); });
