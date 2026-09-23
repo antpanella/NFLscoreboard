@@ -1133,7 +1133,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23j';
+var BUILD = 'build 2026-09-23k';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1234,6 +1234,14 @@ function bind(id, key, kind){
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
     if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime|showNet|showWp|qrLive)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
+    if (key === 'deep'){
+      /* Off means stop asking for the per-game detail, but what had already
+         arrived stayed on the cards, so the setting looked like it did nothing.
+         Dropping it makes the difference visible at once: the live line, the
+         drive, the win probability and the play-by-play all go. */
+      if (!cfg.deep){ DEEP = Object.create(null); PLAYLOG = Object.create(null); }
+      LASTSIG = ''; render();
+    }
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -5341,6 +5349,7 @@ function betsPush(){
   if (SYNC.busy){ SYNC.again = true; return; }
   var base = SYNC.base || {}, ops = [], seen = {};
   BETS.forEach(function(b){
+    if (b.demo) return;                     // scenery, never anybody's real bet
     seen[b.id] = 1;
     if (base[b.id] !== betKey(b) && mineBet(b)) ops.push({op:'upsert', bet:b});
   });
@@ -5387,8 +5396,12 @@ function takeBets(list){
   SYNC.base = {};
   (list || []).forEach(function(b){ if (!b.deleted && b.legs) SYNC.base[b.id] = betKey(b); });
   if (REPLAY) return;
-  BETS = live;
-  try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  /* Keep the demo's own bets through a relay pull. Without this they showed up
+     when the demo started and vanished on the next sync, a second or two later.
+     They are scenery, so they stay out of what gets written back. */
+  var seeded = BETS.filter(function(b){ return b.demo; });
+  BETS = live.concat(seeded);
+  try { localStorage.setItem('sundayBoardBets', JSON.stringify(live)); } catch(e){}
   flogBets();
   syncNote('Shared through the relay \u00b7 ' + live.length + ' bet' + (live.length === 1 ? '' : 's') +
     ' \u00b7 checked ' + new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', second:'2-digit'}));
@@ -7358,7 +7371,7 @@ var TIPS = {
   // board · feed
   sInterval: 'How often the scoreboard feed is polled. Faster is more current but hits ESPN harder; the board backs off automatically when requests start failing.',
   sTickClock: 'Run the game clock down smoothly between polls instead of jumping every few seconds. Cosmetic only — the real clock still comes from the feed.',
-  sDeep: 'Fetch the per-game detail as well as the scoreboard: live odds, the drive, the play-by-play, team totals and a clock that catches the scoreboard sticking.',
+  sDeep: 'Fetch the per-game detail as well as the scoreboard: live odds, the drive, the play-by-play, team totals, and a clock that catches the scoreboard sticking. Turning it off drops all of that from the cards at once; games with a live bet on them are still fetched either way. A demo invents its own detail, so this changes nothing there.',
   sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys.',
   // alerts
   sTD: 'Raise a banner for touchdowns.',
