@@ -164,16 +164,16 @@ main{position:relative}
   font-size:calc(.62 * var(--u));line-height:1}
 .qrcell .cap{color:var(--sideline);font-size:calc(.28 * var(--u));letter-spacing:.1em;
   font-weight:700;line-height:1;white-space:nowrap}
-#qrbug{position:absolute;right:.7rem;bottom:.7rem;z-index:4;display:flex;align-items:center;
-  gap:.7rem;padding:.55rem .8rem;border-radius:10px;background:rgba(6,12,10,.94);
-  border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.65);
-  opacity:0;transition:opacity .45s ease}
-#qrbug.on{opacity:1}
-#qrbug .qrimg svg{display:block;width:calc(3.4 * var(--su));height:auto;
-  background:#fff;padding:.25rem;border-radius:5px;box-sizing:border-box}
-#qrbug .code{font-weight:800;letter-spacing:.2em;color:var(--flag);font-size:calc(1.1 * var(--su))}
-#qrbug .cap{color:var(--sideline);font-size:calc(.6 * var(--su));white-space:nowrap}
-@media (prefers-reduced-motion:reduce){ #qrbug{transition:none} }
+/* pinned to the right of the strips; the strips give up that much width so
+   nothing of theirs ends up underneath it either */
+#qrpin{position:absolute;right:.55rem;bottom:.45rem;z-index:4;display:flex;
+  flex-direction:column;align-items:center;gap:.15rem}
+#qrpin .qrimg{width:100%;line-height:0}
+#qrpin .qrimg svg{display:block;width:100%;height:auto;background:#fff;
+  padding:.22rem;border-radius:5px;box-sizing:border-box}
+#qrpin .code{font-weight:800;letter-spacing:.18em;color:var(--flag);
+  font-size:calc(.62 * var(--su));line-height:1.1;white-space:nowrap}
+main.qrpinned .strip{padding-right:var(--qrw,9rem)}
 #live{flex:1;min-height:0;display:grid;gap:var(--gap);
   grid-template-columns:repeat(var(--cols),1fr);
   grid-auto-rows:1fr;align-content:stretch;grid-auto-flow:row dense}
@@ -884,7 +884,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <section class="strip" id="upcoming" hidden><h2>KICKING OFF LATER</h2><div class="items"></div></section>
   <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
   <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
-  <div id="qrbug" hidden></div>
+  <div id="qrpin" hidden></div>
 </main>
 
 <div id="scrim"></div>
@@ -1048,7 +1048,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <label>Friends’ code during games <select id="sQrLive">
       <option value="off">off</option>
       <option value="spare">only in a spare card slot</option>
-      <option value="both">spare slot, or a corner reminder</option>
+      <option value="both">spare slot, or beside the strips</option>
     </select></label>
   <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
   <label>Show stakes and payouts <input type="checkbox" id="sBetMoney"></label>
@@ -1131,7 +1131,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23g';
+var BUILD = 'build 2026-09-23h';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3345,30 +3345,41 @@ function qrTile(){
     '<div class="code">' + esc(GUEST.code) + '</div>' +
     '<div class="cap">SCAN TO ADD A BET</div></div>';
 }
-var QRB = {at:0, on:false};
+/* Second best is the strip along the foot of the board. The kicking-off-later,
+   final and bets strips are the least dense thing on the screen, and giving up a
+   little of their width costs nothing anyone is reading — where the first attempt
+   at this, a corner card floating over the grid, sat on top of a live scoreline.
+   Nothing here ever covers a game. */
+var QRP = {code:'', size:0};
 function qrTick(){
-  var bug = document.getElementById('qrbug');
-  if (!bug) return;
-  var want = cfg.qrLive === 'both' && GUEST.code &&
-             !document.getElementById('live').querySelector('.qrcell') &&
-             (window.__games || []).some(function(g){ return g.state === 'in'; });
-  if (!want){ if (QRB.on){ bug.hidden = true; bug.classList.remove('on'); QRB.on = false; } return; }
-  var now = Date.now();
-  if (QRB.on){
-    if (now - QRB.at > 15000){ QRB.on = false; QRB.at = now; bug.classList.remove('on');
-      setTimeout(function(){ if (!QRB.on) bug.hidden = true; }, 500); }
-    return;
+  var pin = document.getElementById('qrpin'), main = document.querySelector('main');
+  if (!pin || !main) return;
+  var hide = function(){ if (!pin.hidden){ pin.hidden = true; main.classList.remove('qrpinned'); } };
+  if (cfg.qrLive === 'off' || !GUEST.code) return hide();
+  if (!(window.__games || []).some(function(g){ return g.state === 'in'; })) return hide();
+  // the grid had a cell spare, so the code is already up there, and much bigger
+  if (document.querySelector('#live .qrcell')) return hide();
+
+  var strips = [], all = main.querySelectorAll('.strip');
+  for (var i = 0; i < all.length; i++) if (!all[i].hidden && all[i].offsetParent) strips.push(all[i]);
+  if (!strips.length) return hide();               // nothing down there to share
+
+  var avail = main.clientHeight - strips[0].offsetTop - 8;
+  var size = Math.min(avail - 14, main.clientWidth * 0.135, 200);
+  if (size < 76) return hide();                    // too small to be worth scanning
+  if (QRP.code !== GUEST.code){
+    var svg = '';
+    try { svg = QR.svg(guestLink(), 300); } catch(e){ return hide(); }
+    if (!svg) return hide();
+    pin.innerHTML = '<div class="qrimg">' + svg + '</div><div class="code">' + esc(GUEST.code) + '</div>';
+    QRP.code = GUEST.code;
   }
-  if (now - QRB.at < 180000) return;           // a quarter of an hour of screen, four times
-  QRB.at = now; QRB.on = true;
-  var svg = '';
-  try { svg = QR.svg(guestLink(), 200); } catch(e){ QRB.on = false; return; }
-  bug.innerHTML = '<div class="qrimg">' + svg + '</div>' +
-    '<div><div class="code">' + esc(GUEST.code) + '</div>' +
-    '<div class="cap">scan to add a bet</div></div>';
-  bug.hidden = false;
-  // a frame between unhiding and the class, or the fade has nothing to fade from
-  requestAnimationFrame(function(){ bug.classList.add('on'); });
+  if (Math.abs(size - QRP.size) > 1){
+    QRP.size = size;
+    pin.style.width = Math.round(size) + 'px';
+    main.style.setProperty('--qrw', Math.round(size + 16) + 'px');
+  }
+  if (pin.hidden){ pin.hidden = false; main.classList.add('qrpinned'); }
 }
 
 function card(g){
@@ -7346,7 +7357,7 @@ var TIPS = {
   sCfgSync: 'Push your settings through the relay so your phone can drive the board, and so your own bets follow you between devices.',
   sBetSync: 'Keep the bet list on the relay rather than in this browser alone, so every device sees the same one.',
   sStripBets: 'The two-row ticker along the bottom tracking every bet as it goes.',
-  sQrLive: 'Keep the friends\u2019 bet code up while the games are on. The card grid is sized for the biggest possible scores and that almost always leaves one cell over \u2014 eight games in a three-by-three, thirteen in a four-by-four \u2014 so the code goes there, costing nothing. On the afternoons when the games fill the grid exactly, the corner reminder brings it up small for fifteen seconds every three minutes instead.',
+  sQrLive: 'Keep the friends\u2019 bet code up while the games are on. When the card grid happens to leave a cell spare it goes there, large and free. Otherwise it pins to the right of the strips along the bottom, which give up that much width \u2014 it never covers a game. With no strip showing there is nowhere free, so it waits.',
   sBetAlerts: 'Raise banners when a bet cashes, busts, or comes down to the wire.',
   sBetMoney: 'Show stakes and payouts. Off, the bets show only what they are, not what they are worth.',
   // lights
