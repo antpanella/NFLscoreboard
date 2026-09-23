@@ -584,18 +584,20 @@ body.phone>*:not(#phone){display:none !important}
 /* the "i" beside each setting, and the note it opens */
 #panel label > .lrow{display:flex;align-items:center;justify-content:space-between;
   gap:1rem;flex:1 1 auto;min-width:0}
-#panel .tipb{flex:none;position:relative;width:1.2rem;height:1.2rem;padding:0;border-radius:50%;
+#panel label{position:relative}
+#panel .tipb{flex:none;width:1.2rem;height:1.2rem;padding:0;border-radius:50%;
   border:1px solid var(--sideline);background:none;color:var(--sideline);font:inherit;
   font-size:.72rem;font-weight:800;line-height:1;cursor:help;
   display:inline-flex;align-items:center;justify-content:center}
 #panel .tipb:hover,#panel .tipb.open,#panel .tipb:focus-visible{border-color:var(--flag);color:var(--flag)}
-#panel .tipb::after{content:attr(data-tip);position:absolute;right:-.2rem;top:calc(100% + .45rem);
-  width:23rem;max-width:min(23rem,62vw);background:#0A1410;border:1px solid var(--line);
+/* the label is the anchor, so the note spans the panel and cannot be clipped */
+#panel .tipb::after{content:attr(data-tip);position:absolute;left:0;right:0;top:calc(100% - .1rem);
+  width:auto;background:#0A1410;border:1px solid var(--line);
   border-radius:4px;padding:.55rem .65rem;font-size:.92rem;font-weight:500;line-height:1.45;
   color:var(--chalk);text-align:left;white-space:normal;letter-spacing:0;text-transform:none;
   box-shadow:0 8px 22px rgba(0,0,0,.6);z-index:6;opacity:0;visibility:hidden;
   transition:opacity .12s ease;pointer-events:none}
-#panel .tipb.up::after{top:auto;bottom:calc(100% + .45rem)}
+#panel .tipb.up::after{top:auto;bottom:calc(100% - .1rem)}
 #panel .tipb:hover::after,#panel .tipb:focus-visible::after,#panel .tipb.open::after{opacity:1;visibility:visible}
 @media (prefers-reduced-motion:reduce){ #panel .tipb::after{transition:none} }
 #gvTeams{display:grid;grid-template-columns:repeat(2,1fr);gap:0 .7rem;margin:.5rem 0}
@@ -1131,7 +1133,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23i';
+var BUILD = 'build 2026-09-23j';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3874,7 +3876,7 @@ function demoTick(){
 var DEMOBETS = ['Jets +3.5 $20 -110', 'Bengals ML $10 -140', 'Over 47.5 TB CIN $25 -110',
                 'Ravens -6.5 $10 -110', 'Parlay: Lions ML + Bills ML $5 +260'];
 function seedDemoBets(){
-  if (BETS.length) return;                 // never on top of real ones
+  BETS = BETS.filter(function(b){ return !b.demo; });     // never stack run on run
   DEMOBETS.forEach(function(line, i){
     var b = parseBet(line);
     if (!b || b.error) return;
@@ -7142,7 +7144,8 @@ bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
 bind('sRecs','recs','bool');
 bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
-bind('sCloseOn','close','bool');   // not sClose: that id is the panel's Done button bind('sOdds','odds','bool'); bind('sCover','cover','bool');
+// sCloseOn, not sClose: that id belongs to the panel's Done button
+bind('sCloseOn','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanFoes','fanFoes','bool');
