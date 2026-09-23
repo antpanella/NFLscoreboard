@@ -638,14 +638,35 @@ body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
 #empty.lobby .pane.on{opacity:1;visibility:visible}
 #empty.lobby .ptitle{font-size:.7em;letter-spacing:.16em;color:var(--sideline);
   font-weight:700;margin-bottom:.45em}
-#empty.lobby .dots{display:flex;gap:.5em;align-items:center;justify-content:center}
-#empty.lobby .dots i{width:.5em;height:.5em;border-radius:50%;background:rgba(255,255,255,.2)}
-#empty.lobby .dots i.on{background:var(--flag)}
+/* The stage can be steered by hand: swipe on a tablet, click and drag on a
+   laptop, or hit a dot. pan-y keeps a vertical scroll working while claiming the
+   horizontal gesture, which is what stops iOS eating the swipe. */
+#empty.lobby .panes{touch-action:pan-y;cursor:grab;transition:transform .18s ease}
+body.dragging #empty.lobby .panes{cursor:grabbing;transition:none}
+body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:none}
+#empty.lobby .dots{display:flex;gap:.2em;align-items:center;justify-content:center}
+/* the dot is small but its hit area is a thumb wide */
+#empty.lobby .dots button{appearance:none;border:0;background:none;cursor:pointer;
+  padding:.5em .35em;line-height:0;display:block}
+#empty.lobby .dots button::before{content:'';display:block;width:.5em;height:.5em;
+  border-radius:50%;background:rgba(255,255,255,.2);transition:background .2s ease}
+#empty.lobby .dots button.on::before{background:var(--flag)}
+#empty.lobby .dots button:hover::before{background:rgba(255,255,255,.45)}
+#empty.lobby .dots button.on:hover::before{background:var(--flag)}
+@media (prefers-reduced-motion:reduce){ #empty.lobby .panes{transition:none} }
 @media (prefers-reduced-motion:reduce){ #empty.lobby .pane{transition:none} }
 
-/* today's slate */
-#empty.lobby .slate{display:grid;gap:.45em 1em;align-content:start;
-  grid-template-columns:repeat(auto-fill,minmax(10em,1fr))}
+/* today's slate, a column per day with a rule between them */
+#empty.lobby .slate{display:flex;align-items:stretch;gap:0;min-width:0}
+#empty.lobby .sday{min-width:0;flex:0 1 auto;padding:0 1.1em;
+  border-left:1px solid rgba(255,255,255,.16)}
+#empty.lobby .sday:first-child{padding-left:0;border-left:0}
+#empty.lobby .sday:last-child{padding-right:0}
+#empty.lobby .sdh{display:flex;align-items:baseline;gap:.5em;white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:.12em;margin-bottom:.4em}
+#empty.lobby .sdh b{color:var(--flag);font-size:.92em}
+#empty.lobby .sdh i{font-style:normal;color:var(--sideline);font-size:.62em}
+#empty.lobby .sgames{display:grid;grid-auto-flow:column;gap:.45em 1em;align-content:start}
 #empty.lobby .sg{border-left:.2em solid rgba(255,255,255,.16);padding:.05em .5em;line-height:1.2}
 #empty.lobby .sg.mine{border-left-color:var(--fantasy)}
 #empty.lobby .sg.bet{border-left-color:var(--flag)}
@@ -1050,7 +1071,7 @@ body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-22w';
+var BUILD = 'build 2026-09-23c';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2413,10 +2434,14 @@ function spansDays(wins){
   for (var i = 1; i < wins.length; i++) if (wins[i].day !== wins[0].day) return true;
   return false;
 }
+/* dayWord is written for the middle of a sentence ("first game tomorrow at
+   1:00 PM"), so it comes back lowercase. As a heading it wants a capital, and
+   the weekday names already have one. */
+function capDay(d){ return String(d || '').charAt(0).toUpperCase() + String(d || '').slice(1); }
 // "1:00 PM" today, "Sunday 1:00 PM" when the countdown runs past midnight
-function winWhen(w){ return (w.today ? '' : w.day + ' ') + w.when; }
+function winWhen(w){ return (w.today ? '' : capDay(w.day) + ' ') + w.when; }
 // on a panel the day is only worth repeating when the panel covers several
-function winLabel(w, spans){ return spans ? w.day + ' ' + w.when : w.when; }
+function winLabel(w, spans){ return spans ? capDay(w.day) + ' ' + w.when : w.when; }
 /* Starters only, and both rosters whatever the card setting says: the point of
    this screen is what there is to sweat, which includes what he is up against. */
 function lobbyPlayers(w){
@@ -2451,7 +2476,7 @@ var LOBSIG = null;
    the bet slip, the fantasy head-to-head, the rest of the league, the injury
    report — takes turns on a stage underneath, because any one of them alone
    leaves two-thirds of a television empty. */
-var LOB = {page:0, at:0, bet:null, betB:null, betAt:0};
+var LOB = {page:0, at:0, hold:0, bet:null, betB:null, betAt:0};
 
 function lobbyHTML(wins){
   if (!wins.length) return '';
@@ -2487,8 +2512,9 @@ function lobbyHTML(wins){
         '<div class="ptitle">' + p.title + '</div>' + p.html + '</section>';
     }).join('') +
     '<div class="newbet" hidden></div></div>' +
-    '<div class="dots">' + panes.map(function(_, i){
-      return '<i class="' + (i === i0 ? 'on' : '') + '"></i>'; }).join('') + '</div></div>';
+    '<div class="dots">' + panes.map(function(p, i){
+      return '<button type="button" class="' + (i === i0 ? 'on' : '') + '" data-p="' + i +
+        '" title="' + esc(String(p.title).replace(/<[^>]*>/g, '')) + '"></button>'; }).join('') + '</div></div>';
   return head + qr + stage;
 }
 
@@ -2514,24 +2540,42 @@ function slateTitle(wins){
   return (w.day === 'tomorrow' ? 'TOMORROW' : w.day.toUpperCase()) + '’S SLATE';
 }
 function paneSlate(wins){
-  var bg = BETS.length ? betGameIds() : Object.create(null), spans = spansDays(wins);
-  var cells = [];
+  var bg = BETS.length ? betGameIds() : Object.create(null);
+  /* Grouped into a column per day with a rule between them. A flat grid of
+     sixteen tiles each stamped "Sunday" is a list; this is a week at a glance,
+     and the day only has to be said once. */
+  var days = [], byDay = Object.create(null);
   wins.forEach(function(w){
     w.games.forEach(function(g){
-      var n = fanCount(g), bet = !!bg[g.id];
-      var line = cfg.odds && g.odds && g.odds.text
-        ? esc(g.odds.text) + (g.odds.ou !== null && g.odds.ou !== undefined ? ' · o/u ' + esc(String(g.odds.ou)) : '') : '';
-      var mk = (n ? '<span class="mk">★' + n + '</span>' : '') +
-               (bet && n ? ' ' : '') + (bet ? '<span class="mk b">BET</span>' : '');
-      cells.push('<div class="sg' + (n ? ' mine' : '') + (bet && !n ? ' bet' : '') + '">' +
-        '<b>' + esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) + '</b>' +
-        '<div>' + esc(winLabel(w, spans)) + (g.net ? ' · ' + esc(g.net) : '') + '</div>' +
-        (line || mk ? '<div>' + line + (line && mk ? ' · ' : '') + mk + '</div>' : '') + '</div>');
+      var k = fbDay(g.date);
+      if (!byDay[k]){ byDay[k] = {day:w.day, today:w.today, games:[]}; days.push(byDay[k]); }
+      byDay[k].games.push({g:g, w:w});
     });
   });
-  return cells.length ? '<div class="slate">' + cells.join('') + '</div>' : '';
+  if (!days.length) return '';
+  var cell = function(x){
+    var g = x.g, n = fanCount(g), bet = !!bg[g.id];
+    var line = cfg.odds && g.odds && g.odds.text
+      ? esc(g.odds.text) + (g.odds.ou !== null && g.odds.ou !== undefined ? ' · o/u ' + esc(String(g.odds.ou)) : '') : '';
+    var mk = (n ? '<span class="mk">\u2605' + n + '</span>' : '') +
+             (bet && n ? ' ' : '') + (bet ? '<span class="mk b">BET</span>' : '');
+    return '<div class="sg' + (n ? ' mine' : '') + (bet && !n ? ' bet' : '') + '">' +
+      '<b>' + esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) + '</b>' +
+      '<div>' + esc(x.w.when) + (g.net ? ' · ' + esc(g.net) : '') + '</div>' +
+      (line || mk ? '<div>' + line + (line && mk ? ' · ' : '') + mk + '</div>' : '') + '</div>';
+  };
+  return '<div class="slate">' + days.map(function(d){
+    var n = d.games.length;
+    // a column holds about five games before it is worth starting another
+    var cols = Math.max(1, Math.min(4, Math.ceil(n / 5))), rows = Math.ceil(n / cols);
+    return '<div class="sday" style="flex-grow:' + cols + '">' +
+      // one day on the panel needs no heading: the panel's own title says it
+      (days.length > 1 ? '<div class="sdh"><b>' + esc(d.today ? 'Today' : capDay(d.day)) + '</b>' +
+        '<i>' + n + ' game' + (n === 1 ? '' : 's') + '</i></div>' : '') +
+      '<div class="sgames" style="grid-template-rows:repeat(' + rows + ',auto)">' +
+      d.games.map(cell).join('') + '</div></div>';
+  }).join('') + '</div>';
 }
-
 function paneWhen(wins){
   var any = false, spans = spansDays(wins);
   var html = wins.map(function(w){
@@ -2767,7 +2811,7 @@ function injByName(){
 function paintLobbyPage(){
   var panes = document.querySelectorAll('#empty.lobby .pane');
   if (!panes.length) return;
-  var i = LOB.page % panes.length, dots = document.querySelectorAll('#empty.lobby .dots i');
+  var i = LOB.page % panes.length, dots = document.querySelectorAll('#empty.lobby .dots button');
   for (var k = 0; k < panes.length; k++) panes[k].classList.toggle('on', k === i && !LOB.bet);
   for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === i);
 }
@@ -2786,11 +2830,76 @@ function lobbyTick(){
   var panes = el.querySelectorAll('.pane');
   if (panes.length < 2) return;
   var every = Math.max(4, Number(cfg.lobbyEvery) || 12) * 1000;
+  if (Date.now() < LOB.hold) return;              // someone is steering it by hand
   if (Date.now() - LOB.at < every) return;
   LOB.at = Date.now();
   LOB.page = (LOB.page + 1) % panes.length;
   paintLobbyPage();
 }
+
+/* ---- steering it by hand ----
+   Swipe on an iPad, click and drag on a laptop, or hit a dot at the bottom. Any
+   of those parks the rotation for a spell — nothing is more annoying than a
+   screen that jumps to the next page a second after you asked for this one. */
+function lobbyHold(){
+  var every = Math.max(4, Number(cfg.lobbyEvery) || 12) * 1000;
+  LOB.at = Date.now();
+  LOB.hold = Date.now() + Math.max(2 * every, 25000);
+}
+function lobbyGo(i){
+  var n = document.querySelectorAll('#empty.lobby .pane').length;
+  if (!n) return;
+  LOB.page = ((i % n) + n) % n;
+  if (LOB.bet){ LOB.bet = null; LOB.betB = null;
+    var nb = document.querySelector('#empty.lobby .newbet');
+    if (nb) nb.hidden = true;
+  }
+  lobbyHold();
+  paintLobbyPage();
+}
+var DRAG = {on:false, id:null, x:0, y:0, moved:false};
+function lobbyDragStart(e){
+  var box = e.target.closest && e.target.closest('#empty.lobby .panes');
+  if (!box || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  DRAG.on = true; DRAG.id = e.pointerId; DRAG.x = e.clientX; DRAG.y = e.clientY; DRAG.moved = false;
+  DRAG.box = box;
+}
+function lobbyDragMove(e){
+  if (!DRAG.on || e.pointerId !== DRAG.id) return;
+  var dx = e.clientX - DRAG.x, dy = e.clientY - DRAG.y;
+  // a mostly-vertical drag is a scroll, not a page turn
+  if (!DRAG.moved && Math.abs(dx) < 10) return;
+  if (Math.abs(dy) > Math.abs(dx) * 1.4){ DRAG.on = false; DRAG.box.style.transform = ''; return; }
+  DRAG.moved = true;
+  document.body.classList.add('dragging');
+  // the stage follows the finger a little, so it is clear something is happening
+  DRAG.box.style.transform = 'translateX(' + (dx * 0.28).toFixed(1) + 'px)';
+}
+function lobbyDragEnd(e){
+  if (!DRAG.on || e.pointerId !== DRAG.id) return;
+  DRAG.on = false;
+  document.body.classList.remove('dragging');
+  if (DRAG.box){ DRAG.box.style.transform = ''; }
+  if (!DRAG.moved) return;
+  var dx = e.clientX - DRAG.x;
+  var need = Math.max(45, (DRAG.box ? DRAG.box.clientWidth : 600) * 0.06);
+  if (Math.abs(dx) < need) return;
+  lobbyGo(LOB.page + (dx < 0 ? 1 : -1));            // drag left, go forward
+}
+document.addEventListener('pointerdown', lobbyDragStart);
+document.addEventListener('pointermove', lobbyDragMove);
+document.addEventListener('pointerup', lobbyDragEnd);
+document.addEventListener('pointercancel', function(e){
+  if (!DRAG.on || e.pointerId !== DRAG.id) return;
+  DRAG.on = false; document.body.classList.remove('dragging');
+  if (DRAG.box) DRAG.box.style.transform = '';
+});
+document.addEventListener('click', function(e){
+  var d = e.target.closest && e.target.closest('#empty.lobby .dots button');
+  if (!d) return;
+  lobbyGo(Number(d.getAttribute('data-p')) || 0);
+  d.blur();                     // no focus ring left glowing on a television
+});
 
 /* A bet arriving while the lobby is up takes the stage, so whoever just scanned
    the code sees it land instead of wondering whether it went through. */
@@ -6756,8 +6865,15 @@ document.addEventListener('keydown', function(e){
     togglePanel(false);
     return;
   }
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' ||
-      e.target.tagName === 'BUTTON') return;
+  var typing = e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' ||
+               e.target.tagName === 'TEXTAREA';
+  if (!typing && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') &&
+      document.querySelector('#empty.lobby .pane')){
+    lobbyGo(LOB.page + (e.key === 'ArrowRight' ? 1 : -1));
+    e.preventDefault();
+    return;
+  }
+  if (typing || e.target.tagName === 'BUTTON') return;
   var k = e.key.toLowerCase();
   if (k === 's') togglePanel();
   else if (k === 'f') fullscreen();
