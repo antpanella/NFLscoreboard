@@ -558,6 +558,23 @@ body.phone>*:not(#phone){display:none !important}
   padding:.25em .5em;font:inherit;font-size:1rem;width:6.5rem;border-radius:2px}
 #panel input[type=checkbox]{width:1.3rem;height:1.3rem;accent-color:var(--flag)}
 #panel .note{color:var(--sideline);font-size:1rem;line-height:1.45;margin-top:1.2rem}
+/* the "i" beside each setting, and the note it opens */
+#panel label > .lrow{display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;flex:1 1 auto;min-width:0}
+#panel .tipb{flex:none;position:relative;width:1.2rem;height:1.2rem;padding:0;border-radius:50%;
+  border:1px solid var(--sideline);background:none;color:var(--sideline);font:inherit;
+  font-size:.72rem;font-weight:800;line-height:1;cursor:help;
+  display:inline-flex;align-items:center;justify-content:center}
+#panel .tipb:hover,#panel .tipb.open,#panel .tipb:focus-visible{border-color:var(--flag);color:var(--flag)}
+#panel .tipb::after{content:attr(data-tip);position:absolute;right:-.2rem;top:calc(100% + .45rem);
+  width:23rem;max-width:min(23rem,62vw);background:#0A1410;border:1px solid var(--line);
+  border-radius:4px;padding:.55rem .65rem;font-size:.92rem;font-weight:500;line-height:1.45;
+  color:var(--chalk);text-align:left;white-space:normal;letter-spacing:0;text-transform:none;
+  box-shadow:0 8px 22px rgba(0,0,0,.6);z-index:6;opacity:0;visibility:hidden;
+  transition:opacity .12s ease;pointer-events:none}
+#panel .tipb.up::after{top:auto;bottom:calc(100% + .45rem)}
+#panel .tipb:hover::after,#panel .tipb:focus-visible::after,#panel .tipb.open::after{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){ #panel .tipb::after{transition:none} }
 #gvTeams{display:grid;grid-template-columns:repeat(2,1fr);gap:0 .7rem;margin:.5rem 0}
 #gvTeams .tr{display:flex;align-items:center;gap:.35rem;border-bottom:1px solid var(--line);
   padding:.22rem 0}
@@ -903,7 +920,7 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
   <label>Final score alerts <input type="checkbox" id="sFinal"></label>
   <label>Cover flips (4th qtr) <input type="checkbox" id="sCover"></label>
   <h4>Close games</h4>
-  <label>Close game &amp; overtime <input type="checkbox" id="sClose"></label>
+  <label>Close game &amp; overtime <input type="checkbox" id="sCloseOn"></label>
   <label>…inside the last <select id="sCloseMin">
       <option value="2">2:00</option><option value="4">4:00</option>
       <option value="6">6:00</option><option value="8">8:00</option>
@@ -1071,7 +1088,7 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23c';
+var BUILD = 'build 2026-09-23d';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -6935,7 +6952,7 @@ bind('sDelay','delay','num');
 bind('sStarters','starterOnly','num');
 bind('sRecs','recs','bool');
 bind('sStripUp','stripUp','bool'); bind('sStripFin','stripFin','bool');
-bind('sClose','close','bool'); bind('sOdds','odds','bool'); bind('sCover','cover','bool');
+bind('sCloseOn','close','bool');   // not sClose: that id is the panel's Done button bind('sOdds','odds','bool'); bind('sCover','cover','bool');
 bind('sTint','tint','bool'); bind('sDim','dimLose','bool');
 bind('sFanRow','fanRow','bool'); bind('sFanBar','fanBar','bool');
 bind('sFanFoes','fanFoes','bool');
@@ -7110,6 +7127,146 @@ document.getElementById('sTest').addEventListener('click', function(){
 });
 setInterval(function(){ if (cfg.fanBar) paintFanBar(); }, 30000);  // keep the ages honest
 if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
+/* ---- the little "i" beside each setting ----
+   Every control gets a button that explains, in one line, what the setting
+   actually does — hover on a laptop, tap on a tablet. The text lives here rather
+   than in the markup so the panel stays readable. */
+var TIPS = {
+  // board · layout
+  sScale: 'How big the type on the cards is. Auto-fit measures the real cards and grows the scores until something would spill; the fixed sizes override that, and the biggest ones drop the records, the down-and-distance line and the timeout pips to make room.',
+  sOrder: 'By kickoff keeps each game in the same place all afternoon, so you learn where to look. Most interesting first reshuffles as games heat up, which is livelier but moves things under you.',
+  sSpot: 'A spotlit game grows to four times its size where it sits. Auto picks up big moments on its own; manual only ever spotlights a card you click.',
+  sPrime: 'When only one game is live, split the screen: the card on the left, and a panel on the right with the plays as they happen, the drive, team totals and your fantasy starters.',
+  sRecap: 'Once the last game is final, replace the empty board with the day in summary: how your matchup ended, how the bets did and the plays worth remembering.',
+  sLobby: 'Before the first kick, show a countdown, the friends’ bet code and a rotating set of panels instead of a blank screen. On a day with no games it counts down to the next one.',
+  sLobSlate: 'A panel with every game coming up, laid out a column per day: kick time, network, the line and the over/under, marked where you have a starter or a bet.',
+  sLobWhen: 'A panel listing your starters and your opponent’s, grouped by kickoff window and by the game each one is in.',
+  sLobSlip: 'A panel with every bet on the board, whoever added it, and the totals at risk and to win.',
+  sLobH2H: 'A panel with your lineup against your opponent’s, each player’s points and projection, in the order a lineup is usually read.',
+  sLobLeague: 'A panel with every other matchup in your league as its own box, scores and projections, yours first.',
+  sLobInj: 'Put an OUT, DOUBT, QUES or PROB stamp beside anyone on the matchup panel who is on the injury report.',
+  sLobBets: 'When a bet lands while the pregame screen is up, stop the rotation and show it large for a few seconds with the name of whoever added it.',
+  sLobEvery: 'How long each pregame panel stays before the next one. Swiping or tapping a dot parks the rotation for a while so it does not jump away under you.',
+  sToday: 'Hide games from other days entirely. The pregame screen ignores this and still looks ahead, or a Wednesday would have nothing on it.',
+  sLiveOnly: 'While anything is live, hide the kicking-off-later and final strips so the cards get the whole screen.',
+  sStripUp: 'The strip along the bottom listing games still to come, with their kick times and lines.',
+  sStripFin: 'The strip listing games that have finished, for the last day and a half.',
+  sSlim: 'Drop the title, week and status line from the header to give the cards more height.',
+  // board · cards
+  sTint: 'Tint each card diagonally in the two teams’ colours. Every colour is dropped to a fixed low brightness first so white numbers keep their contrast.',
+  sDim: 'Fade the team that is behind, so the leader reads first from across the room.',
+  sRecs: 'Show each team’s win-loss record beside the abbreviation. It costs a little type size when space is tight.',
+  sTimeouts: 'Three pips per team, filled for each timeout still in hand.',
+  sField: 'A bar across the card showing where the ball is, which way the offence is going, the first-down marker and the red zone.',
+  sOdds: 'Show the spread and over/under on the cards and in the kicking-off-later strip. The closing line is pinned when the game starts, so a drifting live number cannot rewrite it.',
+  sShowNet: 'Show which channel each game is on.',
+  sShowWp: 'Show the live win probability from the play-by-play feed.',
+  sFav: 'Mark a team as your own: their card gets a gold edge and sorts first.',
+  // board · feed
+  sInterval: 'How often the scoreboard feed is polled. Faster is more current but hits ESPN harder; the board backs off automatically when requests start failing.',
+  sTickClock: 'Run the game clock down smoothly between polls instead of jumping every few seconds. Cosmetic only — the real clock still comes from the feed.',
+  sDeep: 'Fetch the per-game detail as well as the scoreboard: live odds, the drive, the play-by-play, team totals and a clock that catches the scoreboard sticking.',
+  sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys.',
+  // alerts
+  sTD: 'Raise a banner for touchdowns.',
+  sFG: 'Raise a banner for field goals.',
+  sTO: 'Raise a banner for interceptions and lost fumbles.',
+  sYards: 'Raise a banner for any play gaining at least this many yards.',
+  sFinal: 'Raise a banner when a game goes final.',
+  sCover: 'Raise a banner in the fourth quarter when a game crosses the closing spread — the moment a side bet flips.',
+  sCloseOn: 'Raise a banner when a game gets tight late, or goes to overtime. The spotlight uses the same rule to decide what counts as a big moment.',
+  sCloseMin: 'How late in the fourth quarter a game has to be to count as close.',
+  sCloseMargin: 'How few points can separate the teams for a game to count as close.',
+  sDur: 'How long a banner stays on screen when nothing else is waiting.',
+  sMinShow: 'The least time a banner is guaranteed, even when a newer play is queued behind it.',
+  sSound: 'Play a short chime with each banner. Each kind of alert has its own.',
+  // fantasy
+  sUser: 'Your Sleeper username — not your team name. Read-only: no password, and nothing is ever sent back to Sleeper.',
+  sLeague: 'Which of your Sleeper leagues the board follows. The header ticker and the pregame panels use the first one.',
+  sStarters: 'Whether fantasy banners fire for your starters only, or for anyone on your roster including the bench.',
+  sFanRow: 'A line at the foot of each card naming your players in that game, with their points.',
+  sFanFoes: 'Include your opponent’s players in that line too, in red, so you can see what you are up against.',
+  sFanBar: 'The matchup score across the top of the screen: you, your opponent, and how much of each lineup is still to play.',
+  sFanPlays: 'Add recent fantasy scoring plays to the ticker, newest first, for half an hour each.',
+  sFanLeague: 'Turn the whole ticker league-wide: every matchup’s score, and scoring plays from all ten teams tagged with whose player it is. Banners still only fire for your own matchup.',
+  sFanProj: 'Show projected finishing totals beside the live scores — what is banked plus a projection for the part still to play.',
+  sFanWin: 'Show your chance of winning the matchup, worked out from the projections and how much is still to come.',
+  sFanRoll: 'Scroll the header ticker when it is wider than the screen. Off, it simply clips.',
+  sFanEvery: 'How often Sleeper is asked for points while games are live. It slows to every five minutes when nothing is on.',
+  sFanAlerts: 'Whether a fantasy scoring play raises a banner, a chime, both or neither.',
+  sFanMin: 'How big a points swing has to be before it is worth a banner.',
+  // bets
+  sBetText: 'One bet per line, in plain English — "Giants ML $10 +220", "Rams -6.5", "Parlay: A + B". Open the guide below for every form it understands.',
+  sCfgSync: 'Push your settings through the relay so your phone can drive the board, and so your own bets follow you between devices.',
+  sBetSync: 'Keep the bet list on the relay rather than in this browser alone, so every device sees the same one.',
+  sStripBets: 'The two-row ticker along the bottom tracking every bet as it goes.',
+  sBetAlerts: 'Raise banners when a bet cashes, busts, or comes down to the wire.',
+  sBetMoney: 'Show stakes and payouts. Off, the bets show only what they are, not what they are worth.',
+  // lights
+  sGovee: 'Flash your Govee lights in the scoring team’s colours when something happens.',
+  sGvUrl: 'The address of your Cloudflare relay — the little service that holds the Govee key and talks to the lights.',
+  sGvKey: 'The token that lets this board use the relay. Kept on this device only and never included in an exported settings file unless you ask.',
+  sGvDev: 'Which light or group the board flashes.',
+  sGvMode: 'How the lights behave by default: plain colours, or a scene.',
+  sGvAuto: 'Match a Govee scene to a team by name where one exists, falling back to the team’s colours.',
+  sGvPulses: 'How many times the lights flash per alert.',
+  sGvHold: 'How long a scene runs before the lights go back to resting.',
+  sGvGap: 'The least time between two light shows, so a busy afternoon does not turn the room into a disco.',
+  sGvRestMode: 'What the lights do when a show finishes: hold a resting colour, or go back to what they were.',
+  sGvRest: 'The colour the lights settle on between alerts.',
+  sGvRestBri: 'How bright that resting colour is.',
+  // system
+  sRecord: 'Keep a recording of the afternoon in this browser — every feed snapshot, your bets and the flight log — so it can be replayed and picked over afterwards.',
+  sRecSpeed: 'How fast a recording plays back. Sixteen times covers a Sunday in about twenty minutes.',
+  sRecFile: 'Load a recording exported from another device and replay it here.',
+  sAutoUpd: 'Check now and then for a newer version of this page and reload into it by itself, so an unattended board does not sit on an old build.',
+  sTick: 'Force the tickers to scroll even when they would fit, for checking how they look.',
+  sCfgBets: 'Include your bets in the exported settings file.',
+  sCfgTok: 'Include your relay token in the exported settings file. Leave it off if the file is going anywhere you do not control.',
+  sCfgFile: 'Load a settings file saved earlier. Anything not in the file keeps its current value.'
+};
+/* The panel is built in the markup, so the buttons are grafted on afterwards.
+   Everything already in the label is wrapped in a row of its own and the button
+   sits outside it, which keeps the existing left-text right-control layout
+   whatever a particular label happens to contain. */
+function addTips(){
+  for (var id in TIPS){
+    var el = document.getElementById(id);
+    if (!el) continue;
+    var lab = el.closest && el.closest('label');
+    if (!lab || lab.querySelector('.tipb')) continue;
+    var row = document.createElement('span');
+    row.className = 'lrow';
+    while (lab.firstChild) row.appendChild(lab.firstChild);
+    lab.appendChild(row);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tipb';
+    b.setAttribute('data-tip', TIPS[id]);
+    b.setAttribute('aria-label', 'What this does');
+    b.textContent = 'i';
+    lab.appendChild(b);
+  }
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('.tipb');
+  var open = document.querySelector('.tipb.open');
+  if (open && open !== b) open.classList.remove('open');
+  if (!b) return;
+  // inside a label, so a click would otherwise toggle the setting itself
+  e.preventDefault(); e.stopPropagation();
+  b.classList.toggle('open');
+});
+/* A tip on a control near the foot of the panel opens upwards instead, or it
+   would hang off the bottom and drag the panel's scroll with it. */
+document.addEventListener('pointerover', function(e){
+  var b = e.target.closest && e.target.closest('.tipb');
+  if (!b) return;
+  var p = document.getElementById('panel');
+  b.classList.toggle('up', p && (b.getBoundingClientRect().bottom > p.getBoundingClientRect().bottom - 230));
+});
+
+addTips();
 paintFlags();
 paintLog();
 if (/^#remote/.test(location.hash)) remoteMode();
