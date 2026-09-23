@@ -173,7 +173,7 @@ main{position:relative}
   padding:.22rem;border-radius:5px;box-sizing:border-box}
 #qrpin .code{font-weight:800;letter-spacing:.18em;color:var(--flag);
   font-size:calc(.62 * var(--su));line-height:1.1;white-space:nowrap}
-main.qrpinned .strip{padding-right:var(--qrw,9rem)}
+main.qrpinned .strip.qrclear{padding-right:var(--qrw,9rem)}
 #live{flex:1;min-height:0;display:grid;gap:var(--gap);
   grid-template-columns:repeat(var(--cols),1fr);
   grid-auto-rows:1fr;align-content:stretch;grid-auto-flow:row dense}
@@ -1131,7 +1131,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23h';
+var BUILD = 'build 2026-09-23i';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3354,7 +3354,12 @@ var QRP = {code:'', size:0};
 function qrTick(){
   var pin = document.getElementById('qrpin'), main = document.querySelector('main');
   if (!pin || !main) return;
-  var hide = function(){ if (!pin.hidden){ pin.hidden = true; main.classList.remove('qrpinned'); } };
+  var hide = function(){
+    if (pin.hidden) return;
+    pin.hidden = true; main.classList.remove('qrpinned');
+    var m = main.querySelectorAll('.strip.qrclear');
+    for (var i = 0; i < m.length; i++) m[i].classList.remove('qrclear');
+  };
   if (cfg.qrLive === 'off' || !GUEST.code) return hide();
   if (!(window.__games || []).some(function(g){ return g.state === 'in'; })) return hide();
   // the grid had a cell spare, so the code is already up there, and much bigger
@@ -3380,6 +3385,13 @@ function qrTick(){
     main.style.setProperty('--qrw', Math.round(size + 16) + 'px');
   }
   if (pin.hidden){ pin.hidden = false; main.classList.add('qrpinned'); }
+  /* Only the strips it actually sits beside give up any width. It reaches up
+     from the bottom, so on a tall strip block the upper strips — kicking off
+     later, the finals — keep their full width and lose nothing at all. */
+  var top = pin.getBoundingClientRect().top;
+  for (var k = 0; k < strips.length; k++){
+    strips[k].classList.toggle('qrclear', strips[k].getBoundingClientRect().bottom > top);
+  }
 }
 
 function card(g){
@@ -3856,8 +3868,25 @@ function demoTick(){
   timer = setTimeout(demoTick, 1500);
   if (!window.__demoClock){ window.__demoClock = setInterval(tickClocks, 1000); }
 }
+/* A demo with an empty bet strip shows none of the bet tracking, so it seeds a
+   few. They live in memory only: no save, no push to the relay, and a reload
+   leaves the real list exactly as it was. */
+var DEMOBETS = ['Jets +3.5 $20 -110', 'Bengals ML $10 -140', 'Over 47.5 TB CIN $25 -110',
+                'Ravens -6.5 $10 -110', 'Parlay: Lions ML + Bills ML $5 +260'];
+function seedDemoBets(){
+  if (BETS.length) return;                 // never on top of real ones
+  DEMOBETS.forEach(function(line, i){
+    var b = parseBet(line);
+    if (!b || b.error) return;
+    if (i === 4) b.by = 'Mike';            // a friend's, to show the name tag
+    b.demo = true;
+    BETS.push(b);
+  });
+  paintBetList(); evaluateBets();
+}
 function startDemo(){
   DEMO = true; SIM = buildSim(); simMin = 0; prev = null;
+  seedDemoBets();
   for (var k in LINES) if (/^dp?\d+$/.test(k)) delete LINES[k];   // fresh pins each run
   saveLines();
   fired = Object.create(null); queue = []; showing = false;
@@ -5279,9 +5308,13 @@ function loadBets(){
 }
 function saveBets(){
   if (REPLAY) return;                       // a replay's bets are the recording's, not yours
-  try { localStorage.setItem('sundayBoardBets', JSON.stringify(BETS)); } catch(e){}
+  /* The bets a demo seeds are scenery. They are kept out of the saved list and
+     off the relay, so running a demo can never plant them on the real board or
+     on anybody's phone. */
+  var mine = BETS.filter(function(b){ return !b.demo; });
+  try { localStorage.setItem('sundayBoardBets', JSON.stringify(mine)); } catch(e){}
   flogBets();
-  if (syncOn()) betsPush();
+  if (syncOn() && mine.length === BETS.length) betsPush();
 }
 
 /* ---- sharing bets through the relay ----
