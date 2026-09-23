@@ -282,7 +282,6 @@ body.tint .game.flash{box-shadow:inset 0 0 0 calc(.06 * var(--u)) rgba(255,255,2
 body.tint .row .abbr,body.tint .row .pts,body.tint .row .rec{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 body.tint .meta,body.tint .info{color:#C7D6CC}
 body.tint .info .mk i,body.tint .meta .dd{color:#A9BCAF}
-body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{opacity:1}
 
 .row{display:flex;align-items:center;gap:calc(.16 * var(--u));line-height:1;flex-wrap:nowrap}
 /* Nothing inside a card may shrink: a squeezed row clips its own text silently,
@@ -316,6 +315,11 @@ body.noto .row .tos{display:none}
 .row.lose .abbr,.row.lose .pts,.row.lose img{opacity:.55}
 body.tint .row.lose .abbr,body.tint .row.lose .pts{opacity:.72}
 body.tint .row.lose img{opacity:.8}
+/* This has to come after the tinted rules above, not before them. It carries the
+   same specificity as body.tint .row.lose .abbr, so whichever is written last
+   wins — and while it sat higher up, switching the dimming off did nothing at
+   all unless team colours were also off. */
+body.nodim .row.lose .abbr,body.nodim .row.lose .pts,body.nodim .row.lose img{opacity:1}
 /* A logo is the team's own colours sitting on the team's own tint, so a dark or
    same-hue mark (the Jets' green oval on Jets green) all but disappears. A tight
    light halo gives every mark an edge, and a soft dark one behind it does the
@@ -951,7 +955,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
       <option value="20">20 sec</option><option value="30">30 sec</option>
     </select></label>
   <label>Smooth clock between polls <input type="checkbox" id="sTickClock"></label>
-  <label>Live odds &amp; drive detail <input type="checkbox" id="sDeep"></label>
+  <label>Down &amp; distance, live line, win % <input type="checkbox" id="sDeep"></label>
   <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
 </section>
 <section class="ptab" data-tab="alerts">
@@ -1136,7 +1140,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23m';
+var BUILD = 'build 2026-09-23n';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1242,7 +1246,14 @@ function bind(id, key, kind){
          arrived stayed on the cards, so the setting looked like it did nothing.
          Dropping it makes the difference visible at once: the live line, the
          drive, the win probability and the play-by-play all go. */
-      if (!cfg.deep){ DEEP = Object.create(null); PLAYLOG = Object.create(null); }
+      if (!cfg.deep){
+        DEEP = Object.create(null); PLAYLOG = Object.create(null);
+        /* Emptying the store is not enough on its own: the detail has already
+           been written onto the game objects, and it would sit there until the
+           next poll. Rebuilding them from the last scoreboard payload takes it
+           off the cards the moment the switch is thrown. */
+        if (LASTDATA){ LASTSIG = ''; ingest(LASTDATA); return; }
+      }
       LASTSIG = ''; render();
     }
     if (key === 'interval') schedule();
@@ -1862,8 +1873,10 @@ function tidy(g){
   if (!sp) g.redzone = false;
   else if (sp.dir !== null) g.redzone = (sp.dir ? 100 - sp.x : sp.x) <= 20;
 }
+var LASTDATA = null;
 function ingest(data){
   polls++;
+  LASTDATA = data;
   var games = parse(data);
   overlay(games);
   games.forEach(function(g){ tidy(g); g.lastPlay = cleanPlay(g.lastPlay); });
@@ -7374,7 +7387,7 @@ var TIPS = {
   // board · feed
   sInterval: 'How often the scoreboard feed is polled. Faster is more current but hits ESPN harder; the board backs off automatically when requests start failing.',
   sTickClock: 'Run the game clock down smoothly between polls instead of jumping every few seconds. Cosmetic only — the real clock still comes from the feed.',
-  sDeep: 'Fetch the per-game detail as well as the scoreboard: live odds, the drive, the play-by-play, team totals, and a clock that catches the scoreboard sticking. Turning it off drops all of that from the cards at once; games with a live bet on them are still fetched either way. A demo invents its own detail, so this changes nothing there.',
+  sDeep: 'The scoreboard feed carries scores and the clock, and nothing else. This asks ESPN for a second feed, one game at a time, and that is where the rest comes from: the down and distance, the field position bar, the live betting line, the win percentage, the play-by-play in single-game view, and a fix for when the scoreboard clock sticks. Switch it off and all of that leaves the cards straight away, leaving the score, the clock and the channel. It is also most of the board\u2019s network traffic, so off is much lighter. Games with a live bet on them are fetched either way, and a demo makes its own detail up, so this changes nothing there.',
   sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys.',
   // alerts
   sTD: 'Raise a banner for touchdowns.',
