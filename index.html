@@ -399,11 +399,11 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .game.rz .meta .dd{color:var(--redzone);font-weight:600}
 
 /* ---------- strips ---------- */
-.strip{flex:none;border-top:1px solid var(--line);padding-top:calc(.38 * var(--su))}
-.strip h2{font-size:calc(.7 * var(--su));font-weight:600;letter-spacing:.14em;
-  color:var(--sideline);margin-bottom:calc(.16 * var(--su))}
-.strip .items{display:flex;flex-direction:column;gap:.3rem;
-  font-size:calc(1.02 * var(--su));font-weight:500;line-height:1.25;
+.strip{flex:none;border-top:1px solid var(--line);padding-top:calc(.22 * var(--su))}
+.strip h2{font-size:calc(.66 * var(--su));font-weight:600;letter-spacing:.14em;
+  color:var(--sideline);margin-bottom:calc(.04 * var(--su));line-height:1.1}
+.strip .items{display:flex;flex-direction:column;gap:.16rem;
+  font-size:calc(1.02 * var(--su));font-weight:500;line-height:1.12;
   max-height:calc(5.6 * var(--su));overflow:hidden}
 .strip .day{display:flex;gap:1rem;align-items:baseline}
 .strip .dtag{flex:none;width:5.6em;font-weight:700;font-size:.86em;letter-spacing:.09em;
@@ -428,9 +428,12 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets h2 .sum{letter-spacing:.04em;font-weight:500;margin-left:.6em;color:var(--sideline)}
 #bets h2 .sum .up{color:var(--live)} #bets h2 .sum .dn{color:var(--redzone)}
 #bets .betrow{display:flex;flex-wrap:wrap;gap:.35rem 1.4rem;align-items:baseline}
-#bets .items{max-height:none;overflow:hidden;display:flex;flex-direction:column;gap:.35rem;padding:2px 0 4px}
-/* fixed height, parlay box or not, so the cards above never re-fit as bets come and go */
-#bets .brow{overflow:hidden;white-space:nowrap;height:calc(2.3 * var(--su));display:flex;align-items:center}
+#bets .items{max-height:none;overflow:hidden;display:flex;flex-direction:column;gap:.14rem;padding:0}
+/* Sized to the tallest chip in it rather than a fixed two-and-a-bit units: the
+   strips were taking more of the screen than the scoreboard was, and most of
+   that was air above and below the chips. */
+#bets .brow{overflow:hidden;white-space:nowrap;min-height:calc(1.35 * var(--su));
+  display:flex;align-items:center}
 #bets .btrack{display:flex;align-items:center;column-gap:1.2rem;width:max-content;will-change:transform}
 #bets .bunit{display:flex;align-items:center;column-gap:1.2rem;padding-right:1.2rem;flex:none}
 #bets .btrack>*,#bets .bunit>*{flex:none}
@@ -453,8 +456,8 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .bet.s-pending b{color:var(--sideline)}
 #bets .bet .amt{color:var(--flag)}
 /* parlays: a thin rule boxing the legs together */
-#bets .pbox{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.2rem 1rem;
-  border:2px solid rgba(255,255,255,.28);border-radius:.4em;padding:.12em .6em .16em;
+#bets .pbox{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.1rem 1rem;
+  border:2px solid rgba(255,255,255,.28);border-radius:.4em;padding:0 .55em;
   position:relative}
 #bets .pbox .phead{font-size:.7em;font-weight:700;letter-spacing:.1em;color:var(--sideline)}
 #bets .pbox.s-live.good{border-color:var(--live)}
@@ -466,7 +469,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   background:rgba(255,255,255,.14);overflow:hidden;vertical-align:middle}
 #bets .bar>span{display:block;height:100%;background:#FFB020}
 /* each bet painted in its game's colours */
-#bets .bet.tinted{padding:.16em .7em;border-radius:.35em;position:relative;overflow:hidden;
+#bets .bet.tinted{padding:.04em .62em;border-radius:.35em;position:relative;overflow:hidden;
   isolation:isolate}
 #bets .bet .skin{position:absolute;left:0;top:0;z-index:-1;display:block;overflow:visible}
 #bets .bet.tinted b,#bets .bet.tinted i,#bets .bet.tinted em{text-shadow:0 1px 3px rgba(0,0,0,.75)}
@@ -1133,7 +1136,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23k';
+var BUILD = 'build 2026-09-23m';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
