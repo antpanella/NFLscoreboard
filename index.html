@@ -151,6 +151,29 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 
 /* ---------- board ---------- */
 main{flex:1;display:flex;flex-direction:column;min-height:0;padding:.8rem 1.2rem;gap:.8rem}
+/* the bet code in a cell the grid had spare, and the corner reminder for when
+   the games happen to fill the grid exactly */
+main{position:relative}
+.qrcell{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.4em;min-width:0;min-height:0;padding:calc(.3 * var(--u));border-radius:10px;
+  border:1px dashed rgba(255,255,255,.2);background:rgba(255,255,255,.03);overflow:hidden}
+.qrcell .qrimg{flex:1 1 auto;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center}
+.qrcell .qrimg svg{height:100%;width:auto;max-width:100%;box-sizing:border-box;
+  background:#fff;padding:.35em;border-radius:6px}
+.qrcell .code{font-weight:800;letter-spacing:.2em;color:var(--flag);
+  font-size:calc(.62 * var(--u));line-height:1}
+.qrcell .cap{color:var(--sideline);font-size:calc(.28 * var(--u));letter-spacing:.1em;
+  font-weight:700;line-height:1;white-space:nowrap}
+#qrbug{position:absolute;right:.7rem;bottom:.7rem;z-index:4;display:flex;align-items:center;
+  gap:.7rem;padding:.55rem .8rem;border-radius:10px;background:rgba(6,12,10,.94);
+  border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.65);
+  opacity:0;transition:opacity .45s ease}
+#qrbug.on{opacity:1}
+#qrbug .qrimg svg{display:block;width:calc(3.4 * var(--su));height:auto;
+  background:#fff;padding:.25rem;border-radius:5px;box-sizing:border-box}
+#qrbug .code{font-weight:800;letter-spacing:.2em;color:var(--flag);font-size:calc(1.1 * var(--su))}
+#qrbug .cap{color:var(--sideline);font-size:calc(.6 * var(--su));white-space:nowrap}
+@media (prefers-reduced-motion:reduce){ #qrbug{transition:none} }
 #live{flex:1;min-height:0;display:grid;gap:var(--gap);
   grid-template-columns:repeat(var(--cols),1fr);
   grid-auto-rows:1fr;align-content:stretch;grid-auto-flow:row dense}
@@ -616,11 +639,11 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
    the first kick, and a code to scan to get a bet up — and everything else takes
    turns on a stage underneath. */
 #empty.lobby{flex:1;min-height:0;padding:1rem 1.5rem;text-align:left;display:grid;
-  gap:1.4rem 2rem;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;
-  /* rows take only what they need and the whole block centres: with a short panel
-     the slack goes above and below rather than pooling in one band across the
-     middle, and a tall one simply overflows, which is what makes the fit step down */
-  align-content:center;overflow:hidden;font-size:calc(1.35 * var(--su,16px));color:var(--chalk)}
+  gap:1.2rem 2rem;grid-template-columns:minmax(0,1fr) auto;
+  /* the header takes what it needs, the stage takes everything left, and each
+     panel is then sized to fill that on its own */
+  grid-template-rows:auto minmax(0,1fr);
+  align-content:stretch;overflow:hidden;font-size:calc(1.35 * var(--su,16px));color:var(--chalk)}
 body.lobbying #live{display:none}
 body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
 
@@ -648,10 +671,14 @@ body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
 /* The stage keeps every panel in the DOM and shows one at a time, so rotating
    costs nothing and the fit below measures the tallest of them once. */
 #empty.lobby .stage{grid-column:1/-1;min-height:0;display:grid;
-  grid-template-rows:auto auto;gap:.6em}
+  grid-template-rows:minmax(0,1fr) auto;gap:.5rem}
 #empty.lobby .panes{min-height:0;display:grid}
-#empty.lobby .pane{grid-area:1/1;min-width:0;min-height:0;overflow:hidden;align-self:center;
+/* the panel fills the cell so it can be measured against it; its body is what
+   actually holds the content, and sits centred in whatever room is left over */
+#empty.lobby .pane{grid-area:1/1;min-width:0;min-height:0;overflow:hidden;align-self:stretch;
+  display:flex;flex-direction:column;justify-content:center;
   opacity:0;visibility:hidden;transition:opacity .4s ease}
+#empty.lobby .pbody{min-width:0;min-height:0}
 #empty.lobby .pane.on{opacity:1;visibility:visible}
 #empty.lobby .ptitle{font-size:.7em;letter-spacing:.16em;color:var(--sideline);
   font-weight:700;margin-bottom:.45em}
@@ -684,7 +711,11 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
 #empty.lobby .sdh b{color:var(--flag);font-size:.92em}
 #empty.lobby .sdh i{font-style:normal;color:var(--sideline);font-size:.62em}
 #empty.lobby .sgames{display:grid;grid-auto-flow:column;gap:.45em 1em;align-content:start}
-#empty.lobby .sg{border-left:.2em solid rgba(255,255,255,.16);padding:.05em .5em;line-height:1.2}
+#empty.lobby .sg{border-left:.2em solid rgba(255,255,255,.16);padding:.22em .55em;line-height:1.2;
+  border-radius:0 3px 3px 0}
+body.tint #empty.lobby .sg{background-image:linear-gradient(107deg,
+  var(--ca,transparent) 0 46.2%, rgba(255,255,255,.12) 46.2% 47.4%, var(--cb,transparent) 47.4% 100%)}
+body.tint #empty.lobby .sg div{color:#C7D6CC}
 #empty.lobby .sg.mine{border-left-color:var(--fantasy)}
 #empty.lobby .sg.bet{border-left-color:var(--flag)}
 #empty.lobby .sg b{font-size:.88em;white-space:nowrap}
@@ -693,8 +724,14 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
 #empty.lobby .sg .mk.b{color:var(--flag)}
 
 /* who's on when */
-#empty.lobby .wins{display:grid;gap:.7em 1.5em;align-content:start;
-  grid-auto-flow:column;grid-auto-columns:minmax(min-content,1fr)}
+/* Columns sized to their contents rather than an equal share of the screen: as
+   1fr each, six kickoff windows spread themselves across the whole width and the
+   fit could not grow the type past what that spread allowed. Packed together,
+   the same content reads far bigger. */
+#empty.lobby .wins{display:grid;gap:.6em 0;align-content:start;justify-content:center;
+  grid-auto-flow:column;grid-auto-columns:minmax(min-content,max-content)}
+#empty.lobby .wins .win{padding:0 .9em;border-left:1px solid rgba(255,255,255,.14);min-width:0}
+#empty.lobby .wins .win:first-child{padding-left:0;border-left:0}
 #empty.lobby .win .hd{display:flex;align-items:baseline;gap:.5em;padding-bottom:.15em;
   margin-bottom:.25em;border-bottom:1px solid rgba(255,255,255,.14)}
 #empty.lobby .win .hd b{font-size:1.1em;color:var(--flag);white-space:nowrap}
@@ -847,6 +884,7 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
   <section class="strip" id="upcoming" hidden><h2>KICKING OFF LATER</h2><div class="items"></div></section>
   <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
   <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
+  <div id="qrbug" hidden></div>
 </main>
 
 <div id="scrim"></div>
@@ -1007,6 +1045,11 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
   </div>
   <h4>Display</h4>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
+  <label>Friends’ code during games <select id="sQrLive">
+      <option value="off">off</option>
+      <option value="spare">only in a spare card slot</option>
+      <option value="both">spare slot, or a corner reminder</option>
+    </select></label>
   <label>Bet banners (cashed, busted, sweating) <input type="checkbox" id="sBetAlerts"></label>
   <label>Show stakes and payouts <input type="checkbox" id="sBetMoney"></label>
   </div>
@@ -1088,7 +1131,7 @@ body.dragging,body.dragging #empty.lobby{user-select:none;-webkit-user-select:no
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23d';
+var BUILD = 'build 2026-09-23g';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1103,7 +1146,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'',                  // never in the file: this page is public
-  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, qrLive:'both', record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -1188,7 +1231,7 @@ function bind(id, key, kind){
     if (/^(fanProj|fanRoll|fanPlays|fanBar)$/.test(key)) paintFanBar();
     if (key === 'fanEvery'){ fanSchedule(); fanPoints(); }
     if (key === 'order'){ HOLD.n = -1; }
-    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime|showNet|showWp)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
+    if (/^(scale|recs|stripUp|stripFin|stripBets|betMoney|liveOnly|odds|tick|tint|dimLose|fanRow|fanFoes|order|timeouts|spot|field|prime|showNet|showWp|qrLive)$/.test(key)){ if (key === 'spot') SPOT.pin = null; render(); }
     if (key === 'interval') schedule();
     if (key === 'today' || key === 'fav') render();
     if (key === 'delay'){ drain(); paintStatus(); }
@@ -2293,7 +2336,9 @@ function renderBoard(){
   document.documentElement.style.setProperty('--cols', cols);
   live.forEach(noteClock);
   PRIME_G = prime ? live[0] : null;
-  var html = live.map(card).join('') + (prime ? primeSide(live[0], W, H) : '');
+  // only ever a cell the grid had already left empty: never one of its own
+  var spare = (!prime && cfg.qrLive !== 'off' && GUEST.code && (cols * rows) > cells) ? qrTile() : '';
+  var html = live.map(card).join('') + spare + (prime ? primeSide(live[0], W, H) : '');
   /* Most polls change a clock and nothing else, but during a TV break or at
      halftime nothing changes at all. Then the board is left exactly as it is:
      no rebuild, no re-measuring, no tickers restarting. */
@@ -2498,16 +2543,10 @@ var LOB = {page:0, at:0, hold:0, bet:null, betB:null, betAt:0};
 function lobbyHTML(wins){
   if (!wins.length) return '';
   var w0 = wins[0], first = w0.games[0];
-  var m = FAN.ready && FAN.match && FAN.match.me ? FAN.match : null;
-  var proj = '';
-  if (m && cfg.fanProj !== false){
-    proj = '<span class="proj"><span class="me">★ ' + esc(m.me.name) + ' ' + fmtPts(m.me.proj) + '</span>' +
-      (m.opp ? ' projected vs <span class="them">' + esc(m.opp.name) + ' ' + fmtPts(m.opp.proj) + '</span>' : '') + '</span>';
-  }
   var head = '<div class="cdbox"><div class="cdlbl">KICKOFF IN</div>' +
     '<span class="cd" data-kick="' + w0.at + '">···</span>' +
     '<span class="cdsub"><b>' + esc(first.away.abbr) + ' at ' + esc(first.home.abbr) + '</b> · ' +
-    esc(winWhen(w0)) + (first.net ? ' · ' + esc(first.net) : '') + '</span>' + proj + '</div>';
+    esc(winWhen(w0)) + (first.net ? ' · ' + esc(first.net) : '') + '</span></div>';
 
   var qr = '<div class="qr">';
   if (GUEST.code){
@@ -2525,8 +2564,8 @@ function lobbyHTML(wins){
   var i0 = LOB.page % panes.length;
   var stage = '<div class="stage"><div class="panes">' +
     panes.map(function(p, i){
-      return '<section class="pane' + (i === i0 ? ' on' : '') + '">' +
-        '<div class="ptitle">' + p.title + '</div>' + p.html + '</section>';
+      return '<section class="pane' + (i === i0 ? ' on' : '') + '"><div class="pbody">' +
+        '<div class="ptitle">' + p.title + '</div>' + p.html + '</div></section>';
     }).join('') +
     '<div class="newbet" hidden></div></div>' +
     '<div class="dots">' + panes.map(function(p, i){
@@ -2576,7 +2615,14 @@ function paneSlate(wins){
       ? esc(g.odds.text) + (g.odds.ou !== null && g.odds.ou !== undefined ? ' · o/u ' + esc(String(g.odds.ou)) : '') : '';
     var mk = (n ? '<span class="mk">\u2605' + n + '</span>' : '') +
              (bet && n ? ' ' : '') + (bet ? '<span class="mk b">BET</span>' : '');
-    return '<div class="sg' + (n ? ' mine' : '') + (bet && !n ? ' bet' : '') + '">' +
+    var st = '';
+    if (cfg.tint){
+      // the same two colours, worked out the same way, so the pregame slate and
+      // the live board read as one thing rather than two
+      var ca = tint(g.away.color, g.away.alt), cb = split(ca, tint(g.home.color, g.home.alt));
+      st = ' style="--ca:' + ca + ';--cb:' + cb + '"';
+    }
+    return '<div class="sg' + (n ? ' mine' : '') + (bet && !n ? ' bet' : '') + '"' + st + '>' +
       '<b>' + esc(g.away.abbr) + (g.neutral ? ' vs ' : ' at ') + esc(g.home.abbr) + '</b>' +
       '<div>' + esc(x.w.when) + (g.net ? ' · ' + esc(g.net) : '') + '</div>' +
       (line || mk ? '<div>' + line + (line && mk ? ' · ' : '') + mk + '</div>' : '') + '</div>';
@@ -2961,26 +3007,84 @@ function lobbyPaintBet(){
    type has to suit the tallest of them or the rotation would resize the screen
    every few seconds. A panel clips itself, which the outer box cannot see — the
    same trap the team record used to fall into — so each one is checked directly. */
-function lobbyOver(el){
-  if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) return true;
-  var pn = el.querySelectorAll('.pane, .panes');
-  for (var i = 0; i < pn.length; i++){
-    if (pn[i].scrollHeight > pn[i].clientHeight + 1 || pn[i].scrollWidth > pn[i].clientWidth + 1) return true;
+/* ---- sizing the pregame screen ----
+   The countdown and the code are sized first, against a share of the height so
+   they cannot eat the screen. Then every panel is sized SEPARATELY. They share
+   one cell, so one font size for all of them meant the busiest panel — a
+   sixteen-game slate — decided the type for a panel holding two bets, and the
+   sparse ones sat in a puddle of empty screen. Each now fills the cell on its
+   own terms. */
+function fitPanes(el){
+  var box = el.querySelector('.panes');
+  if (!box) return;
+  var W = box.clientWidth, H = box.clientHeight;
+  if (W < 20 || H < 20) return;
+  var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
+  var hiCap = su * 3.4;
+  /* A binary search rather than stepping: a panel can be off by a factor of
+     three between a two-line bet slip and a full slate, and stepping 5% at a
+     time from one guess would take fifty reflows to cross that. */
+  var best = function(pane, body){
+    var lo = 9, hi = hiCap, win = lo;
+    for (var k = 0; k < 11; k++){
+      var mid = (lo + hi) / 2;
+      pane.style.fontSize = mid.toFixed(2) + 'px';
+      if (body.scrollHeight > H + 1 || body.scrollWidth > W + 1) hi = mid;
+      else { win = mid; lo = mid; }
+    }
+    return win;
+  };
+  var panes = el.querySelectorAll('.pane');
+  for (var i = 0; i < panes.length; i++){
+    var pane = panes[i], body = pane.querySelector('.pbody');
+    if (!body) continue;
+    var grids = pane.querySelectorAll('.sgames');
+    if (!grids.length){ pane.style.fontSize = best(pane, body).toFixed(2) + 'px'; continue; }
+    /* The slate is the one panel whose shape is ours to choose: the same games
+       can be four tall columns or eight short ones, and which of those lets the
+       type grow depends entirely on the screen. Tall and narrow wins on a wide
+       screen, short and wide on a squat one — so rather than guess, each shape
+       is laid out and measured, and the one that reads biggest wins. Changing
+       the row count is a style change, so no panel has to be rebuilt. */
+    var shape = function(rows){
+      for (var g = 0; g < grids.length; g++){
+        var n = grids[g].children.length;
+        grids[g].style.gridTemplateRows = 'repeat(' + Math.max(1, Math.min(n, rows)) + ',auto)';
+      }
+    };
+    var try_ = [3, 4, 5, 6, 8, 99], bestF = 0, bestR = 5;
+    for (var t = 0; t < try_.length; t++){
+      shape(try_[t]);
+      var f = best(pane, body);
+      if (f > bestF + 0.01){ bestF = f; bestR = try_[t]; }
+    }
+    shape(bestR);
+    pane.style.fontSize = bestF.toFixed(2) + 'px';
   }
-  return false;
 }
 function fitLobby(el){
   var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
-  var over = function(){ return lobbyOver(el); };
-  var fs = su * 1.35;
-  el.style.fontSize = fs.toFixed(1) + 'px';
-  for (var t = 0; t < 40 && fs > 11 && over(); t++){ fs *= 0.94; el.style.fontSize = fs.toFixed(1) + 'px'; }
-  for (var g = 0; g < 30 && fs < su * 3.0; g++){
-    var next = fs * 1.05;
-    el.style.fontSize = next.toFixed(1) + 'px';
-    if (over()){ el.style.fontSize = fs.toFixed(1) + 'px'; break; }
-    fs = next;
+  var H = el.clientHeight;
+  if (!H) return;
+  var head = el.querySelector('.cdbox'), qr = el.querySelector('.qr');
+  /* The header takes at most its share of the height, and the countdown never
+     wraps — "4d 01:36:57" is a good deal wider than "12:04", so the clock
+     running past a day is what actually bounds this. */
+  var cap = H * (el.querySelector('.stage') ? 0.44 : 0.92);
+  var over = function(){
+    if (head && head.scrollWidth > head.clientWidth + 1) return true;
+    if (qr && qr.scrollWidth > qr.clientWidth + 1) return true;
+    var h = Math.max(head ? head.offsetHeight : 0, qr ? qr.offsetHeight : 0);
+    return h > cap;
+  };
+  var lo = 10, hi = su * 4.5, fs = lo;
+  for (var i = 0; i < 14; i++){
+    var mid = (lo + hi) / 2;
+    el.style.fontSize = mid.toFixed(2) + 'px';
+    if (over()) hi = mid; else { fs = mid; lo = mid; }
   }
+  el.style.fontSize = fs.toFixed(2) + 'px';
+  fitPanes(el);
 }
 function tickCountdown(){
   var el = document.querySelector('#empty.lobby .cd');
@@ -2994,7 +3098,7 @@ function tickCountdown(){
                  : h ? h + ':' + p2(mm) + ':' + p2(ss) : mm + ':' + p2(ss);
   el.classList.toggle('soon', left < 900000);
 }
-setInterval(function(){ tickCountdown(); lobbyTick(); injTick(); aheadTick(); }, 1000);
+setInterval(function(){ tickCountdown(); lobbyTick(); injTick(); aheadTick(); qrTick(); }, 1000);
 
 function fitRecap(el){
   var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
@@ -3223,6 +3327,48 @@ function split(a, b){
   var d = Math.abs(A[0] - B[0]) + Math.abs(A[1] - B[1]) + Math.abs(A[2] - B[2]);
   if (d > 55) return b;
   return 'rgb(' + B.map(function(v){ return Math.round(v * .55); }).join(',') + ')';
+}
+
+/* ---- the friends' bet code, during the games ----
+   The code wants to be up all afternoon, and the screen has nothing to spare —
+   except that it usually does. The card grid is chosen to make the scores as big
+   as possible, and the winning shape almost always leaves a cell over: eight
+   games in a three-by-three, thirteen in a four-by-four. That spare cell is
+   already empty, so putting the code in it costs nothing at all. When the games
+   happen to fill the grid exactly, it comes up small in the corner for a few
+   seconds now and then instead. */
+function qrTile(){
+  var svg = '';
+  try { svg = QR.svg(guestLink(), 260); } catch(e){ return ''; }
+  if (!svg) return '';
+  return '<div class="qrcell"><div class="qrimg">' + svg + '</div>' +
+    '<div class="code">' + esc(GUEST.code) + '</div>' +
+    '<div class="cap">SCAN TO ADD A BET</div></div>';
+}
+var QRB = {at:0, on:false};
+function qrTick(){
+  var bug = document.getElementById('qrbug');
+  if (!bug) return;
+  var want = cfg.qrLive === 'both' && GUEST.code &&
+             !document.getElementById('live').querySelector('.qrcell') &&
+             (window.__games || []).some(function(g){ return g.state === 'in'; });
+  if (!want){ if (QRB.on){ bug.hidden = true; bug.classList.remove('on'); QRB.on = false; } return; }
+  var now = Date.now();
+  if (QRB.on){
+    if (now - QRB.at > 15000){ QRB.on = false; QRB.at = now; bug.classList.remove('on');
+      setTimeout(function(){ if (!QRB.on) bug.hidden = true; }, 500); }
+    return;
+  }
+  if (now - QRB.at < 180000) return;           // a quarter of an hour of screen, four times
+  QRB.at = now; QRB.on = true;
+  var svg = '';
+  try { svg = QR.svg(guestLink(), 200); } catch(e){ QRB.on = false; return; }
+  bug.innerHTML = '<div class="qrimg">' + svg + '</div>' +
+    '<div><div class="code">' + esc(GUEST.code) + '</div>' +
+    '<div class="cap">scan to add a bet</div></div>';
+  bug.hidden = false;
+  // a frame between unhiding and the class, or the fade has nothing to fade from
+  requestAnimationFrame(function(){ bug.classList.add('on'); });
 }
 
 function card(g){
@@ -6993,7 +7139,7 @@ document.getElementById('sRecFile').addEventListener('change', function(){
     .catch(function(e){ recNote('Could not load that file: ' + e.message); });
   this.value = '';
 });
-bind('sStripBets','stripBets','bool');
+bind('sStripBets','stripBets','bool'); bind('sQrLive','qrLive','str');
 document.getElementById('sGuestMake').addEventListener('click', function(){ guestCall({rotate:true}); });
 document.getElementById('sGuestOff').addEventListener('click', function(){ guestCall({off:true}); });
 document.getElementById('sCfgSync').checked = !!cfg.cfgSync;
@@ -7200,6 +7346,7 @@ var TIPS = {
   sCfgSync: 'Push your settings through the relay so your phone can drive the board, and so your own bets follow you between devices.',
   sBetSync: 'Keep the bet list on the relay rather than in this browser alone, so every device sees the same one.',
   sStripBets: 'The two-row ticker along the bottom tracking every bet as it goes.',
+  sQrLive: 'Keep the friends\u2019 bet code up while the games are on. The card grid is sized for the biggest possible scores and that almost always leaves one cell over \u2014 eight games in a three-by-three, thirteen in a four-by-four \u2014 so the code goes there, costing nothing. On the afternoons when the games fill the grid exactly, the corner reminder brings it up small for fifteen seconds every three minutes instead.',
   sBetAlerts: 'Raise banners when a bet cashes, busts, or comes down to the wire.',
   sBetMoney: 'Show stakes and payouts. Off, the bets show only what they are, not what they are worth.',
   // lights
