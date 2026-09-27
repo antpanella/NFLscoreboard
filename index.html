@@ -670,11 +670,11 @@ body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
 /* The QR is the one thing here that has to work from a couch, so it takes a
    fixed share of the width and the code underneath is big enough to type in by
    hand when someone's camera will not cooperate. */
-#empty.lobby .qr{justify-self:end;align-self:center;text-align:center;width:10.5em}
+#empty.lobby .qr{justify-self:end;align-self:center;text-align:center;width:10.5em;line-height:1.2}
 #empty.lobby .qr svg{display:block;width:100%;height:auto;box-sizing:border-box;
   background:#fff;padding:.35em;border-radius:8px}
-#empty.lobby .qr .code{margin-top:.2em;font-size:1.45em;font-weight:800;letter-spacing:.2em;color:var(--flag)}
-#empty.lobby .qr .cap{color:var(--sideline);font-size:.6em;line-height:1.35;margin-top:.2em;white-space:normal}
+#empty.lobby .qr .code{margin-top:.15em;font-size:1.3em;font-weight:800;letter-spacing:.14em;color:var(--flag);white-space:nowrap}
+#empty.lobby .qr .cap{color:var(--sideline);font-size:.62em;line-height:1.3;margin-top:.15em;white-space:normal}
 #empty.lobby h3{margin:0 0 .35em;font-size:.7em;letter-spacing:.16em;color:var(--sideline);font-weight:700}
 
 /* The stage keeps every panel in the DOM and shows one at a time, so rotating
@@ -740,6 +740,13 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 #empty.lobby .wins{display:grid;gap:.6em 0;align-content:start;justify-content:center;
   grid-auto-flow:column;grid-auto-columns:minmax(min-content,max-content)}
 #empty.lobby .wins .win{padding:0 .9em;border-left:1px solid rgba(255,255,255,.14);min-width:0}
+/* max-content tracks, not shrinkable ones: a track allowed to shrink below its
+   own text doesn't grow the panel's scroll width, so the fit search reads the
+   layout as fitting and keeps growing the type while the jersey numbers of one
+   column print on top of the team of the one beside it. */
+#empty.lobby .wgames{display:grid;grid-auto-flow:column;gap:.25em 1.1em;align-content:start;
+  grid-auto-columns:max-content}
+#empty.lobby .wg{min-width:0}
 #empty.lobby .wins .win:first-child{padding-left:0;border-left:0}
 #empty.lobby .win .hd{display:flex;align-items:baseline;gap:.5em;padding-bottom:.15em;
   margin-bottom:.25em;border-bottom:1px solid rgba(255,255,255,.14)}
@@ -1140,7 +1147,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-23n';
+var BUILD = 'build 2026-09-27a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2683,15 +2690,21 @@ function paneWhen(wins){
         on.forEach(function(x){ seen[x.e.id] = 1; });
         if (on.length) byGame.push({g:g, on:on});
       });
-      body = byGame.map(function(k){
-        return '<div class="gg">' + esc(k.g.away.abbr) + (k.g.neutral ? ' vs ' : ' at ') + esc(k.g.home.abbr) +
-          (k.g.net ? '<i>' + esc(k.g.net) + '</i>' : '') + '</div><ul>' + k.on.map(function(x){
+      /* The one o'clock window can hold nine games while the night game holds
+         one. Left as a single column each, the busiest window set the height for
+         the whole panel and the type had to shrink to it, which is what left a
+         television two-thirds empty. Each window's games go in a little grid of
+         their own, and the fit below tries a few shapes for it. */
+      body = '<div class="wgames">' + byGame.map(function(k){
+        return '<div class="wg"><div class="gg">' + esc(k.g.away.abbr) + (k.g.neutral ? ' vs ' : ' at ') +
+          esc(k.g.home.abbr) + (k.g.net ? '<i>' + esc(k.g.net) + '</i>' : '') + '</div><ul>' +
+          k.on.map(function(x){
             var e = x.e;
             return '<li class="' + (x.foe ? 'foe' : '') + '">' +
               (e.num ? '<i class="jn">#' + esc(e.num) + '</i>' : '') + esc(shortName(e.name)) +
               '<i>' + esc(e.pos || '') + ' ' + esc(e.team || '') + '</i></li>';
-          }).join('') + '</ul>';
-      }).join('');
+          }).join('') + '</ul></div>';
+      }).join('') + '</div>';
     } else {
       body = '<ul>' + w.games.slice(0, 8).map(function(g){
         return '<li class="plain">' + esc(g.away.abbr) + ' at ' + esc(g.home.abbr) +
@@ -3045,7 +3058,7 @@ function fitPanes(el){
   if (!box) return;
   var W = box.clientWidth, H = box.clientHeight;
   if (W < 20 || H < 20) return;
-  var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
+  var su = suUnit();
   var hiCap = su * 3.4;
   /* A binary search rather than stepping: a panel can be off by a factor of
      three between a two-line bet slip and a full slate, and stepping 5% at a
@@ -3064,44 +3077,55 @@ function fitPanes(el){
   for (var i = 0; i < panes.length; i++){
     var pane = panes[i], body = pane.querySelector('.pbody');
     if (!body) continue;
-    var grids = pane.querySelectorAll('.sgames');
+    var grids = pane.querySelectorAll('.sgames, .wgames');
     if (!grids.length){ pane.style.fontSize = best(pane, body).toFixed(2) + 'px'; continue; }
     /* The slate is the one panel whose shape is ours to choose: the same games
        can be four tall columns or eight short ones, and which of those lets the
        type grow depends entirely on the screen. Tall and narrow wins on a wide
        screen, short and wide on a squat one — so rather than guess, each shape
        is laid out and measured, and the one that reads biggest wins. Changing
-       the row count is a style change, so no panel has to be rebuilt. */
+       the row count is a style change, so no panel has to be rebuilt.
+
+       Two shapes often read within a few per cent of each other, and then the
+       one that leaves a quarter of the screen empty below it is the wrong answer
+       even though it measures a hair larger. So among shapes that come within a
+       twentieth of the best type size, the one that reaches furthest down the
+       screen wins — a pixel of height is worth more than a pixel of type when
+       the alternative is blank screen. */
     var shape = function(rows){
       for (var g = 0; g < grids.length; g++){
         var n = grids[g].children.length;
         grids[g].style.gridTemplateRows = 'repeat(' + Math.max(1, Math.min(n, rows)) + ',auto)';
       }
     };
-    var try_ = [3, 4, 5, 6, 8, 99], bestF = 0, bestR = 5;
+    var try_ = [1, 2, 3, 4, 5, 6, 8, 99], bestF = 0, bestR = 5, bestH = 0;
     for (var t = 0; t < try_.length; t++){
       shape(try_[t]);
-      var f = best(pane, body);
-      if (f > bestF + 0.01){ bestF = f; bestR = try_[t]; }
+      var f = best(pane, body), fh = body.scrollHeight;
+      if (f > bestF * 1.05){ bestF = f; bestR = try_[t]; bestH = fh; }
+      else if (f > bestF * 0.95 && fh > bestH){ bestF = Math.max(bestF, f); bestR = try_[t]; bestH = fh; }
     }
     shape(bestR);
-    pane.style.fontSize = bestF.toFixed(2) + 'px';
+    pane.style.fontSize = best(pane, body).toFixed(2) + 'px';
   }
 }
 function fitLobby(el){
-  var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
+  var su = suUnit();
   var H = el.clientHeight;
   if (!H) return;
   var head = el.querySelector('.cdbox'), qr = el.querySelector('.qr');
-  /* The header takes at most its share of the height, and the countdown never
-     wraps — "4d 01:36:57" is a good deal wider than "12:04", so the clock
-     running past a day is what actually bounds this. */
-  var cap = H * (el.querySelector('.stage') ? 0.44 : 0.92);
+  var stage = el.querySelector('.stage');
+  /* The clock alone decides how tall the header is. The code used to be sized in
+     em off the same font, which made it thirteen em tall — on a television that
+     came to half the screen, and the panels underneath were left with four
+     hundred pixels to live in. It is now sized in pixels, afterwards, to fit the
+     row the clock has already settled. */
+  if (qr) qr.style.width = '1px';
+  var cap = H * (stage ? 0.34 : 0.9);
   var over = function(){
-    if (head && head.scrollWidth > head.clientWidth + 1) return true;
-    if (qr && qr.scrollWidth > qr.clientWidth + 1) return true;
-    var h = Math.max(head ? head.offsetHeight : 0, qr ? qr.offsetHeight : 0);
-    return h > cap;
+    if (!head) return false;
+    if (head.scrollWidth > head.clientWidth + 1) return true;   // the clock never wraps
+    return head.offsetHeight > cap;
   };
   var lo = 10, hi = su * 4.5, fs = lo;
   for (var i = 0; i < 14; i++){
@@ -3110,6 +3134,15 @@ function fitLobby(el){
     if (over()) hi = mid; else { fs = mid; lo = mid; }
   }
   el.style.fontSize = fs.toFixed(2) + 'px';
+  if (qr){
+    /* Its whole block — code and caption included — runs about 1.55 times its
+       own width, so that is what has to fit the row, not the square alone. */
+    var room = Math.max(head ? head.offsetHeight : 0, H * 0.16);
+    var w = Math.max(96, Math.min(room / 1.58, H * 0.2, 260));
+    qr.style.width = Math.round(w) + 'px';
+    // its own type rides on its width, not on the lobby's font
+    qr.style.fontSize = (w * 0.125).toFixed(1) + 'px';
+  }
   fitPanes(el);
 }
 function tickCountdown(){
@@ -3127,7 +3160,7 @@ function tickCountdown(){
 setInterval(function(){ tickCountdown(); lobbyTick(); injTick(); aheadTick(); qrTick(); }, 1000);
 
 function fitRecap(el){
-  var su = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--su')) || 16;
+  var su = suUnit();
   var fs = su * 1.35;
   el.style.fontSize = fs.toFixed(1) + 'px';
   for (var t = 0; t < 40 && fs > 11 && (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1); t++){
@@ -4809,14 +4842,21 @@ function unitNeeds(){
           h: 3.0 + (meta ? 0.55 : 0) + (info ? 0.5 : 0) + (fan ? 0.95 : 0) + (fp ? 0.5 : 0),
           rec:rec, meta:meta, info:info, fan:fan, fp:fp};
 }
+/* chrome sizes off the viewport, never off the cards, so the strips can't grow
+   the cards and the cards can't grow the strips. It is a function of its own
+   because the countdown screens set their own ceilings against it, and they come
+   up before a single card has ever been laid out — reading the variable there got
+   the stylesheet's 15px, so every ceiling was a ceiling for a small monitor, and
+   a television filled with blank space. */
+function suUnit(){
+  return Math.max(11, Math.min(window.innerWidth / 46, window.innerHeight / 30));
+}
 function fit(cols, rows){
   var box = document.getElementById('live');
   var w = box.clientWidth, h = box.clientHeight;
   if (!w || !h) return;
 
-  // chrome sizes off the viewport, never off the cards, so the strips can't grow
-  // the cards and the cards can't grow the strips
-  var su = Math.max(11, Math.min(window.innerWidth / 46, window.innerHeight / 30));
+  var su = suUnit();
   document.documentElement.style.setProperty('--su', su.toFixed(2) + 'px');
 
   var need = unitNeeds();
