@@ -531,6 +531,35 @@ def run_requests():
         if r.get('fulfilled_at'):
             continue
         date = r.get('date') or name[:10]
+        if r.get('mode') == 'probe':                           # which data sources answer from here
+            lines_out = []
+            for u in r.get('urls', []):
+                try:
+                    req = urllib.request.Request(u, headers={'User-Agent': UA})
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        body = resp.read()
+                    txt = body.decode('utf-8', 'replace')
+                    info = f'200 {len(body)} bytes | {txt[:160]!r}'
+                    if u.endswith('.csv'):
+                        rows = txt.splitlines()
+                        hdr = rows[0].split(',')
+                        info += f' | cols {hdr[:40]} | last {rows[-1][:300]!r}'
+                        for col in ('week', 'season'):
+                            if col in hdr:
+                                i = hdr.index(col)
+                                vals = sorted({x.split(',')[i] for x in rows[1:] if len(x.split(',')) > i})
+                                info += f' | {col}s {vals[-6:]}'
+                except urllib.error.HTTPError as e:
+                    info = f'HTTP {e.code}'
+                except Exception as e:
+                    info = f'error {e!r}'
+                lines_out.append(f'{u}\n  {info}\n')
+            os.makedirs(os.path.join(DATA, 'tests'), exist_ok=True)
+            with open(os.path.join(DATA, 'tests', 'probe.txt'), 'w') as f:
+                f.write(iso(now()) + '\n' + '\n'.join(lines_out))
+            r['fulfilled_at'] = iso(now())
+            save(path, r)
+            continue
         if r.get('mode') == 'gradetest':                       # diagnostics, no credits
             import io, contextlib
             buf = io.StringIO()
