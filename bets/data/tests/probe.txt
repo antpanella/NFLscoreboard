@@ -1,12 +1,3 @@
-2026-09-28T19:54:55Z
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100
-  200 273452 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/00.json
-
-https://api.sleeper.app/v1/state/nfl
-  200 211 bytes | '{"week":3,"leg":3,"season":"2026","season_type":"regular","league_season":"2026","previous_season":"2025","season_start_date":"2026-09-09","display_week":3,"lea' | saved probe/01.json
-
-https://api.sleeper.app/v1/user/antpanella
-  200 417 bytes | '{"avatar":"bfa295bbe544929574f2f38930c4c375","cookies":null,"created":null,"currencies":null,"data_updated":null,"deleted":null,"display_name":"antpanella","ema' | saved probe/02.json
-
-https://api.sleeper.app/v1/projections/nfl/regular/2026/3
-  200 587317 bytes | '{"6462":{"adp_dd_ppr":1000.0},"11255":{"adp_dd_ppr":1000.0},"8842":{"adp_dd_ppr":1000.0},"13940":{"adp_dd_ppr":1000.0},"7926":{"adp_dd_ppr":1000.0},"1875":{"adp' | saved probe/03.json
+2026-09-28T19:55:52Z
+https://api.sleeper.app/v1/user/596916564016549888/leagues/nfl/2026
+  200 2679 bytes | '[{"sport":"nfl","last_transaction_id":1410387660349988864,"last_message_time":1790603978258,"scoring_settings":{"sack":1.0,"fgm_40_49":4.0,"pass_int":-2.0,"pts_' | saved probe/00.json
