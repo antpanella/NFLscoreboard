@@ -39,7 +39,7 @@ SCHEDULE = os.path.join(DATA, 'schedule.json')
 
 ET = ZoneInfo('America/New_York')
 API = 'https://api.the-odds-api.com/v4/sports/americanfootball_nfl'
-ESPN = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl'
+ESPN = 'https://site.web.api.espn.com/apis/site/v2/sports/football/nfl'   # site.api blocks GitHub's servers
 
 # Ten books = one region's worth of credits. DraftKings is the book we bet;
 # Pinnacle is the sharp reference; the rest feed the consensus fallback.
