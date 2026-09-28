@@ -49,10 +49,19 @@ BOOKS = ['draftkings', 'pinnacle', 'fanduel', 'betmgm', 'williamhill_us',
          'betrivers', 'fanatics', 'betonlineag', 'bovada', 'lowvig']
 LINE_MARKETS = ['h2h', 'spreads', 'totals']
 PROP_MARKETS = ['player_pass_yds', 'player_rush_yds', 'player_reception_yds', 'player_anytime_td']
+# Count props pulled only on request (mode "extra"): priced at Pinnacle's or the
+# consensus's exact number, never moved to another number with a curve.
+EXTRA_MARKETS = ['player_receptions', 'player_pass_tds', 'player_pass_completions',
+                 'player_pass_attempts', 'player_rush_attempts']
 PROP_SHORT = {'player_pass_yds': 'pass yds', 'player_rush_yds': 'rush yds',
-              'player_reception_yds': 'rec yds', 'player_anytime_td': 'anytime TD'}
+              'player_reception_yds': 'rec yds', 'player_anytime_td': 'anytime TD',
+              'player_receptions': 'receptions', 'player_pass_tds': 'pass TDs',
+              'player_pass_completions': 'completions', 'player_pass_attempts': 'pass att',
+              'player_rush_attempts': 'rush att'}
 ESPN_STAT = {'player_pass_yds': 'passingYards', 'player_rush_yds': 'rushingYards',
-             'player_reception_yds': 'receivingYards'}
+             'player_reception_yds': 'receivingYards', 'player_receptions': 'receptions',
+             'player_pass_tds': 'passingTouchdowns', 'player_pass_completions': 'completions',
+             'player_pass_attempts': 'passingAttempts', 'player_rush_attempts': 'rushingAttempts'}
 
 # Spread of outcomes used only to move a fair price a short way to a different number.
 SIGMA_SPREAD = 13.5          # NFL margin vs spread, points
@@ -458,6 +467,38 @@ def pull(date, evs=None):
     build_candidates(date, games, lines, props, skipped, t)
 
 
+def pull_extra(date, markets):
+    """More prop markets for games not yet started, merged into the day's props;
+    game lines are reused from the last pull. Costs one credit per market per game."""
+    d = day_dir(date)
+    lines = load(os.path.join(d, 'lines.json'), [])
+    props = load(os.path.join(d, 'props.json'), {})
+    t = now()
+    games = [g for g in lines if parse(g['commence_time']) > t]
+    skipped = []
+    for e in games:
+        if remaining() - len(markets) < CREDIT_RESERVE:
+            skipped.append(e['id'])
+            continue
+        try:
+            got = odds(f'/events/{e["id"]}/odds', bookmakers=','.join(BOOKS),
+                       markets=','.join(markets), oddsFormat='american')
+        except SystemExit as err:
+            log(f'  extra props failed for {e["id"]}: {err}')
+            skipped.append(e['id'])
+            continue
+        base = props.setdefault(e['id'], dict(got, bookmakers=[]))
+        have = {b['key']: b for b in base.get('bookmakers', [])}
+        for b in got.get('bookmakers', []):
+            if b['key'] in have:
+                old = [m for m in have[b['key']]['markets'] if m['key'] not in markets]
+                have[b['key']]['markets'] = old + b.get('markets', [])
+            else:
+                base['bookmakers'].append(b)
+    save(os.path.join(d, 'props.json'), props, compact=True)
+    build_candidates(date, games, lines, props, skipped, t)
+
+
 def build_candidates(date, games, lines, props, skipped, pulled_at):
     by_id = {g['id']: g for g in lines}
     cands, game_notes = [], []
@@ -569,6 +610,11 @@ def run_requests():
             os.makedirs(os.path.join(DATA, 'tests'), exist_ok=True)
             with open(os.path.join(DATA, 'tests', 'probe.txt'), 'w') as f:
                 f.write(iso(now()) + '\n' + '\n'.join(lines_out))
+            r['fulfilled_at'] = iso(now())
+            save(path, r)
+            continue
+        if r.get('mode') == 'extra':
+            pull_extra(date, r.get('markets') or EXTRA_MARKETS)
             r['fulfilled_at'] = iso(now())
             save(path, r)
             continue
