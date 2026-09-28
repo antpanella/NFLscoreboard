@@ -541,11 +541,13 @@ def run_requests():
                     txt = body.decode('utf-8', 'replace')
                     info = f'200 {len(body)} bytes | {txt[:160]!r}'
                     if r.get('save'):
+                        import gzip
                         n = len(lines_out)
-                        os.makedirs(os.path.join(DATA, 'tests', 'probe'), exist_ok=True)
-                        with open(os.path.join(DATA, 'tests', 'probe', f'{n:02d}.json'), 'wb') as f:
+                        folder = os.path.join(DATA, 'tests', 'probe', name[:-5])
+                        os.makedirs(folder, exist_ok=True)
+                        with gzip.open(os.path.join(folder, f'{n:02d}.json.gz'), 'wb') as f:
                             f.write(body)
-                        info += f' | saved probe/{n:02d}.json'
+                        info += f' | saved probe/{name[:-5]}/{n:02d}.json.gz'
                     if u.endswith('.csv'):
                         rows = txt.splitlines()
                         hdr = rows[0].split(',')
