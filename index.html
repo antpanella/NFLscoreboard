@@ -565,6 +565,17 @@ body.phone>*:not(#phone){display:none !important}
 #recList button[data-rdel]{color:var(--redzone);font-size:1.1rem}
 #betList button{color:var(--redzone);font-size:1.1rem;font-weight:700}
 #betList button.edit{color:var(--sideline);font-size:.9rem;font-weight:600;letter-spacing:.06em}
+#cardBox{margin-bottom:1rem}
+#cardList .cl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
+  padding:.35rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
+#cardList .cl .cu{display:inline-block;background:var(--flag);color:#0A1410;font-weight:800;font-size:.72em;
+  border-radius:2px;padding:0 .35em;margin-right:.4em;vertical-align:.1em}
+#cardList .cl i{font-style:normal;color:var(--sideline);margin-left:.4em}
+#cardList .cl small{display:block;color:var(--sideline);font-size:.82rem;line-height:1.35;margin-top:.1rem}
+#cardList .cl button{border:1px solid var(--line);background:var(--turf);padding:.2em .8em;border-radius:2px;
+  font-weight:600;color:var(--live);flex:none}
+#cardList .cl .done{color:var(--sideline);font-size:.8rem;letter-spacing:.06em;flex:none}
+#bets .by.card,#betList .byl.card{background:var(--hot);color:#0A1410}
 #finals .w{color:var(--chalk)}
 
 /* ---------- settings ---------- */
@@ -966,6 +977,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <label style="padding-left:1.2rem">· Today’s slate <input type="checkbox" id="sLobSlate"></label>
   <label style="padding-left:1.2rem">· Who’s on when <input type="checkbox" id="sLobWhen"></label>
   <label style="padding-left:1.2rem">· The bet slip <input type="checkbox" id="sLobSlip"></label>
+  <label style="padding-left:1.2rem">· Today’s card (the picks) <input type="checkbox" id="sLobCard"></label>
   <label style="padding-left:1.2rem">· My fantasy matchup <input type="checkbox" id="sLobH2H"></label>
   <label style="padding-left:1.2rem">· Rest of the league <input type="checkbox" id="sLobLeague"></label>
   <label style="padding-left:1.2rem">· Injury flags on my matchup <input type="checkbox" id="sLobInj"></label>
@@ -1065,6 +1077,14 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
     </select></label>
 </section>
 <section class="ptab" data-tab="bets">
+  <div id="cardBox" hidden>
+  <h4>Today’s card <span id="cardWhen" class="note" style="font-weight:400;text-transform:none;letter-spacing:0"></span></h4>
+  <p class="note" id="cardHead" style="margin:.2rem 0 .4rem"></p>
+  <div id="cardList"></div>
+  <label>1 unit = $ <input type="text" id="sCardUnit" inputmode="decimal" placeholder="none" style="width:5rem">
+    <button id="sCardAll" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Add all</button></label>
+  <p class="note" style="margin-top:.3rem">Picked before kickoff: DraftKings prices against Pinnacle’s no-vig price. Reasons, passes and the season record: <a href="bets.html" target="_blank" rel="noopener" style="color:var(--hot)">the card page</a>.</p>
+  </div>
   <h4>Add bets</h4>
   <p class="note" style="margin:.2rem 0 .4rem">One bet per line, pasted from DraftKings or typed. A <b>$20</b> stake and <b>-110</b> odds can sit anywhere on the line. Team names and abbreviations both work.</p>
   <div id="betHelp">
@@ -1185,7 +1205,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-27e';
+var BUILD = 'build 2026-09-28a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1200,7 +1220,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'',                  // never in the file: this page is public
-  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, qrLive:'both', record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobCard:true, cardUnit:'', lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, qrLive:'both', record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -2729,7 +2749,8 @@ function lobbySig(wins){
     '#' + BETS.map(function(b){ return b.id + (b.by || ''); }).join(',') +
     '#' + (FAN.others || []).length + '#' + (FAN.roster || []).length + '/' + (FAN.foes || []).length +
     '#' + INJ.list.length +
-    '#' + [cfg.lobSlate, cfg.lobWhen, cfg.lobSlip, cfg.lobH2H, cfg.lobLeague, cfg.lobInj].join('') +
+    '#' + [cfg.lobSlate, cfg.lobWhen, cfg.lobSlip, cfg.lobCard, cfg.lobH2H, cfg.lobLeague, cfg.lobInj].join('') +
+    '#' + cardSig() +
     '#' + window.innerWidth + 'x' + window.innerHeight;
 }
 var LOBSIG = null;
@@ -2783,6 +2804,7 @@ function lobbyPanes(wins){
   add(cfg.lobSlate,  slateTitle(wins),      paneSlate(wins));
   add(cfg.lobWhen,   'WHO’S ON WHEN',      paneWhen(wins));
   add(cfg.lobSlip,   'ON THE BOARD',        paneSlip());
+  add(cfg.lobCard,   'TODAY’S CARD',        paneCard());
   add(cfg.lobH2H,    'MY MATCHUP',          paneH2H());
   add(cfg.lobLeague, 'REST OF THE LEAGUE',  paneLeague());
   return out;
@@ -6357,6 +6379,7 @@ function betChip(b){
         (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') : '') + '</span>';
     var gcls = 'pbox s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
     if (b.by) head = '<span class="by">' + esc(b.by) + '</span>' + head;
+    if (b.card) head = '<span class="by card">CARD</span>' + head;
     return '<span class="' + gcls + '">' + head +
       b.legs.map(function(leg, i){ return legChip(leg, s.legs[i]); }).join('') + '</span>';
   }
@@ -6365,8 +6388,9 @@ function betChip(b){
     one = one.replace(/<\/span>$/, ' <i class="amt">' + money(b.stake) +
       (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') + '</i></span>');
   }
-  // a friend's bet carries their name on a tag in front of the chip
-  return b.by ? '<span class="byw"><span class="by">' + esc(b.by) + '</span>' + one + '</span>' : one;
+  // a friend's bet carries their name on a tag in front of the chip; a play from the card says so
+  var tags = (b.card ? '<span class="by card">CARD</span>' : '') + (b.by ? '<span class="by">' + esc(b.by) + '</span>' : '');
+  return tags ? '<span class="byw">' + tags + one + '</span>' : one;
 }
 
 var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
@@ -6481,13 +6505,14 @@ function paintBetList(){
   if (!box) return;
   box.innerHTML = BETS.length ? BETS.map(function(b){
     var s = betState(b);
-    return '<div class="bl"><span>' + (b.by ? '<b class="byl">' + esc(b.by) + '</b> ' : '') +
+    return '<div class="bl"><span>' + (b.card ? '<b class="byl card">CARD</b> ' : '') + (b.by ? '<b class="byl">' + esc(b.by) + '</b> ' : '') +
       esc(b.parlay ? b.legs.map(function(l){ return l.label; }).join(' + ') : b.legs[0].label) +
       (b.stake ? ' · ' + money(b.stake) : '') + (b.odds ? ' @ ' + (b.odds > 0 ? '+' : '') + b.odds : '') +
       ' <i>' + s.state + '</i></span><span class="acts">' + (mineBet(b)
         ? '<button class="edit" data-edit="' + esc(b.id) + '" title="Edit">edit</button>' +
           '<button data-bet="' + esc(b.id) + '" title="Remove">\u00d7</button>' : '') + '</span></div>';
   }).join('') : '<p class="note">No bets yet.</p>';
+  paintCard();
   [].slice.call(box.querySelectorAll('button[data-bet]')).forEach(function(btn){
     btn.addEventListener('click', function(){
       var id = btn.getAttribute('data-bet');
@@ -6541,6 +6566,163 @@ function addBets(){
   ta.value = keep.join('\n');
   previewBets(); paintBetList(); evaluateBets(); render();
 }
+
+/* ---- today's card (the bet recommender) ----
+   A session of Claude builds a card before the first kickoff and commits it next
+   to this page: bets/latest.json points at bets/data/<date>/card.json. The board
+   shows it as a pregame panel and lists it in Settings → Bets, where a play goes
+   onto the board in one tap. The leg is built straight from the card's fields,
+   never re-read from text, so it always matches the box score. */
+var CARD = null;                         // the card, while it is today's
+var CARDAT = 0;
+var CARD_STAT = {player_pass_yds:['passingYards', 'pass yds'], player_rush_yds:['rushingYards', 'rush yds'],
+                 player_reception_yds:['receivingYards', 'rec yds']};
+function fetchCard(){
+  if (REPLAY) return;
+  var bust = '?t=' + Date.now();
+  fetch('bets/latest.json' + bust, {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('no card'); return r.json(); })
+    .then(function(l){ return fetch('bets/data/' + l.date + '/card.json' + bust, {cache:'no-store'}); })
+    .then(function(r){ if (!r.ok) throw new Error('no card'); return r.json(); })
+    .then(function(c){
+      // today's card only: the football day of its games, or games still to come
+      var now = Date.now(), live = c && (c.games || []).some(function(g){
+        var t = new Date(g.commence).getTime();
+        return t > now - 8 * 3600e3 && t < now + 36 * 3600e3;
+      });
+      var next = live ? c : null;
+      var was = CARD ? CARD.generated_at : '', is = next ? next.generated_at : '';
+      CARD = next; CARDAT = now;
+      if (was !== is){
+        if (next) flog('card', {date:next.date, built:next.generated_at, plays:(next.picks || []).length, units:next.total_units});
+        LOBSIG = null; paintCard(); render();
+      }
+    })
+    .catch(function(){ if (CARD && Date.now() - CARDAT > 6 * 3600e3){ CARD = null; paintCard(); } });
+}
+function cardSig(){ return CARD ? CARD.generated_at + '/' + (CARD.picks || []).length : ''; }
+// "PHI @ CHI" -> {away:'PHI', home:'CHI'}
+function cardTeams(p){
+  var m = String(p.game || '').split(' @ ');
+  return {away: m[0] || '', home: m[1] || ''};
+}
+function cardLeg(p){
+  var t = cardTeams(p), line = p.point;
+  var team = p.subject === p.home ? t.home : (p.subject === p.away ? t.away : '');
+  if (p.market === 'player_anytime_td')
+    return {type:'td', player:p.subject, team:'', label: shortName(p.subject) + ' anytime TD'};
+  if (CARD_STAT[p.market]){
+    var side = p.side === 'Under' ? 'under' : 'over';
+    return {type:'prop', player:p.subject, team:'', stat:CARD_STAT[p.market][0], side:side, line:line,
+            label: shortName(p.subject) + ' ' + (side === 'over' ? 'o' : 'u') + line + ' ' + CARD_STAT[p.market][1]};
+  }
+  if (p.market === 'h2h') return {type:'ml', team:team, label: team + ' ML'};
+  if (p.market === 'spreads') return {type:'spread', team:team, line:line, label: team + ' ' + (line > 0 ? '+' : '') + line};
+  if (p.market === 'totals'){
+    var sd = p.side === 'Under' ? 'under' : 'over';
+    return {type:'total', team:t.home, side:sd, line:line, label: t.away + '/' + t.home + ' ' + (sd === 'over' ? 'o' : 'u') + line};
+  }
+  return null;
+}
+// the same leg written the way the bet box reads it, for "edit"
+function cardLegText(p, leg){
+  if (leg.type === 'td') return p.subject + ' anytime TD';
+  if (leg.type === 'prop') return p.subject + ' ' + (leg.side === 'over' ? 'o' : 'u') + leg.line + ' ' + CARD_STAT[p.market][1];
+  return leg.label;
+}
+function cardUnit(){
+  var u = parseFloat(String(cfg.cardUnit || '').replace(/[^0-9.]/g, ''));
+  return u > 0 ? u : 0;
+}
+function cardStarted(p){
+  var ks = p.kind === 'parlay' ? (p.legs || []).map(function(l){ return l.commence; }) : [p.commence];
+  return ks.some(function(k){ return k && new Date(k).getTime() <= Date.now(); });
+}
+function cardAdded(p){ return BETS.some(function(b){ return b.cardId === p.id && mineBet(b); }); }
+function cardBet(p){
+  var parts = p.kind === 'parlay' ? (p.legs || []) : [p];
+  var legs = parts.map(cardLeg);
+  if (!legs.length || legs.some(function(l){ return !l; })) return null;
+  var stake = cardUnit() ? Math.round(cardUnit() * (p.units || 1) * 100) / 100 : null;
+  var words = parts.map(function(x, i){ return cardLegText(x, legs[i]); }).join(' + ');
+  var src = (legs.length > 1 ? 'Parlay: ' : '') + words + ' ' + (p.dk_price > 0 ? '+' : '') + p.dk_price +
+    (stake ? ' $' + stake : '');
+  var b = {id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+           src: src, stake: stake, odds: p.dk_price, legs: legs, parlay: legs.length > 1,
+           added: Date.now(), card: CARD ? CARD.date : '', cardId: p.id};
+  if ((cfg.myName || '').trim()) b.by = cfg.myName.trim();
+  return b;
+}
+function addFromCard(ids){
+  if (!CARD) return;
+  if (isGuest() && !(cfg.myName || '').trim()){
+    var nm = document.getElementById('sMyName');
+    syncNote('Put your name in first, so the board knows whose bets these are.');
+    if (nm) nm.focus();
+    return;
+  }
+  var n = 0;
+  (CARD.picks || []).forEach(function(p){
+    if (ids.indexOf(p.id) < 0 || cardAdded(p) || cardStarted(p)) return;
+    var b = cardBet(p);
+    if (b){ BETS.push(b); n++; }
+  });
+  if (!n) return;
+  flog('cardAdd', {ids:ids, n:n});
+  saveBets(); paintBetList(); evaluateBets(); render();
+}
+function paintCard(){
+  var box = document.getElementById('cardBox');
+  if (!box) return;
+  if (!CARD){ box.hidden = true; return; }
+  box.hidden = false;
+  var picks = CARD.picks || [];
+  document.getElementById('cardWhen').textContent = '· built ' +
+    new Date(CARD.generated_at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
+    (picks.length ? ' · ' + picks.length + ' play' + (picks.length === 1 ? '' : 's') + ', ' + CARD.total_units + 'u' : '');
+  document.getElementById('cardHead').textContent = CARD.headline ||
+    (picks.length ? '' : 'No plays today: nothing on DraftKings cleared the bar.');
+  var u = cardUnit(), open = 0;
+  document.getElementById('cardList').innerHTML = picks.map(function(p){
+    var added = cardAdded(p), started = cardStarted(p);
+    if (!added && !started) open++;
+    var amt = u ? ' · ' + money(Math.round(u * (p.units || 1) * 100) / 100) : '';
+    return '<div class="cl"><span><b class="cu">' + esc(String(p.units)) + 'u</b>' + esc(p.label) +
+      '<i>' + (p.dk_price > 0 ? '+' : '') + p.dk_price + amt + ' · EV ' + (p.ev * 100).toFixed(1) + '%</i>' +
+      (p.reason ? '<small>' + esc(p.reason) + '</small>' : '') + '</span>' +
+      (added ? '<span class="done">ON THE BOARD</span>'
+        : started ? '<span class="done">STARTED</span>'
+        : '<button data-card="' + esc(p.id) + '">Add</button>') + '</div>';
+  }).join('');
+  var all = document.getElementById('sCardAll');
+  all.hidden = open < 2;
+  [].slice.call(document.querySelectorAll('#cardList button[data-card]')).forEach(function(btn){
+    btn.addEventListener('click', function(){ addFromCard([btn.getAttribute('data-card')]); });
+  });
+}
+/* On the pregame screen: what the card says, in the slip's own layout so it
+   sizes like the other panels. The reasons stay on the phone and the card page;
+   across a room the play, the price and the units are what read. */
+function paneCard(){
+  if (!CARD) return '';
+  var picks = CARD.picks || [];
+  if (!picks.length)
+    return '<div class="slip"><div class="sb"><span class="w">No plays today. Nothing on DraftKings cleared the bar.</span></div>' +
+      (CARD.headline ? '<div class="slipsum">' + esc(CARD.headline) + '</div>' : '') + '</div>';
+  var u = cardUnit();
+  var rows = picks.map(function(p){
+    var on = cardAdded(p);
+    return '<div class="sb"><span class="by">' + esc(String(p.units)) + 'U</span>' +
+      '<span class="w">' + esc(p.label) + (on ? ' ✓' : '') + '</span>' +
+      '<span class="amt">' + (p.dk_price > 0 ? '+' : '') + p.dk_price + '</span></div>';
+  }).join('');
+  var sum = picks.length + ' play' + (picks.length === 1 ? '' : 's') + ' · <b>' + CARD.total_units + 'u</b>' +
+    (u && cfg.betMoney ? ' (' + esc(money(CARD.total_units * u)) + ')' : '') +
+    (CARD.headline ? ' · ' + esc(CARD.headline) : '');
+  return '<div class="slip">' + rows + '<div class="slipsum">' + sum + '</div></div>';
+}
+fetchCard();
+setInterval(fetchCard, 5 * 60 * 1000);
 
 /* games the bets depend on get their box score fetched even with detail off */
 function betGameIds(){
@@ -7412,10 +7594,15 @@ document.getElementById('sFanLeague').addEventListener('change', paintFanBar); b
 document.getElementById('sFanWin').addEventListener('change', paintFanBar);
 document.getElementById('sRecap').addEventListener('change', render);
 bind('sLobby','lobby','bool');
-[['sLobSlate','lobSlate'],['sLobWhen','lobWhen'],['sLobSlip','lobSlip'],['sLobH2H','lobH2H'],
+[['sLobSlate','lobSlate'],['sLobWhen','lobWhen'],['sLobSlip','lobSlip'],['sLobCard','lobCard'],['sLobH2H','lobH2H'],
  ['sLobLeague','lobLeague'],['sLobInj','lobInj'],['sLobBets','lobbyBets']].forEach(function(x){ bind(x[0], x[1], 'bool'); });
 bind('sLobEvery','lobbyEvery','num');
-['sLobby','sLobSlate','sLobWhen','sLobSlip','sLobH2H','sLobLeague','sLobInj'].forEach(function(id){
+bind('sCardUnit','cardUnit','str');
+document.getElementById('sCardUnit').addEventListener('change', function(){ paintCard(); LOBSIG = null; render(); });
+document.getElementById('sCardAll').addEventListener('click', function(){
+  addFromCard((CARD && CARD.picks || []).map(function(p){ return p.id; }));
+});
+['sLobby','sLobSlate','sLobWhen','sLobSlip','sLobCard','sLobH2H','sLobLeague','sLobInj'].forEach(function(id){
   document.getElementById(id).addEventListener('change', function(){ LOBSIG = null; LOB.page = 0; render(); });
 });
 bind('sFanRoll','fanRoll','bool');
@@ -7591,6 +7778,8 @@ var TIPS = {
   sLobSlate: 'A panel with every game coming up, laid out a column per day: kick time, network, the line and the over/under, marked where you have a starter or a bet.',
   sLobWhen: 'A panel listing your starters and your opponent’s, grouped by kickoff window and by the game each one is in.',
   sLobSlip: 'A panel with every bet on the board, whoever added it, and the totals at risk and to win.',
+  sLobCard: 'A panel with today’s card from the bet recommender: each play, its DraftKings price and units. Add them to the board from Settings → Bets.',
+  sCardUnit: 'What one unit is worth to you. Plays added from the card get that stake times their units; leave it empty to add them without a stake.',
   sLobH2H: 'A panel with your lineup against your opponent’s, each player’s points and projection, in the order a lineup is usually read.',
   sLobLeague: 'A panel with every other matchup in your league as its own box, scores and projections, yours first.',
   sLobInj: 'Put an OUT, DOUBT, QUES or PROB stamp beside anyone on the matchup panel who is on the injury report.',
