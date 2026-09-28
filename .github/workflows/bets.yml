@@ -1,0 +1,66 @@
+name: Bets
+
+# Odds pulls, closing lines and grading for the bet recommender.
+#  - push to bets/requests/**  -> the pre-kickoff session asked for fresh odds
+#  - every 15 minutes          -> schedule refresh (free), closing lines just before
+#                                 kickoff (3 credits per kickoff window), grading (free)
+#  - by hand from the Actions tab: pick a mode
+# The Odds API key lives only in the repository secret ODDS_API_KEY.
+
+on:
+  push:
+    paths:
+      - 'bets/requests/**'
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'tick | request | pull | grade | gradetest'
+        default: tick
+      date:
+        description: 'YYYY-MM-DD (for pull / gradetest)'
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bets
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run engine
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          EVENT: ${{ github.event_name }}
+          MODE: ${{ github.event.inputs.mode }}
+          DATE: ${{ github.event.inputs.date }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "push" ]; then
+            python3 bets/engine.py request
+          elif [ "$EVENT" = "schedule" ]; then
+            python3 bets/engine.py tick
+          else
+            python3 bets/engine.py "${MODE:-tick}" ${DATE:+$DATE}
+          fi
+
+      - name: Commit results
+        run: |
+          git config user.name "bets-bot"
+          git config user.email "bets-bot@users.noreply.github.com"
+          git add bets
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -q -m "bets: ${{ github.event_name }} $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3 4; do
+            if git push -q; then exit 0; fi
+            git pull -q --rebase
+          done
+          exit 1

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today's Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pitch:#0A1410; --turf:#122019; --turf-hi:#182C22; --line:#24382C;
+  --chalk:#F2F5F0; --sideline:#7C9184; --flag:#FFB000; --red:#E03A34;
+  --live:#4ADE80; --hot:#22D3EE;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pitch);color:var(--chalk);font:16px/1.45 Barlow,system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,.num{font-family:'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.02em}
+h1{font-size:34px;margin:0;line-height:1.05}
+h2{font-size:20px;text-transform:uppercase;color:var(--sideline);margin:28px 0 10px;font-weight:600}
+.sub{color:var(--sideline);font-size:14px;margin-top:4px}
+.headline{font-size:18px;margin:14px 0 0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.stat{background:var(--turf);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:92px}
+.stat b{display:block;font:600 24px 'Barlow Condensed',sans-serif}
+.stat span{font-size:12px;color:var(--sideline);text-transform:uppercase;letter-spacing:.06em}
+.game{background:var(--turf);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;padding:10px 14px;border-bottom:1px solid var(--line)}
+.ghead .t{font:600 22px 'Barlow Condensed',sans-serif}
+.ghead .k{color:var(--sideline);font-size:14px}
+.pick{padding:12px 14px;border-top:1px solid var(--line)}
+.pick:first-of-type{border-top:0}
+.prow{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.bet{font-weight:600;font-size:17px}
+.price{font:600 22px 'Barlow Condensed',sans-serif;white-space:nowrap}
+.meta{color:var(--sideline);font-size:13px;margin-top:2px}
+.why{margin-top:6px;font-size:15px}
+.u{display:inline-block;background:var(--flag);color:#1a1300;font:700 13px 'Barlow Condensed',sans-serif;
+   border-radius:5px;padding:1px 6px;margin-right:6px;vertical-align:2px}
+.res{font:700 13px 'Barlow Condensed',sans-serif;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.win{background:var(--live);color:#062b12}.loss{background:var(--red);color:#fff}
+.push,.check{background:var(--line);color:var(--chalk)}
+.note{padding:10px 14px;color:var(--sideline);font-size:15px}
+.nop .note{color:var(--chalk)}
+details{background:var(--turf);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;color:var(--sideline)}
+details li{margin:6px 0}
+ul{padding-left:18px;margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td:first-child{white-space:nowrap}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--sideline);font-weight:500}
+td.r,th.r{text-align:right;white-space:nowrap}
+.empty{background:var(--turf);border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--sideline)}
+a{color:var(--hot)}
+.foot{color:var(--sideline);font-size:12px;margin-top:28px}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Today's Card</h1>
+  <div class="sub" id="sub">Loading…</div>
+  <div class="headline" id="headline"></div>
+  <div class="stats" id="stats"></div>
+  <div id="card"></div>
+  <h2>Season</h2>
+  <div id="season"></div>
+  <h2>Recent results</h2>
+  <div id="recent"></div>
+  <div class="foot">DraftKings prices against Pinnacle's no-vig price, vetted before kickoff. Units are yours to size.
+    EV is the expected return per unit at the price shown; it is an estimate, not a promise.</div>
+</main>
+<script>
+var BASE = 'bets/';
+function j(p){ return fetch(BASE + p + '?t=' + Date.now(), {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(p); return r.json(); }); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function am(n){ return n == null ? '' : (n > 0 ? '+' + n : String(n)); }
+function pct(x, d){ return x == null ? '–' : (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+function units(u){ return (u > 0 ? '+' : '') + (Math.round(u * 100) / 100) + 'u'; }
+function fmtDate(d){ var p = d.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'}); }
+function fmtTime(iso){ return new Date(iso).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZone:'America/New_York'}) + ' ET'; }
+function srcName(s){ return s === 'pinnacle' ? 'vs Pinnacle' : s === 'pinnacle-adjusted' ? 'vs Pinnacle, moved to this number' : s === 'consensus' ? 'vs US-book consensus' : s; }
+function resBadge(p){ return p && p.result && p.result !== 'pending' ? '<span class="res ' + p.result + '">' + p.result.toUpperCase() + (p.pl != null && p.result !== 'check' ? ' ' + units(p.pl) : '') + '</span>' : ''; }
+
+function pickHtml(p, live){
+  var r = live[p.id] || p;
+  var meta = p.kind === 'parlay'
+    ? 'Parlay · fair ' + am(p.fair_price) + ' · EV ' + pct(p.ev)
+    : 'fair ' + am(p.fair_price) + ' (' + pct(p.fair_prob) + ') · EV ' + pct(p.ev) + ' · ' + srcName(p.source)
+      + (r.result_note ? ' · ' + esc(r.result_note) : '');
+  return '<div class="pick"><div class="prow"><div class="bet"><span class="u">' + p.units + 'u</span>' + esc(p.label) + resBadge(r) + '</div>'
+    + '<div class="price">' + am(p.dk_price) + '</div></div>'
+    + '<div class="meta">' + meta + '</div>'
+    + (p.reason ? '<div class="why">' + esc(p.reason) + '</div>' : '') + '</div>';
+}
+
+function render(card, ledger){
+  var live = {};
+  (ledger || []).forEach(function(x){ live[x.id] = x; });
+  document.getElementById('title').textContent = fmtDate(card.date);
+  document.getElementById('sub').textContent = 'Card built ' + new Date(card.generated_at).toLocaleString('en-US', {weekday:'short', hour:'numeric', minute:'2-digit', timeZone:'America/New_York'}) + ' ET';
+  document.getElementById('headline').textContent = card.headline || '';
+  var singles = card.picks.filter(function(p){ return p.kind !== 'parlay'; });
+  var parlays = card.picks.filter(function(p){ return p.kind === 'parlay'; });
+  var s = '<div class="stat"><b>' + card.picks.length + '</b><span>plays</span></div>'
+        + '<div class="stat"><b>' + card.total_units + 'u</b><span>total stake</span></div>'
+        + '<div class="stat"><b>' + card.games.length + '</b><span>games</span></div>';
+  document.getElementById('stats').innerHTML = s;
+
+  var h = '';
+  if (!card.picks.length) h += '<div class="empty">No plays today. Nothing on DraftKings cleared the bar after vetting — that is the system working, not failing.</div>';
+  card.games.slice().sort(function(a, b){ return a.commence < b.commence ? -1 : 1; }).forEach(function(g){
+    var gp = singles.filter(function(p){ return p.event_id === g.event_id; });
+    h += '<div class="game' + (gp.length ? '' : ' nop') + '"><div class="ghead"><span class="t">' + esc(g.game) + '</span><span class="k">' + esc(g.kickoff_et || fmtTime(g.commence)) + '</span></div>';
+    gp.forEach(function(p){ h += pickHtml(p, live); });
+    if (g.note) h += '<div class="note">' + esc(g.note) + '</div>';
+    else if (!gp.length) h += '<div class="note">No play.</div>';
+    h += '</div>';
+  });
+  if (parlays.length){
+    h += '<h2>Parlays</h2><div class="game">';
+    parlays.forEach(function(p){ h += pickHtml(p, live); });
+    h += '</div>';
+  }
+  if ((card.passed || []).length){
+    h += '<details><summary>Edges turned down (' + card.passed.length + ')</summary><ul>';
+    card.passed.forEach(function(x){ h += '<li><b>' + esc(x.label || x.id) + '</b> — ' + esc(x.why) + '</li>'; });
+    h += '</ul></details>';
+  }
+  if ((card.notes || []).length){
+    h += '<details open><summary>Notes</summary><ul>';
+    card.notes.forEach(function(n){ h += '<li>' + esc(n) + '</li>'; });
+    h += '</ul></details>';
+  }
+  document.getElementById('card').innerHTML = h;
+}
+
+function renderSeason(sum){
+  var el = document.getElementById('season');
+  if (!sum || !sum.season || !sum.season.picks){ el.innerHTML = '<div class="empty">No graded bets yet.</div>'; return; }
+  var rows = [['All', sum.season]].concat(Object.keys(sum.by_type || {}).map(function(k){ return [k, sum.by_type[k]]; }));
+  var h = '<table><tr><th></th><th class="r">W-L-P</th><th class="r">Units</th><th class="r">ROI</th><th class="r" title="Average expected value when bet">EV</th><th class="r" title="Average closing-line value, game lines">CLV</th></tr>';
+  rows.forEach(function(r){
+    var b = r[1];
+    h += '<tr><td>' + esc(r[0]) + '</td><td class="r">' + b.won + '-' + b.lost + '-' + b.push + '</td><td class="r">' + units(b.units)
+      + '</td><td class="r">' + pct(b.roi) + '</td><td class="r">' + pct(b.avg_ev_at_bet) + '</td><td class="r">'
+      + (b.clv_n ? pct(b.avg_clv) + ' (' + b.clv_n + ')' : '–') + '</td></tr>';
+  });
+  h += '</table><div class="meta" style="margin-top:6px">EV = average edge when bet. CLV = average edge against the closing price (game lines); consistently positive means the card is beating the market.</div>';
+  if ((sum.to_check || []).length) h += '<div class="note">' + sum.to_check.length + ' bet(s) need settling by hand (player missing from the box score).</div>';
+  el.innerHTML = h;
+}
+
+function renderRecent(ledger){
+  var el = document.getElementById('recent');
+  var done = (ledger || []).filter(function(p){ return p.result && p.result !== 'pending'; })
+    .sort(function(a, b){ return (b.graded_at || '') < (a.graded_at || '') ? -1 : 1; }).slice(0, 15);
+  if (!done.length){ el.innerHTML = '<div class="empty">Nothing settled yet.</div>'; return; }
+  var h = '<table><tr><th>Date</th><th>Bet</th><th class="r">Price</th><th class="r">Result</th></tr>';
+  done.forEach(function(p){
+    h += '<tr><td>' + esc((p.date || '').slice(5)) + '</td><td>' + esc(p.label) + '</td><td class="r">' + am(p.dk_price) + '</td><td class="r">' + resBadge(p) + '</td></tr>';
+  });
+  el.innerHTML = h + '</table>';
+}
+
+Promise.all([
+  j('latest.json').then(function(l){ return j('data/' + l.date + '/card.json'); }).catch(function(){ return null; }),
+  j('ledger.json').catch(function(){ return []; }),
+  j('summary.json').catch(function(){ return null; })
+]).then(function(x){
+  var card = x[0], ledger = x[1], sum = x[2];
+  if (card) render(card, ledger);
+  else { document.getElementById('sub').textContent = 'No card yet. The first one is built before the next game kicks off.'; }
+  renderSeason(sum); renderRecent(ledger);
+});
+</script>
+</body>
+</html>
