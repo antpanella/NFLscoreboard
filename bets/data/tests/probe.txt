@@ -1,0 +1,24 @@
+2026-09-28T19:26:08Z
+https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927
+  HTTP 403
+
+https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927
+  200 247608 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00'
+
+https://cdn.espn.com/core/nfl/scoreboard?xhr=1&dates=20260927
+  200 481146 bytes | '{"news":{"link":{"isExternal":false,"shortText":"All News","rel":["index","desktop","league"],"language":"en-US","href":"https://www.espn.com/nfl/","text":"All '
+
+https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events?dates=20260927
+  200 1590 bytes | '{"count":14,"pageIndex":1,"pageSize":25,"pageCount":1,"items":[{"$ref":"http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/401872953?lang=en&'
+
+https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv
+  200 1458354 bytes | 'player_id,player_name,player_display_name,position,position_group,headshot_url,season,week,season_type,game_id,team,opponent_team,completions,attempts,passing_y' | cols ['player_id', 'player_name', 'player_display_name', 'position', 'position_group', 'headshot_url', 'season', 'week', 'season_type', 'game_id', 'team', 'opponent_team', 'completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'sacks_suffered', 'sack_yards_lost', 'sack_fumbles', 'sack_fumbles_lost', 'passing_air_yards', 'passing_yards_after_catch', 'passing_first_downs', 'passing_epa', 'passing_cpoe', 'passing_2pt_conversions', 'pacr', 'passing_10', 'passing_16', 'passing_20', 'passing_40', 'carries', 'rushing_yards', 'rushing_tds', 'rushing_fumbles', 'rushing_fumbles_lost', 'rushing_first_downs', 'rushing_epa', 'rushing_2pt_conversions'] | last ',,,,,,2026,3,REG,2026_03_ATL_GB,ATL,GB,0,0,0,0,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,24,138,0,0,0,0,0,0,0,0,0,0,0,0,0,,,0,0,0,0,0,0,0,0,0,0,0,0,,,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0,0,0' | weeks ['1', '2', '2026', '3'] | seasons ['q_auto/league/zwjrkzu3ia3cfrwgotqt"', 'q_auto/league/zwolwrghzfucwck0bwld"', 'q_auto/league/zxtribbeeejhqlt43dmj"', 'q_auto/league/zyfy3onrys9i6ounvai8"', 'q_auto/league/zysqspeckaavbcyduzmz"', 'q_auto/v1787861967/league/ah12ltwvgwl9few2ktqj"']
+
+https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_2026.csv
+  HTTP 404
+
+https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv
+  200 2181224 bytes | 'game_id,season,game_type,week,gameday,weekday,gametime,away_team,away_score,home_team,home_score,location,result,total,overtime,old_game_id,gsis,nfl_detail_id,p' | cols ['game_id', 'season', 'game_type', 'week', 'gameday', 'weekday', 'gametime', 'away_team', 'away_score', 'home_team', 'home_score', 'location', 'result', 'total', 'overtime', 'old_game_id', 'gsis', 'nfl_detail_id', 'pfr', 'pff', 'espn', 'ftn', 'away_rest', 'home_rest', 'away_moneyline', 'home_moneyline', 'spread_line', 'away_spread_odds', 'home_spread_odds', 'total_line', 'under_odds', 'over_odds', 'div_game', 'roof', 'surface', 'temp', 'wind', 'away_qb_id', 'home_qb_id', 'away_qb_name'] | last '2026_18_DAL_WAS,2026,REG,18,2027-01-10,Sunday,13:00,DAL,,WAS,,Home,,,,2027011015,,,202701100was,,401873175,7290,7,7,,,,,,,,,1,outdoors,grass,,,,,,,Brian Schottenheimer,Dan Quinn,,WAS00,Northwest Stadium' | weeks ['4', '5', '6', '7', '8', '9'] | seasons ['2021', '2022', '2023', '2024', '2025', '2026']
+
+https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv
+  200 2181219 bytes | 'game_id,season,game_type,week,gameday,weekday,gametime,away_team,away_score,home_team,home_score,location,result,total,overtime,old_game_id,gsis,nfl_detail_id,p' | cols ['game_id', 'season', 'game_type', 'week', 'gameday', 'weekday', 'gametime', 'away_team', 'away_score', 'home_team', 'home_score', 'location', 'result', 'total', 'overtime', 'old_game_id', 'gsis', 'nfl_detail_id', 'pfr', 'pff', 'espn', 'ftn', 'away_rest', 'home_rest', 'away_moneyline', 'home_moneyline', 'spread_line', 'away_spread_odds', 'home_spread_odds', 'total_line', 'under_odds', 'over_odds', 'div_game', 'roof', 'surface', 'temp', 'wind', 'away_qb_id', 'home_qb_id', 'away_qb_name'] | last '2026_18_DAL_WAS,2026,REG,18,2027-01-10,Sunday,13:00,DAL,,WAS,,Home,,,,2027011015,,,202701100was,,401873175,7290,7,7,,,,,,,,,1,outdoors,grass,,,,,,,Brian Schottenheimer,Dan Quinn,,WAS00,Northwest Stadium' | weeks ['4', '5', '6', '7', '8', '9'] | seasons ['2021', '2022', '2023', '2024', '2025', '2026']

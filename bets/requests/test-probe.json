@@ -1,10 +1,15 @@
-{"mode": "probe", "requested_at": "2026-09-28T19:25:59Z", "urls": [
- "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927",
- "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927",
- "https://cdn.espn.com/core/nfl/scoreboard?xhr=1&dates=20260927",
- "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events?dates=20260927",
- "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv",
- "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_2026.csv",
- "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
- "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
-]}
+{
+ "mode": "probe",
+ "requested_at": "2026-09-28T19:25:59Z",
+ "urls": [
+  "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927",
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20260927",
+  "https://cdn.espn.com/core/nfl/scoreboard?xhr=1&dates=20260927",
+  "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events?dates=20260927",
+  "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv",
+  "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_2026.csv",
+  "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
+  "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
+ ],
+ "fulfilled_at": "2026-09-28T19:26:08Z"
+}
