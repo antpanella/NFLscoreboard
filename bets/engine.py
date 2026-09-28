@@ -133,8 +133,12 @@ def log(*a):
 
 
 # ---------------------------------------------------------------- network
+UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/128.0 Safari/537.36')
+
+
 def http_json(url, timeout=30):
-    req = urllib.request.Request(url, headers={'User-Agent': 'sunday-board-bets/1'})
+    req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept': 'application/json'})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read().decode()), dict(r.headers)
 
