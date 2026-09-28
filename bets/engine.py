@@ -950,7 +950,7 @@ def gradetest(date):
         top = {}
         for rec in box.values():
             for st in ('passingYards', 'rushingYards', 'receivingYards'):
-                if rec.get(st, 0) > top.get(st, (None, -1))[1]:
+                if st in rec and rec[st] > top.get(st, (None, -1))[1]:
                     top[st] = (rec['name'], rec[st])
         mk_for = {'passingYards': 'player_pass_yds', 'rushingYards': 'player_rush_yds', 'receivingYards': 'player_reception_yds'}
         for st, (nm, v) in top.items():
