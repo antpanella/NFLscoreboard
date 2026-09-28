@@ -25,6 +25,11 @@
   --u:34px;
   --u2:34px;
   --su:15px;
+  /* The header rail has its own unit. It follows the board's everywhere except
+     on the countdown screen, where it stays small on purpose: the title, the
+     week and the ticker are the least of what anybody is reading there, and
+     every pixel they give up goes to the panels and the clock. */
+  --suh:var(--su);
   --gap:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -56,9 +61,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 header{display:flex;align-items:baseline;gap:1rem;padding:.5rem 1.2rem;
   border-bottom:1px solid var(--line);flex:none;flex-wrap:nowrap}
 header h1{flex:none}
-header h1{font-size:calc(1.15 * var(--su));font-weight:700;letter-spacing:.04em}
+header h1{font-size:calc(1.15 * var(--suh));font-weight:700;letter-spacing:.04em}
 header h1 em{font-style:normal;color:var(--flag)}
-#weekLabel{color:var(--sideline);font-size:calc(.92 * var(--su));font-weight:500;
+#weekLabel{color:var(--sideline);font-size:calc(.92 * var(--suh));font-weight:500;
   flex:none;white-space:nowrap}
 /* the fantasy matchup, in the gap between the week and the status light */
 #fanBar .track{display:flex;align-items:baseline;gap:0;width:max-content;
@@ -68,10 +73,10 @@ header h1 em{font-style:normal;color:var(--flag)}
 #fanBar .dot{color:var(--line);font-weight:700;flex:none}
 /* with the title and clock out of the way the ticker gets the whole row */
 body.slim header h1,body.slim #weekLabel,body.slim #statusText{display:none}
-body.slim #fanBar{font-size:calc(1.15 * var(--su))}
+body.slim #fanBar{font-size:calc(1.15 * var(--suh))}
 #fanBar{flex:1 1 auto;min-width:0;justify-content:center;overflow:hidden;
   display:flex;align-items:baseline;gap:.5rem;
-  font-size:calc(.95 * var(--su));font-weight:600;color:var(--sideline);
+  font-size:calc(.95 * var(--suh));font-weight:600;color:var(--sideline);
   white-space:nowrap;overflow:hidden}
 #fanBar .star{color:var(--fantasy)}
 #fanBar b{font-weight:700}
@@ -80,9 +85,9 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .up .pts{color:var(--flag)}
 #fanBar .down b,#fanBar .down .pts{color:var(--sideline)}
 #fanBar .down{opacity:.85}
-#fanBar i{font-style:normal;font-weight:500;font-size:calc(.8 * var(--su))}
+#fanBar i{font-style:normal;font-weight:500;font-size:calc(.8 * var(--suh))}
 #fanBar .vs{color:var(--sideline);font-weight:600;opacity:.8}
-#fanBar .wc{flex:none;font-weight:700;font-size:calc(.8 * var(--su));padding:.05em .5em;border-radius:3px;
+#fanBar .wc{flex:none;font-weight:700;font-size:calc(.8 * var(--suh));padding:.05em .5em;border-radius:3px;
   margin-left:.3rem;background:rgba(255,255,255,.08);letter-spacing:.03em}
 #fanBar .wc.up{color:var(--live)}
 #fanBar .wc.down{color:#FF7A6E}
@@ -96,7 +101,7 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .lg{gap:.4rem}
 #fanBar .lg .nm,#fanBar .lg .pts{color:var(--sideline);font-weight:600}
 #fanBar .lg .nm.up{color:var(--chalk)} #fanBar .lg .pts.up{color:var(--flag);font-weight:700}
-#fanBar .lgtag{flex:none;font-size:calc(.7 * var(--su));font-weight:800;letter-spacing:.14em;color:#0A1410;
+#fanBar .lgtag{flex:none;font-size:calc(.7 * var(--suh));font-weight:800;letter-spacing:.14em;color:#0A1410;
   background:#C9A0FF;border-radius:3px;padding:.1em .5em;margin-right:.5rem}
 #fanBar .play .jn{color:var(--fantasy);font-weight:700}
 #fanBar .pj{color:var(--sideline);font-weight:600}
@@ -107,14 +112,14 @@ body.slim #fanBar{font-size:calc(1.15 * var(--su))}
 #fanBar .play.lgp .nm{color:var(--chalk);opacity:.92}
 #fanBar .play.lgp .jn{color:var(--sideline)}
 #fanBar .play .own{flex:none;color:#0A1410;background:var(--sideline);font-weight:800;
-  font-size:calc(.68 * var(--su));letter-spacing:.05em;padding:.1em .45em;border-radius:3px;
+  font-size:calc(.68 * var(--suh));letter-spacing:.05em;padding:.1em .45em;border-radius:3px;
   max-width:11em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #status{flex:none;white-space:nowrap;display:flex;align-items:center;gap:.5rem;
-  font-size:calc(.86 * var(--su));color:var(--sideline);font-weight:500}
+  font-size:calc(.86 * var(--suh));color:var(--sideline);font-weight:500}
 #dot{width:.6em;height:.6em;border-radius:50%;background:var(--live)}
 #dot.stale{background:var(--flag)}
 #dot.dead{background:var(--redzone)}
-.hdrbtn{color:var(--sideline);font-size:calc(.86 * var(--su));font-weight:600;padding:.2em .5em}
+.hdrbtn{color:var(--sideline);font-size:calc(.86 * var(--suh));font-weight:600;padding:.2em .5em}
 .hdrbtn:hover{color:var(--chalk)}
 
 /* ---------- alert rail ---------- */
@@ -166,6 +171,12 @@ main{position:relative}
   font-weight:700;line-height:1;white-space:nowrap}
 /* pinned to the right of the strips; the strips give up that much width so
    nothing of theirs ends up underneath it either */
+/* an answer to a key press, along the foot of the screen, gone in six seconds */
+#toast{position:absolute;left:50%;transform:translateX(-50%);bottom:.6rem;z-index:6;
+  max-width:70%;text-align:center;background:rgba(10,20,16,.94);color:var(--chalk);
+  border:1px solid var(--line);border-left:calc(.22 * var(--su)) solid var(--flag);
+  border-radius:4px;padding:.45em .9em;font-size:calc(.86 * var(--su));font-weight:600;
+  line-height:1.2;box-shadow:0 2px 14px rgba(0,0,0,.5)}
 #qrpin{position:absolute;right:.55rem;bottom:.45rem;z-index:4;display:flex;
   flex-direction:column;align-items:center;gap:.15rem}
 #qrpin .qrimg{width:100%;line-height:0}
@@ -655,6 +666,24 @@ body.recapping .strip .items{font-size:calc(.8 * var(--su))}
   align-content:stretch;overflow:hidden;font-size:calc(1.35 * var(--su,16px));color:var(--chalk)}
 body.lobbying #live{display:none}
 body.lobbying .strip .items{font-size:calc(.8 * var(--su))}
+/* Readable type, but not at the countdown's expense: at full size the kicking-off
+   strip wrapped onto twice as many lines and took 191px where it used to take 91,
+   and the clock paid for all of it. It shows fewer games instead — every one of
+   them is on the slate panel above, in full. The bets strip keeps room for both
+   of its rows, since that is the whole point of the change. */
+/* Whole lines only, and the line here measures 1.076su once the row gap is in —
+   a cap that lands between two of them slices the second through the middle,
+   which reads worse than not showing it at all. Three lines comes to the same
+   height the strip stood at before, so the countdown gives up nothing; what it
+   no longer lists are the later windows, every one of which is on the slate
+   panel above. */
+body.lobbying .strip .items{max-height:calc(3.25 * var(--su))}
+body.lobbying #bets .items{max-height:calc(3.1 * var(--su))}
+/* The countdown keeps the small header, and gives the room to the clock and the
+   panels instead. 0.52 is what the rail measured before the unit was fixed, so
+   the top of the screen looks exactly as it did — it is the bets along the
+   bottom that were meant to grow. */
+body.lobbying{--suh:calc(.52 * var(--su))}
 
 #empty.lobby .cdbox{align-self:center;min-width:0}
 #empty.lobby .cdlbl{font-size:.7em;letter-spacing:.2em;color:var(--sideline);font-weight:700}
@@ -767,11 +796,15 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 /* the bet slip */
 #empty.lobby .slip{display:grid;gap:0 1.2em;align-content:start;
   grid-template-columns:repeat(auto-fill,minmax(15em,1fr))}
-#empty.lobby .sb{display:flex;gap:.45em;align-items:baseline;font-size:.78em;min-width:0;
-  padding:.14em 0;border-top:1px solid rgba(255,255,255,.08);white-space:nowrap}
+/* A long parlay wraps rather than ending in an ellipsis. "Josh Allen Anytime TD
+   + Bills -5.5 $10 +228" wanted 1105px of an 864px column and the back half of
+   it was simply cut off — on the one screen whose whole job is showing people
+   what they have riding. The name and the money stay on the first line. */
+#empty.lobby .sb{display:flex;flex-wrap:wrap;gap:0 .45em;align-items:baseline;font-size:.78em;min-width:0;
+  padding:.14em 0;border-top:1px solid rgba(255,255,255,.08)}
 #empty.lobby .sb .by{color:#0A1410;background:var(--flag);font-weight:800;font-size:.72em;
   padding:.05em .4em;border-radius:3px;flex:none;max-width:7em;overflow:hidden;text-overflow:ellipsis}
-#empty.lobby .sb .w{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#empty.lobby .sb .w{flex:1 1 60%;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.15}
 #empty.lobby .sb .amt{color:var(--flag);font-weight:700;flex:none}
 #empty.lobby .slipsum{grid-column:1/-1;margin-top:.45em;color:var(--sideline);font-size:.78em}
 #empty.lobby .slipsum b{color:var(--chalk)}
@@ -901,6 +934,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
   <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
   <div id="qrpin" hidden></div>
+  <div id="toast" hidden></div>
 </main>
 
 <div id="scrim"></div>
@@ -964,6 +998,10 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <label>Smooth clock between polls <input type="checkbox" id="sTickClock"></label>
   <label>Down &amp; distance, live line, win % <input type="checkbox" id="sDeep"></label>
   <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
+  <label>Match it to your TV <button id="sSyncTV">Sync now</button></label>
+  <p id="tvSyncNote" class="note" style="margin-top:.3rem">Press <b>T</b> — or this button — as a score
+    appears on your television. The board knows when that score reached it, so the gap between the two is
+    the delay. <b>[</b> and <b>]</b> still nudge it five seconds either way.</p>
 </section>
 <section class="ptab" data-tab="alerts">
   <h4>What gets a banner</h4>
@@ -1147,7 +1185,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-27a';
+var BUILD = 'build 2026-09-27e';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1433,9 +1471,82 @@ function aheadDone(list){
   render();
 }
 
+/* ---- matching the delay to the television ----
+   The delay was four different numbers on 27 September — 40, 30, 20, 25, back to
+   40 — because the only way to find it was to guess, watch, and guess again. The
+   board already knows the moment every score reached it, so the missing half of
+   the measurement is the moment it reached the room: one key press as the
+   television shows a score, and the gap between the two is the answer. */
+var SCOREAT = [], RAWSCORE = null;
+function noteRawScores(data){
+  var now = Date.now(), map = Object.create(null);
+  ((data && data.events) || []).forEach(function(e){
+    var c = (e.competitions && e.competitions[0]) || {};
+    var sc = {}, ab = {};
+    ((c.competitors) || []).forEach(function(x){
+      sc[x.homeAway] = Number(x.score) || 0;
+      ab[x.homeAway] = (x.team && (x.team.abbreviation || x.team.shortDisplayName)) || '';
+    });
+    // a game that has not started cannot have scored
+    var st = (e.status && e.status.type && e.status.type.state) || '';
+    map[e.id] = {a:sc.away || 0, h:sc.home || 0, live:st === 'in',
+                 aa:ab.away || '', ha:ab.home || ''};
+  });
+  if (RAWSCORE){
+    for (var id in map){
+      var was = RAWSCORE[id], cur = map[id];
+      if (!was || !cur.live) continue;
+      if (cur.a !== was.a || cur.h !== was.h){
+        /* Named from the snapshot in hand rather than from the board, which at
+           this moment is still showing the old score and early on may not have
+           the game at all. */
+        SCOREAT.push({at:now, id:id,
+          what: (cur.aa && cur.ha) ? (cur.aa + ' ' + cur.a + '\u2013' + cur.h + ' ' + cur.ha) : 'that score'});
+      }
+    }
+    while (SCOREAT.length > 40) SCOREAT.shift();
+  }
+  RAWSCORE = map;
+}
+function syncToTV(){
+  if (DEMO || REPLAY){ toast('Sync works on the live feed, not on a demo or a replay.'); return; }
+  var now = Date.now(), last = null;
+  for (var i = SCOREAT.length - 1; i >= 0; i--){
+    if (now - SCOREAT[i].at < 180000){ last = SCOREAT[i]; break; }
+  }
+  if (!last){
+    toast('Nothing has scored in the last three minutes. Press T the moment a score lands on your TV.');
+    return;
+  }
+  var d = Math.round((now - last.at) / 1000);
+  /* Two scores inside twenty seconds and there is no telling which one was on
+     the screen, so it says which it took rather than quietly picking wrong. */
+  var near = 0;
+  for (var k = 0; k < SCOREAT.length; k++)
+    if (SCOREAT[k] !== last && Math.abs(SCOREAT[k].at - last.at) < 20000) near++;
+  cfg.delay = Math.max(0, Math.min(180, d));
+  var box = document.getElementById('sDelay');
+  if (box) box.value = String(cfg.delay);
+  save(); drain(); paintStatus();
+  toast('Holding ' + cfg.delay + 's behind your TV \u2014 measured off ' + last.what +
+        (near ? '. Another game scored at almost the same moment, so press T again on a clearer one.' : '.'));
+}
+/* A line along the foot of the screen for a few seconds. Not the alert rail:
+   this is an answer to something the room just did, and it should neither chime
+   nor push a play out of the way. */
+var TOASTT = null;
+function toast(msg){
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.hidden = false;
+  clearTimeout(TOASTT);
+  TOASTT = setTimeout(function(){ el.hidden = true; }, 6000);
+}
 /* Fetched snapshots sit here until they're older than the delay, so the whole
    board — scores as well as alerts — stays level with a stream that runs behind. */
 function stash(data){
+  noteRawScores(data);          // before the delay: this is when the feed knew
   buffer.push({at:Date.now(), data:data});
   while (buffer.length > 80) buffer.shift();
   drain();
@@ -1809,36 +1920,72 @@ function tight(g){
          Math.abs(g.home.score - g.away.score) <= (cfg.closeMargin || 8);
 }
 
-/* Player names for the alert rail. ESPN's live feed normally carries a structured
-   athletesInvolved array on lastPlay; if it's absent or empty we pull names out of
-   the play text instead, and if that fails the play text alone still carries them. */
+/* Player names for the alert rail.
+
+   The play text is the authority, not ESPN's athletesInvolved array. That array
+   was trusted first, and on a Sunday's 2,044 plays it named only the tackler on
+   218 of them — "J.Burrow pass short left to D.Meyers to PIT 28 for 24 yards
+   (J.Ramsey)" came up on the TV as a 24-yard play by Jalen Ramsey, who made the
+   stop. When the first name in it is wrong no later one is right either, so the
+   array is now used for one thing only: turning "D.Meyers" into "DeAndre Meyers"
+   once the text has said who it was. */
 function names(sit){
   var lp = sit && sit.lastPlay;
   if (!lp) return [];
-  var out = [], seen = Object.create(null);
-  var arr = lp.athletesInvolved || lp.athletes || [];
-  for (var i = 0; i < arr.length && out.length < 3; i++){
+  var full = [], arr = lp.athletesInvolved || lp.athletes || [];
+  for (var i = 0; i < arr.length; i++){
     var a = arr[i] || {}, at = a.athlete || {};
     var n = a.displayName || a.fullName || at.displayName || at.fullName || a.shortName || '';
-    if (n && !seen[n]){ seen[n] = 1; out.push(n); }
+    if (n) full.push(n);
   }
-  return out.length ? out : fromText(lp.text || '');
+  var out = fromText(lp.text || '').map(function(n){ return expandName(n, full); });
+  if (out.length) return out;
+  // nothing nameable in the words: the array is all there is
+  return full.slice(0, 3);
 }
-var NAME = "([A-Z][A-Za-z.'\\-]+(?:\\s+[A-Z][A-Za-z.'\\-]+){0,2})";
+/* "D.Meyers" and "DeAndre Meyers" are the same man: same surname, same initial. */
+function expandName(short, pool){
+  if (!/^[A-Z]\./.test(String(short))) return short;
+  var sur = surnameOf(short), ini = String(short).charAt(0).toLowerCase();
+  if (!sur) return short;
+  for (var i = 0; i < pool.length; i++){
+    if (surnameOf(pool[i]) === sur && String(pool[i]).charAt(0).toLowerCase() === ini) return pool[i];
+  }
+  return short;
+}
+/* In play-by-play a man is always an initial, a dot and a surname — "J.Burrow",
+   "A.St. Brown", "E.McNeil-Warren". Nothing else in the line looks like that,
+   which is what makes him findable without a parser. */
+var PLAYER = "([A-Z]\\.\\s?[A-Z][A-Za-z'\\-]*(?:\\.?\\s[A-Z][A-Za-z'\\-]+)?)";
 function fromText(t){
+  var s = String(t || '');
+  // a flag names the man who committed it, and he is not who the play was about
+  s = s.split(/\bPENALTY on\b/i)[0];
+  /* Out go the tacklers in round brackets, the assist in square ones, and the
+     formation note — "(Shotgun)", "(No Huddle, Shotgun)" — in the same sweep. */
+  s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ');
+  /* A kickoff or a punt is two plays written as one sentence, the kicker first
+     and the man who brought it back second. The return is the play. */
+  if (/\b(?:kicks|punts)\b/i.test(s)){
+    /* Split only where a full stop is followed by another man — "Center-J.Jansen."
+       ends no sentence, and splitting on every dot lost the returner entirely. */
+    var parts = s.split(/\.\s+(?=[A-Z]\.\s?[A-Z])/);
+    if (parts.length > 1) s = parts[parts.length - 1];
+  }
   var out = [], seen = Object.create(null);
-  [ new RegExp('^(?:\\(\\d+:\\d+\\)\\s*)?' + NAME +
-      '\\s+(?:pass|sacked|scramble|kneel|spike|rush|run|left|right|up the middle|for)'),
-    new RegExp('^(?:\\(\\d+:\\d+\\)\\s*)?' + NAME + '\\s+\\d+\\s*(?:yd|yard)'),
-    new RegExp('\\bto\\s+' + NAME),
-    new RegExp('\\bby\\s+' + NAME)
-  ].forEach(function(re){
-    var m = re.exec(t);
-    if (!m) return;
-    var n = m[1].trim();
-    if (/^[A-Z]{2,4}$/.test(n)) return;          // that's a team abbreviation, not a person
-    if (!seen[n]){ seen[n] = 1; out.push(n); }
-  });
+  var add = function(n){
+    n = String(n || '').trim().replace(/^[A-Z]{2,4}[-–]/, '');   // "LAC-D.Henley"
+    if (!n || out.length >= 3 || seen[n]) return;
+    seen[n] = 1; out.push(n);
+  };
+  // whoever the sentence opens with — passer, rusher, returner, kicker
+  var first = new RegExp('^\\s*' + PLAYER).exec(s);
+  if (first) add(first[1]);
+  // and on a pass, the man it went to
+  var to = new RegExp('\\bto\\s+' + PLAYER, 'g'), m;
+  while ((m = to.exec(s))) { add(m[1]); break; }
+  var by = new RegExp('\\bby\\s+(?:[A-Z]{2,4}[-–])?' + PLAYER).exec(s);
+  if (by) add(by[1]);
   return out;
 }
 function numOr(v, dflt){
@@ -1915,7 +2062,8 @@ function detect(was, now){
   if (!was) return;
 
   // kickoff
-  if (was.state === 'pre' && now.state === 'in') push(now, 'KICKOFF', now.away.abbr + ' at ' + now.home.abbr, true);
+  // no names on it: "the game has started" is not a play anybody made
+  if (was.state === 'pre' && now.state === 'in') push(now, 'KICKOFF', now.away.abbr + ' at ' + now.home.abbr, true, null, false, []);
 
   // final
   if (was.state !== 'post' && now.state === 'post' && cfg.final){
@@ -2007,6 +2155,11 @@ function detect(was, now){
   if (cfg.to && lost){
     push(now, 'TURNOVER', txt, false); return;
   }
+  /* A kickoff brought out to the 30 is not a big play, it is how every drive
+     starts — 111 of Sunday's 513 alerts were kick and punt returns. Anything
+     that actually came of one has already fired above: a return touchdown goes
+     through the score, a muffed punt through the turnover. */
+  if (/kickoff|punt/i.test(ty) || (!ty && /\bkicks\b[^.]*\byards from\b|\bpunts\b \d+ yards/i.test(txt))) return;
   if (cfg.yards > 0){
     var m = /for (\d+) yards?/i.exec(txt);
     if (m && parseInt(m[1], 10) >= cfg.yards){
@@ -2235,6 +2388,7 @@ function render(){
   try { renderBoard(); } finally { inRender = false; }
 }
 function renderBoard(){
+  suUnit();                 // every screen has a header and strips, cards or not
   var games = window.__games || [];
   /* The lobby counts down to the next kickoff whenever it is, so it works off
      the whole upcoming list rather than whatever the strips are filtered to. */
@@ -2369,8 +2523,17 @@ function renderBoard(){
   document.documentElement.style.setProperty('--cols', cols);
   live.forEach(noteClock);
   PRIME_G = prime ? live[0] : null;
-  // only ever a cell the grid had already left empty: never one of its own
-  var spare = (!prime && cfg.qrLive !== 'off' && GUEST.code && (cols * rows) > cells) ? qrTile() : '';
+  /* Only ever a cell the grid had already left empty: never one of its own.
+     It waits half a minute before taking one, though. Through the four o'clock
+     changeover the live count moves every few seconds as the early games end and
+     the late ones kick, and a cell falls spare and is taken back again with it —
+     the code was hopping between the grid and the corner eight times in twenty
+     minutes. Coming down is immediate, because by then the cell is gone. */
+  var room = !prime && cfg.qrLive !== 'off' && GUEST.code && (cols * rows) > cells;
+  if (!room) QRP.roomAt = 0;
+  else if (!QRP.roomAt) QRP.roomAt = Date.now();
+  var spare = (room && (QRP.inCell || Date.now() - QRP.roomAt > 30000)) ? qrTile() : '';
+  QRP.inCell = !!spare;
   var html = live.map(card).join('') + spare + (prime ? primeSide(live[0], W, H) : '');
   /* Most polls change a clock and nothing else, but during a TV break or at
      halftime nothing changes at all. Then the board is left exactly as it is:
@@ -2391,6 +2554,11 @@ function renderBoard(){
     if (tr > rows) rows = tr;
   }
   fit(cols, rows);
+  /* In the same breath as the grid, never a second later. The code changes home
+     every time the number of live games changes — a cell falls spare, or the
+     last one is taken — and while the corner copy waited for its own once-a-
+     second tick, both were up together. Four times in the 4 o'clock hour. */
+  qrTick();
   collectTickers();
   diagnose(live);
 }
@@ -3409,7 +3577,7 @@ function qrTile(){
    little of their width costs nothing anyone is reading — where the first attempt
    at this, a corner card floating over the grid, sat on top of a live scoreline.
    Nothing here ever covers a game. */
-var QRP = {code:'', size:0};
+var QRP = {code:'', size:0, roomAt:0, inCell:false};
 function qrTick(){
   var pin = document.getElementById('qrpin'), main = document.querySelector('main');
   if (!pin || !main) return;
@@ -4559,6 +4727,8 @@ function fanPoints(){
   })).then(applyPoints);
 }
 function applyPoints(got){
+  // ids my own roster has already spoken for in THIS refresh, and only this one
+  var MINEPTS = Object.create(null);
   got.forEach(function(x){
     var m = x.m, rows = x.rows;
     if (!rows) return;
@@ -4600,7 +4770,17 @@ function applyPoints(got){
               if (id && id !== '0' && typeof r.starters_points[i] === 'number') pp[id] = r.starters_points[i];
             });
           }
-          for (var id in (pp || {})) if (mine || FAN.pts[id] === undefined) FAN.pts[id] = pp[id];
+          /* My own roster wins where two leagues score the same player differently,
+             but only against this same refresh — the test used to be "has this id
+             a number yet", which the very first poll of the day satisfied for
+             every player in the league. Everyone else's score was then pinned to
+             what it was before kickoff, and the opponent's men sat on 0.0 beside
+             mine all afternoon while their team total climbed. */
+          for (var id in (pp || {})){
+            if (!mine && MINEPTS[id]) continue;
+            FAN.pts[id] = pp[id];
+            if (mine) MINEPTS[id] = 1;
+          }
           if (m !== FAN.mine[0] || !FAN.own) return;
           var who = lnames2[r.roster_id] || ('roster ' + r.roster_id);
           var st = Object.create(null);
@@ -4849,15 +5029,20 @@ function unitNeeds(){
    the stylesheet's 15px, so every ceiling was a ceiling for a small monitor, and
    a television filled with blank space. */
 function suUnit(){
-  return Math.max(11, Math.min(window.innerWidth / 46, window.innerHeight / 30));
+  var su = Math.max(11, Math.min(window.innerWidth / 46, window.innerHeight / 30));
+  /* Set here rather than only where the cards are laid out. Before kickoff there
+     are no cards, so it was never set at all and kept the stylesheet's 15px: on
+     a television the bets along the bottom came out at twelve pixels, a fifth of
+     the screen's worth of type, and grew to their proper size only once the
+     first game started. */
+  document.documentElement.style.setProperty('--su', su.toFixed(2) + 'px');
+  return su;
 }
 function fit(cols, rows){
   var box = document.getElementById('live');
   var w = box.clientWidth, h = box.clientHeight;
+  suUnit();
   if (!w || !h) return;
-
-  var su = suUnit();
-  document.documentElement.style.setProperty('--su', su.toFixed(2) + 'px');
 
   var need = unitNeeds();
   document.body.classList.toggle('norec', !need.rec);
@@ -7154,6 +7339,7 @@ document.addEventListener('keydown', function(e){
   if (typing || e.target.tagName === 'BUTTON') return;
   var k = e.key.toLowerCase();
   if (k === 's') togglePanel();
+  else if (k === 't') syncToTV();
   else if (k === 'f') fullscreen();
   else if (k === 'r' && !DEMO){ clearTimeout(timer); poll(); }
   else if (e.key === '[' || e.key === ']'){
@@ -7163,6 +7349,7 @@ document.addEventListener('keydown', function(e){
   }
 });
 document.getElementById('gear').addEventListener('click', function(){ togglePanel(); });
+document.getElementById('sSyncTV').addEventListener('click', function(){ syncToTV(); });
 var CLICKT = null;
 document.getElementById('live').addEventListener('dblclick', function(e){
   var c = e.target.closest && e.target.closest('.game');
@@ -7428,7 +7615,8 @@ var TIPS = {
   sInterval: 'How often the scoreboard feed is polled. Faster is more current but hits ESPN harder; the board backs off automatically when requests start failing.',
   sTickClock: 'Run the game clock down smoothly between polls instead of jumping every few seconds. Cosmetic only — the real clock still comes from the feed.',
   sDeep: 'The scoreboard feed carries scores and the clock, and nothing else. This asks ESPN for a second feed, one game at a time, and that is where the rest comes from: the down and distance, the field position bar, the live betting line, the win percentage, the play-by-play in single-game view, and a fix for when the scoreboard clock sticks. Switch it off and all of that leaves the cards straight away, leaving the score, the clock and the channel. It is also most of the board\u2019s network traffic, so off is much lighter. Games with a live bet on them are fetched either way, and a demo makes its own detail up, so this changes nothing there.',
-  sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys.',
+  sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys, five seconds at a time.',
+  sSyncTV: 'Measures the delay instead of guessing it. Press T \u2014 or this \u2014 as a score turns up on your television: the board knows when that score reached it, and the gap between the two is what it should be holding. If another game scored at almost the same moment it says so, so you can try again on a clearer one.',
   // alerts
   sTD: 'Raise a banner for touchdowns.',
   sFG: 'Raise a banner for field goals.',
