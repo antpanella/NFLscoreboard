@@ -1,7 +1,7 @@
 {
  "date": "2026-09-28",
- "generated_at": "2026-09-28T22:56:53Z",
- "headline": "No play for Eagles at Bears. DraftKings is within a few cents of Pinnacle's fair price across the board; nothing clears the bar.",
+ "generated_at": "2026-09-28T23:20:20Z",
+ "headline": "No play for Eagles at Bears. DraftKings is within a few cents of Pinnacle's fair price on every line and on 96 props, including receptions, passing TDs, completions and attempts; nothing clears the bar.",
  "total_units": 0,
  "games": [
   {
@@ -12,9 +12,9 @@
    "draftkings": true,
    "pinnacle": true,
    "props_pulled": true,
-   "selections": 52,
+   "selections": 96,
    "picks": [],
-   "note": "Lines tight. Best edges are three receiving/rushing unders at +2.9% to +3.2% on adjusted Pinnacle numbers, below the 4.5% bar; CHI +3.5 at -105 is about +0.8%."
+   "note": "Lines tight. Best edges: three yardage unders at +2.9% to +3.2% on adjusted Pinnacle numbers (bar 4.5%); best count prop Case Keenum under 17.5 completions +1.6% (bar 3%)."
   }
  ],
  "picks": [],
@@ -34,11 +34,15 @@
   {
    "label": "Luther Burden III / Makai Lemon anytime TD",
    "why": "Showed +6-7% in the 3:23 PM pull; gone at kickoff-time prices"
+  },
+  {
+   "label": "Case Keenum under 17.5 completions (-109)",
+   "why": "+1.6% at Pinnacle's exact number, under the 3% bar"
   }
  ],
  "notes": [
   "Single-game day; parlays need legs from different games, so none.",
-  "schedule.json last updated 19:23Z (3.5 h before this card); the 15-minute Action refresh may be stuck."
+  "Second pull at 7:19 PM ET added count props (receptions, pass TDs, completions, pass/rush attempts) for 5 credits; nothing new cleared."
  ],
- "credits_left": 470
+ "credits_left": 465
 }
