@@ -1,0 +1,6 @@
+{"mode": "probe", "save": true, "requested_at": "2026-09-28T19:54:45Z", "urls": [
+ "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
+ "https://api.sleeper.app/v1/state/nfl",
+ "https://api.sleeper.app/v1/user/antpanella",
+ "https://api.sleeper.app/v1/projections/nfl/regular/2026/3"
+]}

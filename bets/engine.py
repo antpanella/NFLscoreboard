@@ -540,6 +540,12 @@ def run_requests():
                         body = resp.read()
                     txt = body.decode('utf-8', 'replace')
                     info = f'200 {len(body)} bytes | {txt[:160]!r}'
+                    if r.get('save'):
+                        n = len(lines_out)
+                        os.makedirs(os.path.join(DATA, 'tests', 'probe'), exist_ok=True)
+                        with open(os.path.join(DATA, 'tests', 'probe', f'{n:02d}.json'), 'wb') as f:
+                            f.write(body)
+                        info += f' | saved probe/{n:02d}.json'
                     if u.endswith('.csv'):
                         rows = txt.splitlines()
                         hdr = rows[0].split(',')
