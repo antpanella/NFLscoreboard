@@ -604,7 +604,17 @@ def run_requests():
 # ---------------------------------------------------------------- closing lines
 def capture_closing(evs):
     t = now()
-    soon = [e for e in evs if timedelta(0) < parse(e['commence_time']) - t <= timedelta(minutes=CLOSE_WINDOW_MIN)]
+    # Closing lines only grade the card's own game-line plays (closing-line value),
+    # so a window with none of them costs nothing.
+    wanted = set()
+    for pk in load(LEDGER, []):
+        if pk.get('result') not in (None, 'pending'):
+            continue
+        for l in (pk.get('legs') or [pk]):
+            if l.get('market') in LINE_MARKETS:
+                wanted.add(l.get('event_id'))
+    soon = [e for e in evs if timedelta(0) < parse(e['commence_time']) - t <= timedelta(minutes=CLOSE_WINDOW_MIN)
+            and e['id'] in wanted]
     need = []
     for e in soon:
         cl = load(os.path.join(day_dir(et_date(e['commence_time'])), 'closing.json'), {})
