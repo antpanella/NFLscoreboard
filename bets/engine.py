@@ -7,16 +7,20 @@ Claude's sandbox or the work network). Standard library only.
 Modes
   request   pull odds for every open request file in bets/requests/ (push-triggered)
   pull D    pull odds for ET date D (YYYY-MM-DD) and write candidates
-  tick      every 15 min: refresh the schedule, capture closing lines, grade results
+  tick      every 15 min: refresh the schedule, morning game-line snapshot (line movement),
+            closing lines for the card's plays (game lines and props), grade results
   grade     grade whatever in the ledger has finished
   parlay D id id ...   price a parlay from candidate ids (used by the pre-kickoff session)
   record D picks.json  write the day's card, ledger entries and latest.json from the session's choices
   late D scratch.json  record a late check: scratch card plays that no longer hold
   (request file {"mode": "latecheck", "date": D} re-prices the card's game-line plays: 3 credits)
+  (request file {"mode": "extra", "date": D} adds count props to the day's pull: 5 credits a game)
   selftest  run the math against the saved coverage test in data/odds-test/ (no network)
 
 Credits (free tier, 500/month): event list 0, game lines 3 per pull (whole slate),
-props 4 per game. Up to 10 named books count as one region.
+props 4 per game (+5 for count props, primetime games only, while 150+ credits are left),
+morning snapshot 3 per gameday, closing props 1 per market on the card per game.
+Up to 10 named books count as one region.
 """
 import json
 import math
@@ -76,6 +80,12 @@ CREDIT_RESERVE = 15          # never spend below this
 LATE_MIN_CREDITS = 100       # the late check is a nice-to-have: it never eats into the core budget
 CLOSE_MIN_CREDITS = 40       # nor does the closing-line snapshot
 CLOSE_WINDOW_MIN = 30        # closing snapshot when kickoff is this close
+EXTRA_MIN_CREDITS = 150      # count props ride along on primetime pulls only above this
+EXTRA_FROM_HOUR_ET = 19      # "primetime": kickoff at or after 7 PM ET
+OPENER_MIN_CREDITS = 60      # the morning game-line snapshot (line movement)
+OPENER_HOURS = 10            # take it once the day's first kickoff is this close...
+OPENER_MIN_LEAD_H = 4        # ...and still at least this far away (before the pre-kickoff pull)
+MOVE_TAG_PTS = 0.015         # fair-probability move that counts as Pinnacle moving
 
 TEAMS = {
     'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL',
@@ -453,13 +463,20 @@ def pull(date, evs=None):
 
     props = {}
     skipped = []
+    first_props = os.path.join(d, 'props-first.json')
+    if os.path.exists(os.path.join(d, 'props.json')) and not os.path.exists(first_props):
+        os.replace(os.path.join(d, 'props.json'), first_props)   # the day's earliest props: movement reference
     for e in games:
-        if remaining() - len(PROP_MARKETS) < CREDIT_RESERVE:
+        mks = list(PROP_MARKETS)
+        if (parse(e['commence_time']).astimezone(ET).hour >= EXTRA_FROM_HOUR_ET
+                and remaining() - len(mks) - len(EXTRA_MARKETS) >= EXTRA_MIN_CREDITS):
+            mks += EXTRA_MARKETS                               # primetime: count props too
+        if remaining() - len(mks) < CREDIT_RESERVE:
             skipped.append(e['id'])
             continue
         try:
             props[e['id']] = odds(f'/events/{e["id"]}/odds', bookmakers=','.join(BOOKS),
-                                  markets=','.join(PROP_MARKETS), oddsFormat='american')
+                                  markets=','.join(mks), oddsFormat='american')
         except SystemExit as err:
             log(f'  props failed for {e["id"]}: {err}')
             skipped.append(e['id'])
@@ -473,6 +490,8 @@ def pull_extra(date, markets):
     d = day_dir(date)
     lines = load(os.path.join(d, 'lines.json'), [])
     props = load(os.path.join(d, 'props.json'), {})
+    if props and not os.path.exists(os.path.join(d, 'props-first.json')):
+        save(os.path.join(d, 'props-first.json'), props, compact=True)
     t = now()
     games = [g for g in lines if parse(g['commence_time']) > t]
     skipped = []
@@ -499,6 +518,55 @@ def pull_extra(date, markets):
     build_candidates(date, games, lines, props, skipped, t)
 
 
+def reference_books(date):
+    """The day's earliest prices, per event: the morning game-line snapshot (opener.json)
+    and the first prop pull (props-first.json), as bookmaker lists."""
+    d = day_dir(date)
+    ref, when = {}, {}
+    op = load(os.path.join(d, 'opener.json'), {})
+    for g in op.get('games', []):
+        ref.setdefault(g['id'], []).extend(g.get('bookmakers', []))
+        when[g['id']] = op.get('captured_at')
+    pf = load(os.path.join(d, 'props-first.json'), {})
+    for eid, g in pf.items():
+        ref.setdefault(eid, []).extend(g.get('bookmakers', []))
+    return ref, when, op.get('captured_at')
+
+
+def add_movement(date, games, cands):
+    """Pinnacle's fair price for each selection earlier in the day, and how far it has
+    moved since. Positive move = toward our side (Pinnacle now likes the bet more)."""
+    ref, _, opened = reference_books(date)
+    cur_lines = {g['id']: g for g in games}
+    for c in cands:
+        bms = ref.get(c['event_id'])
+        if not bms:
+            continue
+        event = cur_lines.get(c['event_id']) or {'home_team': c['home'], 'away_team': c['away']}
+        books = {}
+        for b in bms:                                       # same book may appear twice (lines + props)
+            books.setdefault(b['key'], {}).update(index_book(b, event))
+        key = (c['market'], c['subject'], c['side'], c['point'])
+        pin = books.get('pinnacle')
+        if not pin:
+            continue
+        p0, _ = devig(pin, key, event)
+        if p0 is None:
+            adj = pin_adjusted(pin, key, event)
+            p0 = adj[0] if adj else None
+        if p0 is None:
+            continue
+        c['open_fair_prob'] = round(p0, 4)
+        c['pin_move'] = round(c['fair_prob'] - p0, 4)
+        dk0 = books.get('draftkings', {}).get(key)
+        if dk0 is not None:
+            c['open_dk_price'] = dk0
+        if c['source'] != 'consensus' and abs(c['pin_move']) >= MOVE_TAG_PTS:
+            c['move'] = 'chasing' if c['pin_move'] > 0 else 'fading'
+        else:
+            c['move'] = 'flat'
+
+
 def build_candidates(date, games, lines, props, skipped, pulled_at):
     by_id = {g['id']: g for g in lines}
     cands, game_notes = [], []
@@ -522,6 +590,7 @@ def build_candidates(date, games, lines, props, skipped, pulled_at):
                            'kickoff_et': et_clock(e['commence_time']), 'commence': e['commence_time'],
                            'draftkings': 'draftkings' in have, 'pinnacle': 'pinnacle' in have,
                            'props_pulled': e['id'] in props, 'selections': len(c)})
+    add_movement(date, games, cands)
     cands.sort(key=lambda c: -c['ev'])
     out = {'date': date, 'pulled_at': iso(pulled_at), 'credits_left': remaining(),
            'props_skipped': skipped, 'games': game_notes, 'candidates': cands}
@@ -555,6 +624,11 @@ def write_top(date, out):
             notes.append(c['flag'])
         if c.get('dk_updated') and c.get('pin_updated'):
             notes.append(f'DK upd {c["dk_updated"][11:16]}Z, PIN upd {c["pin_updated"][11:16]}Z')
+        if c.get('move'):
+            mv = f'{c["move"].upper()}: PIN fair {c["open_fair_prob"]*100:.1f}% -> {c["fair_prob"]*100:.1f}%'
+            if c.get('open_dk_price') is not None:
+                mv += f', DK {c["open_dk_price"]:+d} -> {c["dk_price"]:+d}'
+            notes.insert(0, mv)
         fp = c['fair_price']
         lines.append(f'| {c["id"]} | {c["game"]} | {c["label"]} | {c["dk_price"]:+d} | '
                      f'{fp:+d} ({c["fair_prob"]*100:.1f}%) | {c["ev"]*100:+.1f}% | {c["source"]} | '
@@ -652,13 +726,16 @@ def capture_closing(evs):
     t = now()
     # Closing lines only grade the card's own game-line plays (closing-line value),
     # so a window with none of them costs nothing.
-    wanted = set()
+    wanted, prop_mk = set(), {}
     for pk in load(LEDGER, []):
         if pk.get('result') not in (None, 'pending'):
             continue
         for l in (pk.get('legs') or [pk]):
             if l.get('market') in LINE_MARKETS:
                 wanted.add(l.get('event_id'))
+            elif l.get('market'):
+                prop_mk.setdefault(l.get('event_id'), set()).add(l['market'])
+    changed = capture_closing_props(evs, prop_mk, t)
     soon = [e for e in evs if timedelta(0) < parse(e['commence_time']) - t <= timedelta(minutes=CLOSE_WINDOW_MIN)
             and e['id'] in wanted]
     need = []
@@ -667,13 +744,12 @@ def capture_closing(evs):
         if e['id'] not in cl:
             need.append(e)
     if not need:
-        return False
+        return changed
     if remaining() < CLOSE_MIN_CREDITS:
         log('closing: skipped, credits low')
-        return False
+        return changed
     ids = {e['id'] for e in need}
     lines = odds('/odds', bookmakers=','.join(BOOKS), markets=','.join(LINE_MARKETS), oddsFormat='american')
-    changed = False
     for g in lines:
         if g['id'] not in ids:
             continue
@@ -687,6 +763,60 @@ def capture_closing(evs):
         changed = True
         log(f'closing: captured {abbr(g["away_team"])} @ {abbr(g["home_team"])}')
     return changed
+
+
+def capture_closing_props(evs, prop_mk, t):
+    """Closing prices for the card's props: one credit per market on the card, per game."""
+    changed = False
+    for e in evs:
+        mks = sorted(prop_mk.get(e['id'], ()))
+        if not mks or not (timedelta(0) < parse(e['commence_time']) - t <= timedelta(minutes=CLOSE_WINDOW_MIN)):
+            continue
+        path = os.path.join(day_dir(et_date(e['commence_time'])), 'closing-props.json')
+        cl = load(path, {})
+        if e['id'] in cl:
+            continue
+        if remaining() - len(mks) < CLOSE_MIN_CREDITS:
+            log('closing props: skipped, credits low')
+            continue
+        try:
+            g = odds(f'/events/{e["id"]}/odds', bookmakers=','.join(BOOKS),
+                     markets=','.join(mks), oddsFormat='american')
+        except SystemExit as err:
+            log(f'closing props failed for {e["id"]}: {err}')
+            continue
+        cl[e['id']] = {'captured_at': iso(t), 'commence': e['commence_time'],
+                       'bookmakers': g.get('bookmakers', [])}
+        save(path, cl, compact=True)
+        changed = True
+        log(f'closing props: captured {abbr(e["away_team"])} @ {abbr(e["home_team"])} ({len(mks)} markets)')
+    return changed
+
+
+def capture_opener(evs):
+    """Morning game-line snapshot for the day (3 credits), so the pre-kickoff pull can
+    show how Pinnacle and DraftKings moved. Once per ET date."""
+    t = now()
+    by_date = {}
+    for e in evs:
+        if parse(e['commence_time']) > t:
+            by_date.setdefault(et_date(e['commence_time']), []).append(e)
+    for date, games in by_date.items():
+        lead = min(parse(e['commence_time']) for e in games) - t
+        if not (timedelta(hours=OPENER_MIN_LEAD_H) <= lead <= timedelta(hours=OPENER_HOURS)):
+            continue
+        path = os.path.join(day_dir(date), 'opener.json')
+        if os.path.exists(path) or os.path.exists(os.path.join(day_dir(date), 'candidates.json')):
+            continue
+        if remaining() < OPENER_MIN_CREDITS:
+            log('opener: skipped, credits low')
+            continue
+        ids = {e['id'] for e in games}
+        lines = odds('/odds', bookmakers=','.join(BOOKS), markets=','.join(LINE_MARKETS), oddsFormat='american')
+        save(path, {'captured_at': iso(t), 'games': [g for g in lines if g['id'] in ids]}, compact=True)
+        log(f'opener: {date} game lines captured ({len(ids)} games)')
+        return True
+    return False
 
 
 # ---------------------------------------------------------------- grading
@@ -786,10 +916,9 @@ def grade_leg(leg, game_cache, box_cache):
 
 
 def closing_clv(leg):
-    """Closing-line value for a game-line leg: our price against Pinnacle's no-vig close."""
-    if leg['market'] not in LINE_MARKETS:
-        return None
-    cl = load(os.path.join(day_dir(et_date(leg['commence'])), 'closing.json'), {}).get(leg['event_id'])
+    """Closing-line value for a leg: our price against Pinnacle's no-vig close."""
+    fname = 'closing.json' if leg['market'] in LINE_MARKETS else 'closing-props.json'
+    cl = load(os.path.join(day_dir(et_date(leg['commence'])), fname), {}).get(leg['event_id'])
     if not cl:
         return None
     event = {'home_team': leg['home'], 'away_team': leg['away']}
@@ -836,7 +965,7 @@ def grade():
             if l is not pick:
                 changed = True
             results.append(r)
-            if l['market'] in LINE_MARKETS and 'clv' not in l:
+            if 'clv' not in l:
                 c = closing_clv(l)
                 if c:
                     l.update(c)
@@ -1162,6 +1291,7 @@ def main(argv):
     if mode == 'tick':
         evs = fetch_events()
         write_schedule(evs)
+        capture_opener(evs)
         capture_closing(evs)
         grade()
         return

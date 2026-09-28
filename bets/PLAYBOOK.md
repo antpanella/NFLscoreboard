@@ -41,17 +41,25 @@ above fair, best first. `candidates.json` has the same rows with all fields.
   normal curve (never across 3 or 7 on spreads, never on yardage lines under 20).
   `consensus` = median no-vig price of other US books (Pinnacle missing).
 - `EV` = fair probability × DraftKings decimal price − 1.
+- `move` (when there is an earlier price that day: the morning game-line snapshot, or an
+  earlier prop pull): how Pinnacle's fair price moved since. `CHASING` = Pinnacle moved
+  toward our side (≥ 1.5 pts) and DraftKings hasn't caught up: the classic stale-book edge.
+  `FADING` = Pinnacle moved away from our side: it knows something. `flat` = little move.
+- Primetime games (7 PM ET or later) also carry count props (receptions, pass TDs,
+  completions, pass and rush attempts) while credits allow. Treat them as yardage props for
+  the thresholds; they are only priced at Pinnacle's or the consensus's exact number.
 
 A row is a **contender** only if it clears:
 
-| source | game lines | yardage props | anytime TD |
+| source | game lines | yardage & count props | anytime TD |
 |---|---|---|---|
 | pinnacle | ≥ 2.0% | ≥ 3.0% | ≥ 5.0% |
 | pinnacle-adjusted | ≥ 3.0% | ≥ 4.5% | — |
 | consensus | ≥ 3.5% | ≥ 5.0% | ≥ 7.0% |
 
 Raise the bar 1 point where Pinnacle's vig on the market (`pin_vig`) is above 8%, and
-2 points where the row is flagged "pinnacle and consensus disagree".
+2 points where the row is flagged "pinnacle and consensus disagree", and 1 point
+where the row is `FADING`.
 If nothing clears, the card says so. **A no-play day is a correct result.**
 
 ## 4. Vet every contender (this is the job)
@@ -61,7 +69,8 @@ Work down the contenders by EV. For each, web-search and decide in one sentence:
 2. **Why is DraftKings off?** Compare the update times in the notes column.
    Pinnacle moved more recently and news explains it → DraftKings is stale, the
    edge is real. DraftKings moved more recently than Pinnacle → Pinnacle may be
-   the stale one; cut unless the news backs Pinnacle's number.
+   the stale one; cut unless the news backs Pinnacle's number. Use `move` too:
+   `CHASING` supports the edge, `FADING` needs news that explains why the move is wrong.
 3. **Role.** Backup QB starting, a committee backfield, a receiver back from injury
    on a snap count, a new play-caller: things that make a line look wrong but aren't.
 4. **Weather** at outdoor stadiums. Wind 15 mph+ or heavy rain works against passing
@@ -148,5 +157,7 @@ were vetted before their inactives and at morning prices. Later runs re-check th
 - Units never change with results. No chasing.
 - One odds request per gameday, plus at most one late-check request per kickoff window
   (and only when a late play is a game line). Never a request just to "refresh".
+  Exception: when Anthony asks for more prop markets, a `{"mode": "extra", "date": D}`
+  request adds count props to the day's pull (5 credits a game, game lines reused).
   The engine refuses late checks below 100 credits and closing snapshots below 40.
 - Don't touch `index.html` or anything outside `bets/`.
