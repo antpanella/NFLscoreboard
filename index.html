@@ -1124,6 +1124,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   </div>
   <h4>Display</h4>
   <label>Bets strip <input type="checkbox" id="sStripBets"></label>
+  <label style="padding-left:1.2rem">· Clear settled bets after 5 minutes <input type="checkbox" id="sStripClear"></label>
   <label>Friends’ code during games <select id="sQrLive">
       <option value="off">off</option>
       <option value="spare">only in a spare card slot</option>
@@ -1210,7 +1211,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-28c';
+var BUILD = 'build 2026-09-28d';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1225,7 +1226,7 @@ var DEFAULTS = {interval:5, sound:true, td:true, fg:true, to:true, final:true,
   smooth:true,                  // must not flash someone else's light strip
   goveeUrl:'https://small-silence-9112.antpanella.workers.dev',
   goveeKey:'',                  // never in the file: this page is public
-  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobCard:true, cardUnit:'', lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, qrLive:'both', record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
+  gvSeed:0, goveeDev:'', goveeSku:'', goveePulses:2, goveeGap:8, goveeMode:'colors', goveeSeg:0, goveeScenes:'{}', goveeHold:8, gvRest:'#ffb46b', gvRestBri:50, gvRestMode:'color', tint:true, dimLose:true, fanRow:true, fanFoes:false, fanBar:true, fanPlays:true, fanProj:true, fanWin:true, fanLeague:false, recap:true, lobby:true, lobSlate:true, lobWhen:true, lobSlip:true, lobCard:true, cardUnit:'', lobH2H:true, lobLeague:true, lobInj:true, lobbyEvery:12, lobbyBets:true, autoUpdate:true, fanRoll:true, fanAlerts:'both', fanMin:2, betSync:false, qrLive:'both', record:true, ptab:'board', betMoney:false, betAlerts:true, stripBets:true, stripClear:true, slim:false, fanEvery:20, recs:false, stripUp:true, stripFin:true, liveOnly:false, close:true, timeouts:true, closeMin:4, closeMargin:8, seed2:0, odds:true, cover:true, tick:false,
   sleeperUser:'', sleeperId:'', league:'all', starterOnly:1};
 var cfg = load();
 
@@ -6421,6 +6422,35 @@ function betChip(b){
 }
 
 var BET_ORDER = {live:0, pending:1, won:2, push:3, lost:4};
+/* ---- settled bets leave the strip ----
+   When each bet was first seen won, lost or pushed, on the board's clock (so a
+   replay at 16x clears them at the same point in the game). Kept in storage so a
+   reload does not reset the five minutes; a bet seen live again — a stat
+   correction — gets its clock back. */
+var SETTLED_MS = 5 * 60 * 1000;
+var SETTLED = (function(){
+  try { return JSON.parse(localStorage.getItem('sundayBoardSettled') || '{}') || {}; } catch(e){ return {}; }
+})();
+var SETTLED_R = null;                   // a replay keeps its own clock, apart from the live one
+function settledStore(){ return REPLAY ? (SETTLED_R || (SETTLED_R = {})) : (SETTLED_R = null, SETTLED); }
+function settledClock(rows){
+  var SETTLED = settledStore();
+  var t = vnow(), changed = false, keep = {};
+  rows.forEach(function(r){
+    var id = r.b.id, done = r.s.state === 'won' || r.s.state === 'lost' || r.s.state === 'push';
+    keep[id] = 1;
+    if (done && !SETTLED[id]){ SETTLED[id] = t; changed = true; }
+    // only a bet seen live again gets its clock back: before the scoreboard has
+    // loaded every bet reads as pending, and that must not reset anything
+    if (r.s.state === 'live' && SETTLED[id]){ delete SETTLED[id]; changed = true; }
+  });
+  for (var id in SETTLED) if (!keep[id]){ delete SETTLED[id]; changed = true; }   // bets deleted or aged out
+  if (changed && !REPLAY){ try { localStorage.setItem('sundayBoardSettled', JSON.stringify(SETTLED)); } catch(e){} }
+}
+function settledGone(r){
+  var S = settledStore();
+  return cfg.stripClear !== false && S[r.b.id] && vnow() - S[r.b.id] > SETTLED_MS;
+}
 function paintBets(){
   noteNewBets();
   var el = document.getElementById('bets');
@@ -6428,6 +6458,7 @@ function paintBets(){
   var fresh = BETS.filter(function(b){ return Date.now() - (b.added || 0) < 5 * 86400000; });
   if (!cfg.stripBets || !fresh.length){ el.hidden = true; refitIfMoved(el); return; }
   var rows = fresh.map(function(b){ return {b:b, s:betState(b)}; });
+  settledClock(rows);
   rows.sort(function(x, y){
     return (BET_ORDER[x.s.state] - BET_ORDER[y.s.state]) ||
            ((x.s.good ? 1 : 0) - (y.s.good ? 1 : 0));          // live and losing first
@@ -6446,7 +6477,13 @@ function paintBets(){
   }
   el.querySelector('h2').innerHTML = 'MY BETS <span class="sum">' + sum + '</span>';
   el.hidden = false;
-  layBets(el.querySelector('.items'), rows.map(function(r){ return betChip(r.b); }));
+  /* The counts and the money above are worked out from every bet; only the
+     chips of bets settled more than five minutes ago leave the rows. */
+  var show = rows.filter(function(r){ return !settledGone(r); });
+  var items = el.querySelector('.items');
+  items.hidden = !show.length;
+  if (show.length) layBets(items, show.map(function(r){ return betChip(r.b); }));
+  else { BROW.els = [null, null]; items.innerHTML = ''; }
   skinChips(el);
   refitIfMoved(el);
 }
@@ -7670,7 +7707,8 @@ document.getElementById('sRecFile').addEventListener('change', function(){
     .catch(function(e){ recNote('Could not load that file: ' + e.message); });
   this.value = '';
 });
-bind('sStripBets','stripBets','bool'); bind('sQrLive','qrLive','str');
+bind('sStripBets','stripBets','bool'); bind('sStripClear','stripClear','bool');
+document.getElementById('sStripClear').addEventListener('change', function(){ paintBets(); }); bind('sQrLive','qrLive','str');
 document.getElementById('sGuestMake').addEventListener('click', function(){ guestCall({rotate:true}); });
 document.getElementById('sGuestOff').addEventListener('click', function(){ guestCall({off:true}); });
 document.getElementById('sCfgSync').checked = !!cfg.cfgSync;
@@ -7880,6 +7918,7 @@ var TIPS = {
   sCfgSync: 'Push your settings through the relay so your phone can drive the board, and so your own bets follow you between devices.',
   sBetSync: 'Keep the bet list on the relay rather than in this browser alone, so every device sees the same one.',
   sStripBets: 'The two-row ticker along the bottom tracking every bet as it goes.',
+  sStripClear: 'A bet leaves the strip five minutes after it is won, lost or pushed, so the rows keep to what is still in play. Its money stays in the day’s total at the top of the strip, and in the recap.',
   sQrLive: 'Keep the friends\u2019 bet code up while the games are on. When the card grid happens to leave a cell spare it goes there, large and free. Otherwise it pins to the right of the strips along the bottom, which give up that much width \u2014 it never covers a game. With no strip showing there is nowhere free, so it waits.',
   sBetAlerts: 'Raise banners when a bet cashes, busts, or comes down to the wire.',
   sBetMoney: 'Show stakes and payouts. Off, the bets show only what they are, not what they are worth.',
