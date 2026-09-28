@@ -1,3 +1,30 @@
-2026-09-28T19:55:52Z
+2026-09-28T19:56:24Z
+https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100
+  200 273452 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/test-fan/00.json.gz
+
+https://api.sleeper.app/v1/state/nfl
+  200 211 bytes | '{"week":3,"season_type":"regular","season":"2026","leg":3,"league_season":"2026","previous_season":"2025","season_start_date":"2026-09-09","display_week":3,"lea' | saved probe/test-fan/01.json.gz
+
+https://api.sleeper.app/v1/user/antpanella
+  200 417 bytes | '{"avatar":"bfa295bbe544929574f2f38930c4c375","cookies":null,"created":null,"currencies":null,"data_updated":null,"deleted":null,"display_name":"antpanella","ema' | saved probe/test-fan/02.json.gz
+
 https://api.sleeper.app/v1/user/596916564016549888/leagues/nfl/2026
-  200 2679 bytes | '[{"sport":"nfl","last_transaction_id":1410387660349988864,"last_message_time":1790603978258,"scoring_settings":{"sack":1.0,"fgm_40_49":4.0,"pass_int":-2.0,"pts_' | saved probe/00.json
+  200 2679 bytes | '[{"sport":"nfl","last_transaction_id":1410387660349988864,"last_message_time":1790603978258,"scoring_settings":{"sack":1.0,"fgm_40_49":4.0,"pass_int":-2.0,"pts_' | saved probe/test-fan/03.json.gz
+
+https://api.sleeper.app/v1/league/1312349891363622912
+  200 2600 bytes | '{"name":"The FEENS ","status":"in_season","metadata":{"auto_continue":"on","keeper_deadline":"0","latest_league_winner_roster_id":"3"},"settings":{"best_ball":0' | saved probe/test-fan/04.json.gz
+
+https://api.sleeper.app/v1/league/1312349891363622912/users
+  200 6917 bytes | '[{"avatar":"d981dd588e7d6650880cf4f08bd6ed72","display_name":"ncarbone3","is_bot":false,"is_owner":false,"league_id":"1312349891363622912","metadata":{"allow_pn' | saved probe/test-fan/05.json.gz
+
+https://api.sleeper.app/v1/league/1312349891363622912/rosters
+  200 7347 bytes | '[{"co_owners":null,"keepers":null,"league_id":"1312349891363622912","metadata":{"allow_pn_inactive_starters":"on","allow_pn_player_injury_status":"on","allow_pn' | saved probe/test-fan/06.json.gz
+
+https://api.sleeper.app/v1/league/1312349891363622912/matchups/3
+  200 5762 bytes | '[{"points":110.86,"players":["10859","11533","11563","11564","11635","11646","12534","13285","13345","2133","5001","7547","7567","8126","8150","9224","9487"],"r' | saved probe/test-fan/07.json.gz
+
+https://api.sleeper.app/v1/projections/nfl/regular/2026/3
+  200 587317 bytes | '{"6462":{"adp_dd_ppr":1000.0},"11255":{"adp_dd_ppr":1000.0},"8842":{"adp_dd_ppr":1000.0},"13940":{"adp_dd_ppr":1000.0},"7926":{"adp_dd_ppr":1000.0},"1875":{"adp' | saved probe/test-fan/08.json.gz
+
+https://api.sleeper.app/v1/players/nfl?active=true
+  200 11479014 bytes | '{"6462":{"competitions":[],"hashtag":"#ellisrichardson-NFL-FA-45","swish_id":null,"news_updated":null,"gsis_id":" 00-0035057","practice_description":null,"depth' | saved probe/test-fan/09.json.gz

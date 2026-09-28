@@ -1,12 +1,18 @@
-{"mode": "probe", "save": true, "requested_at": "2026-09-28T19:56:11Z", "urls": [
- "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
- "https://api.sleeper.app/v1/state/nfl",
- "https://api.sleeper.app/v1/user/antpanella",
- "https://api.sleeper.app/v1/user/596916564016549888/leagues/nfl/2026",
- "https://api.sleeper.app/v1/league/1312349891363622912",
- "https://api.sleeper.app/v1/league/1312349891363622912/users",
- "https://api.sleeper.app/v1/league/1312349891363622912/rosters",
- "https://api.sleeper.app/v1/league/1312349891363622912/matchups/3",
- "https://api.sleeper.app/v1/projections/nfl/regular/2026/3",
- "https://api.sleeper.app/v1/players/nfl?active=true"
-]}
+{
+ "mode": "probe",
+ "save": true,
+ "requested_at": "2026-09-28T19:56:11Z",
+ "urls": [
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
+  "https://api.sleeper.app/v1/state/nfl",
+  "https://api.sleeper.app/v1/user/antpanella",
+  "https://api.sleeper.app/v1/user/596916564016549888/leagues/nfl/2026",
+  "https://api.sleeper.app/v1/league/1312349891363622912",
+  "https://api.sleeper.app/v1/league/1312349891363622912/users",
+  "https://api.sleeper.app/v1/league/1312349891363622912/rosters",
+  "https://api.sleeper.app/v1/league/1312349891363622912/matchups/3",
+  "https://api.sleeper.app/v1/projections/nfl/regular/2026/3",
+  "https://api.sleeper.app/v1/players/nfl?active=true"
+ ],
+ "fulfilled_at": "2026-09-28T19:56:24Z"
+}
