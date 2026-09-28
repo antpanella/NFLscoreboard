@@ -575,6 +575,9 @@ body.phone>*:not(#phone){display:none !important}
 #cardList .cl button{border:1px solid var(--line);background:var(--turf);padding:.2em .8em;border-radius:2px;
   font-weight:600;color:var(--live);flex:none}
 #cardList .cl .done{color:var(--sideline);font-size:.8rem;letter-spacing:.06em;flex:none}
+#cardList .cl.scr > span:first-child{opacity:.6}
+#cardList .cl .done.scr{color:var(--flag)}
+#cardList .cl small.scr{color:var(--flag)}
 #bets .by.card,#betList .byl.card{background:var(--hot);color:#0A1410}
 #finals .w{color:var(--chalk)}
 
@@ -819,6 +822,8 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 #empty.lobby .sb .amt{color:var(--flag);font-weight:700;flex:none}
 #empty.lobby .slipsum{grid-column:1/-1;margin-top:.45em;color:var(--sideline);font-size:.78em}
 #empty.lobby .slipsum b{color:var(--chalk)}
+#empty.lobby .sb.scr .w,#empty.lobby .sb.scr .amt{text-decoration:line-through;opacity:.55}
+#empty.lobby .sb.scr .by{background:var(--sideline)}
 
 /* the fantasy head-to-head */
 #empty.lobby .h2h{display:grid;grid-template-columns:1fr 1fr;gap:.3em 1.5em;align-content:start}
@@ -1205,7 +1210,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-28b';
+var BUILD = 'build 2026-09-28c';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -6622,7 +6627,12 @@ function fetchCard(){
     })
     .catch(function(){ if (CARD && Date.now() - CARDAT > 6 * 3600e3){ CARD = null; paintCard(); } });
 }
-function cardSig(){ return CARD ? CARD.generated_at + '/' + (CARD.picks || []).length : ''; }
+function cardSig(){
+  if (!CARD) return '';
+  var picks = CARD.picks || [];
+  return CARD.generated_at + '/' + picks.length + '/' + (CARD.late_checks || []).length + '/' +
+    picks.filter(cardStarted).length + '/' + picks.filter(function(p){ return p.scratched; }).length;
+}
 // "PHI @ CHI" -> {away:'PHI', home:'CHI'}
 function cardTeams(p){
   var m = String(p.game || '').split(' @ ');
@@ -6685,7 +6695,7 @@ function addFromCard(ids){
   }
   var n = 0;
   (CARD.picks || []).forEach(function(p){
-    if (ids.indexOf(p.id) < 0 || cardAdded(p) || cardStarted(p)) return;
+    if (ids.indexOf(p.id) < 0 || cardAdded(p) || cardStarted(p) || p.scratched) return;
     var b = cardBet(p);
     if (b){ BETS.push(b); n++; }
   });
@@ -6706,13 +6716,15 @@ function paintCard(){
     (picks.length ? '' : 'No plays today: nothing on DraftKings cleared the bar.');
   var u = cardUnit(), open = 0;
   document.getElementById('cardList').innerHTML = picks.map(function(p){
-    var added = cardAdded(p), started = cardStarted(p);
-    if (!added && !started) open++;
+    var added = cardAdded(p), started = cardStarted(p), scr = !!p.scratched;
+    if (!added && !started && !scr) open++;
     var amt = u ? ' · ' + money(Math.round(u * (p.units || 1) * 100) / 100) : '';
-    return '<div class="cl"><span><b class="cu">' + esc(String(p.units)) + 'u</b>' + esc(p.label) +
+    return '<div class="cl' + (scr ? ' scr' : '') + '"><span><b class="cu">' + esc(String(p.units)) + 'u</b>' + esc(p.label) +
       '<i>' + (p.dk_price > 0 ? '+' : '') + p.dk_price + amt + ' · EV ' + (p.ev * 100).toFixed(1) + '%</i>' +
-      (p.reason ? '<small>' + esc(p.reason) + '</small>' : '') + '</span>' +
-      (added ? '<span class="done">ON THE BOARD</span>'
+      (p.reason ? '<small>' + esc(p.reason) + '</small>' : '') +
+      (scr ? '<small class="scr">Scratched: ' + esc(p.scratch_reason || '') + ' Skip it if you haven’t placed it.</small>' : '') + '</span>' +
+      (scr ? '<span class="done scr">' + (added ? 'ON THE BOARD · ' : '') + 'SCRATCHED</span>'
+        : added ? '<span class="done">ON THE BOARD</span>'
         : started ? '<span class="done">STARTED</span>'
         : '<button data-card="' + esc(p.id) + '">Add</button>') + '</div>';
   }).join('');
@@ -6732,15 +6744,22 @@ function paneCard(){
     return '<div class="slip"><div class="sb"><span class="w">No plays today. Nothing on DraftKings cleared the bar.</span></div>' +
       (CARD.headline ? '<div class="slipsum">' + esc(CARD.headline) + '</div>' : '') + '</div>';
   var u = cardUnit();
-  var rows = picks.map(function(p){
-    var on = cardAdded(p);
-    return '<div class="sb"><span class="by">' + esc(String(p.units)) + 'U</span>' +
-      '<span class="w">' + esc(p.label) + (on ? ' ✓' : '') + '</span>' +
+  /* Between windows — the gap before the night game — only what is still to
+     come is worth the screen; plays already settled are on the recap and the page. */
+  var todo = picks.filter(function(p){ return !cardStarted(p); });
+  if (!todo.length) return '';
+  var later = todo.length < picks.length;
+  var rows = todo.map(function(p){
+    var on = cardAdded(p), scr = !!p.scratched;
+    return '<div class="sb' + (scr ? ' scr' : '') + '"><span class="by">' + (scr ? 'SCRATCH' : esc(String(p.units)) + 'U') + '</span>' +
+      '<span class="w">' + esc(p.label) + (on && !scr ? ' ✓' : '') + '</span>' +
       '<span class="amt">' + (p.dk_price > 0 ? '+' : '') + p.dk_price + '</span></div>';
   }).join('');
-  var sum = picks.length + ' play' + (picks.length === 1 ? '' : 's') + ' · <b>' + CARD.total_units + 'u</b>' +
-    (u && cfg.betMoney ? ' (' + esc(money(CARD.total_units * u)) + ')' : '') +
-    (CARD.headline ? ' · ' + esc(CARD.headline) : '');
+  var live = todo.filter(function(p){ return !p.scratched; });
+  var lu = Math.round(live.reduce(function(a, p){ return a + (p.units || 0); }, 0) * 100) / 100;
+  var sum = live.length + ' play' + (live.length === 1 ? '' : 's') + (later ? ' still to come' : '') + ' · <b>' + lu + 'u</b>' +
+    (u && cfg.betMoney ? ' (' + esc(money(lu * u)) + ')' : '') +
+    (!later && CARD.headline ? ' · ' + esc(CARD.headline) : '');
   return '<div class="slip">' + rows + '<div class="slipsum">' + sum + '</div></div>';
 }
 fetchCard();

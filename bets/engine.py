@@ -11,6 +11,8 @@ Modes
   grade     grade whatever in the ledger has finished
   parlay D id id ...   price a parlay from candidate ids (used by the pre-kickoff session)
   record D picks.json  write the day's card, ledger entries and latest.json from the session's choices
+  late D scratch.json  record a late check: scratch card plays that no longer hold
+  (request file {"mode": "latecheck", "date": D} re-prices the card's game-line plays: 3 credits)
   selftest  run the math against the saved coverage test in data/odds-test/ (no network)
 
 Credits (free tier, 500/month): event list 0, game lines 3 per pull (whole slate),
@@ -62,6 +64,8 @@ MAX_SHIFT_PROPS = 0.15       # fraction of the line
 PROP_ADJUST_MIN_LINE = 20    # below this a yardage line is too lumpy to move with a normal curve
 CONSENSUS_MIN_BOOKS = 3
 CREDIT_RESERVE = 15          # never spend below this
+LATE_MIN_CREDITS = 100       # the late check is a nice-to-have: it never eats into the core budget
+CLOSE_MIN_CREDITS = 40       # nor does the closing-line snapshot
 CLOSE_WINDOW_MIN = 30        # closing snapshot when kickoff is this close
 
 TEAMS = {
@@ -568,6 +572,11 @@ def run_requests():
             r['fulfilled_at'] = iso(now())
             save(path, r)
             continue
+        if r.get('mode') == 'latecheck':
+            latecheck(date)
+            r['fulfilled_at'] = iso(now())
+            save(path, r)
+            continue
         if r.get('mode') == 'gradetest':                       # diagnostics, no credits
             import io, contextlib
             buf = io.StringIO()
@@ -603,7 +612,7 @@ def capture_closing(evs):
             need.append(e)
     if not need:
         return False
-    if remaining() - 3 < CREDIT_RESERVE:
+    if remaining() < CLOSE_MIN_CREDITS:
         log('closing: skipped, credits low')
         return False
     ids = {e['id'] for e in need}
@@ -826,6 +835,7 @@ def write_summary(ledger):
     save(SUMMARY, {'updated': iso(now()), 'season': block(done),
                    'by_type': {k: block(v) for k, v in sorted(groups.items())},
                    'pending': sum(1 for p in ledger if p.get('result') in (None, 'pending')),
+                   'scratched': sum(1 for p in ledger if p.get('result') == 'scratched'),
                    'to_check': [p['id'] for p in ledger if p.get('result') == 'check']})
 
 
@@ -845,6 +855,104 @@ def price_parlay(date, ids):
         res['warning'] = ('two legs share a game: DraftKings prices that as a same-game parlay, '
                           'not as the product, and the legs are not independent. Do not use this number.')
     print(json.dumps(res, indent=1))
+
+
+# ---------------------------------------------------------------- late check
+def latecheck(date):
+    """Fresh game lines (3 credits, whole slate) for the card's game-line plays in
+    games that have not kicked off. Props are not re-priced: that would cost 4
+    credits a game. Writes bets/data/<date>/late.json for the session to judge."""
+    d = day_dir(date)
+    card = load(os.path.join(d, 'card.json'))
+    out = {'date': date, 'checked_at': iso(now()), 'credits_left': remaining(), 'picks': []}
+    if not card:
+        out['note'] = 'no card for this date'
+        save(os.path.join(d, 'late.json'), out)
+        return
+    t = now()
+    legs = []
+    for p in card.get('picks', []):
+        for l in (p.get('legs') or [p]):
+            if l.get('market') in LINE_MARKETS and parse(l['commence']) > t and not p.get('scratched'):
+                legs.append((p, l))
+    if not legs:
+        out['note'] = 'no game-line plays still to come: nothing to re-price, no credits spent'
+        save(os.path.join(d, 'late.json'), out)
+        log('latecheck: nothing to re-price')
+        return
+    prev = load(os.path.join(d, 'late.json'), {})
+    if prev.get('checked_at') and prev.get('picks') and t - parse(prev['checked_at']) < timedelta(minutes=20):
+        log('latecheck: checked in the last 20 minutes, reusing')
+        return
+    if remaining() < LATE_MIN_CREDITS:
+        out['note'] = f'skipped to protect the monthly budget ({remaining()} credits left, late checks need {LATE_MIN_CREDITS}+)'
+        save(os.path.join(d, 'late.json'), out)
+        log('latecheck: ' + out['note'])
+        return
+    games = {g['id']: g for g in odds('/odds', bookmakers=','.join(BOOKS), markets=','.join(LINE_MARKETS),
+                                       oddsFormat='american')}
+    for p, l in legs:
+        g = games.get(l['event_id'])
+        row = {'id': p['id'], 'label': l['label'], 'card_price': l['dk_price'], 'card_ev': l['ev']}
+        if not g:
+            row['note'] = 'game not in the feed'
+            out['picks'].append(row)
+            continue
+        books = {b['key']: index_book(b, g) for b in g['bookmakers']}
+        key = (l['market'], l['subject'], l['side'], l['point'])
+        f = fair_for(key, g, books)
+        now_dk = books.get('draftkings', {}).get(key)
+        if f['source']:
+            row['fair_prob_now'] = round(f['p'], 4)
+            row['fair_price_now'] = fair_american(f['p'])
+            row['source_now'] = f['source']
+            # what the bet is worth now at the card's price, if it has already been placed
+            row['ev_at_card_price_now'] = round(f['p'] * dec(l['dk_price']) - 1, 4)
+            if now_dk is not None:
+                row['ev_now'] = round(f['p'] * dec(now_dk) - 1, 4)
+        row['dk_price_now'] = now_dk
+        if now_dk is None:
+            alts = sorted(k[3] for k in books.get('draftkings', {}) if k[:3] == key[:3] and k[3] is not None)
+            row['note'] = f'DraftKings no longer offers {l["point"]:g}; now offering {alts}'
+        out['picks'].append(row)
+    out['credits_left'] = remaining()
+    save(os.path.join(d, 'late.json'), out)
+    log(f'latecheck {date}: {len(out["picks"])} game-line plays re-priced')
+
+
+def apply_late(date, spec_path):
+    """Record the session's late-check decisions: scratch plays that no longer hold."""
+    spec = load(spec_path) or {}
+    d = day_dir(date)
+    card = load(os.path.join(d, 'card.json'))
+    if not card:
+        raise SystemExit(f'no card for {date}')
+    t = iso(now())
+    why = {x['id']: x.get('why', '') for x in spec.get('scratch', [])}
+    known = {p['id'] for p in card['picks']}
+    bad = [i for i in why if i not in known]
+    for p in card['picks']:
+        if p['id'] in why and not p.get('scratched'):
+            if any(parse(l['commence']) <= now() for l in (p.get('legs') or [p])):
+                bad.append(p['id'] + ' (already started)')
+                continue
+            p['scratched'], p['scratch_reason'], p['scratched_at'] = True, why[p['id']], t
+    card.setdefault('late_checks', []).append({'at': t, 'games': spec.get('games', []),
+                                              'scratched': [i for i in why if i in known],
+                                              'note': spec.get('note', '')})
+    card['total_units'] = round(sum(p['units'] for p in card['picks'] if not p.get('scratched')), 2)
+    save(os.path.join(d, 'card.json'), card)
+    ledger = load(LEDGER, [])
+    for e in ledger:
+        if e.get('date') == date and e['id'] in why and e.get('result') in (None, 'pending'):
+            e['result'], e['pl'], e['scratch_reason'] = 'scratched', 0.0, why[e['id']]
+    save(LEDGER, ledger)
+    write_summary(ledger)
+    save(os.path.join(HERE, 'latest.json'), {'date': date, 'generated_at': card['generated_at'], 'updated_at': t})
+    print(f'late check recorded for {date}: {len(card["late_checks"][-1]["scratched"])} scratched')
+    if bad:
+        print('PROBLEM: not scratched: ' + ', '.join(bad))
+        raise SystemExit(1)
 
 
 # ---------------------------------------------------------------- record the card
@@ -989,6 +1097,8 @@ def main(argv):
         return gradetest(argv[2])
     if mode == 'record':
         return record(argv[2], argv[3])
+    if mode == 'late':
+        return apply_late(argv[2], argv[3])
     if mode == 'pull':
         return pull(argv[2])
     if mode == 'request':

@@ -39,7 +39,9 @@ h2{font-size:20px;text-transform:uppercase;color:var(--sideline);margin:28px 0 1
    border-radius:5px;padding:1px 6px;margin-right:6px;vertical-align:2px}
 .res{font:700 13px 'Barlow Condensed',sans-serif;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
 .win{background:var(--live);color:#062b12}.loss{background:var(--red);color:#fff}
-.push,.check{background:var(--line);color:var(--chalk)}
+.push,.check,.scratched{background:var(--line);color:var(--chalk)}
+.pick.scr .bet,.pick.scr .price{text-decoration:line-through;opacity:.55}
+.scrwhy{margin-top:6px;font-size:14px;color:var(--flag)}
 .note{padding:10px 14px;color:var(--sideline);font-size:15px}
 .nop .note{color:var(--chalk)}
 details{background:var(--turf);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:10px 0}
@@ -77,10 +79,13 @@ function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c
 function am(n){ return n == null ? '' : (n > 0 ? '+' + n : String(n)); }
 function pct(x, d){ return x == null ? '–' : (x * 100).toFixed(d == null ? 1 : d) + '%'; }
 function units(u){ return (u > 0 ? '+' : '') + (Math.round(u * 100) / 100) + 'u'; }
-function fmtDate(d){ var p = d.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'}); }
+function fmtDate(d){
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return 'Preview card';
+  var p = d.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+}
 function fmtTime(iso){ return new Date(iso).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZone:'America/New_York'}) + ' ET'; }
 function srcName(s){ return s === 'pinnacle' ? 'vs Pinnacle' : s === 'pinnacle-adjusted' ? 'vs Pinnacle, moved to this number' : s === 'consensus' ? 'vs US-book consensus' : s; }
-function resBadge(p){ return p && p.result && p.result !== 'pending' ? '<span class="res ' + p.result + '">' + p.result.toUpperCase() + (p.pl != null && p.result !== 'check' ? ' ' + units(p.pl) : '') + '</span>' : ''; }
+function resBadge(p){ return p && p.result && p.result !== 'pending' ? '<span class="res ' + p.result + '">' + p.result.toUpperCase() + (p.pl != null && p.result !== 'check' && p.result !== 'scratched' ? ' ' + units(p.pl) : '') + '</span>' : ''; }
 
 function pickHtml(p, live){
   var r = live[p.id] || p;
@@ -88,10 +93,13 @@ function pickHtml(p, live){
     ? 'Parlay · fair ' + am(p.fair_price) + ' · EV ' + pct(p.ev)
     : 'fair ' + am(p.fair_price) + ' (' + pct(p.fair_prob) + ') · EV ' + pct(p.ev) + ' · ' + srcName(p.source)
       + (r.result_note ? ' · ' + esc(r.result_note) : '');
-  return '<div class="pick"><div class="prow"><div class="bet"><span class="u">' + p.units + 'u</span>' + esc(p.label) + resBadge(r) + '</div>'
+  var scr = p.scratched || r.result === 'scratched';
+  return '<div class="pick' + (scr ? ' scr' : '') + '"><div class="prow"><div class="bet"><span class="u">' + p.units + 'u</span>' + esc(p.label) + (scr ? '' : resBadge(r)) + '</div>'
     + '<div class="price">' + am(p.dk_price) + '</div></div>'
     + '<div class="meta">' + meta + '</div>'
-    + (p.reason ? '<div class="why">' + esc(p.reason) + '</div>' : '') + '</div>';
+    + (p.reason ? '<div class="why">' + esc(p.reason) + '</div>' : '')
+    + (scr ? '<div class="scrwhy"><span class="res scratched">SCRATCHED</span> ' + esc(p.scratch_reason || r.scratch_reason || '') + ' Skip it if you haven’t placed it.</div>' : '')
+    + '</div>';
 }
 
 function render(card, ledger){
@@ -102,7 +110,8 @@ function render(card, ledger){
   document.getElementById('headline').textContent = card.headline || '';
   var singles = card.picks.filter(function(p){ return p.kind !== 'parlay'; });
   var parlays = card.picks.filter(function(p){ return p.kind === 'parlay'; });
-  var s = '<div class="stat"><b>' + card.picks.length + '</b><span>plays</span></div>'
+  var nscr = card.picks.filter(function(p){ return p.scratched; }).length;
+  var s = '<div class="stat"><b>' + (card.picks.length - nscr) + '</b><span>plays' + (nscr ? ' · ' + nscr + ' scratched' : '') + '</span></div>'
         + '<div class="stat"><b>' + card.total_units + 'u</b><span>total stake</span></div>'
         + '<div class="stat"><b>' + card.games.length + '</b><span>games</span></div>';
   document.getElementById('stats').innerHTML = s;
@@ -127,6 +136,10 @@ function render(card, ledger){
     card.passed.forEach(function(x){ h += '<li><b>' + esc(x.label || x.id) + '</b> — ' + esc(x.why) + '</li>'; });
     h += '</ul></details>';
   }
+  (card.late_checks || []).forEach(function(lc){
+    card.notes = (card.notes || []).concat(['Late check ' + fmtTime(lc.at) + ' (' + (lc.games || []).join(', ') + '): ' +
+      (lc.scratched && lc.scratched.length ? lc.scratched.length + ' scratched' : 'everything still holds') + (lc.note ? ' · ' + lc.note : '')]);
+  });
   if ((card.notes || []).length){
     h += '<details open><summary>Notes</summary><ul>';
     card.notes.forEach(function(n){ h += '<li>' + esc(n) + '</li>'; });

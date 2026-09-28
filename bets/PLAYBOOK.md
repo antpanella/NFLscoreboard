@@ -19,7 +19,7 @@ reach the Odds API or ESPN; GitHub Actions can, so odds arrive through the repo.
 Read `bets/data/schedule.json` (refreshed by the Action every 15 minutes).
 - Today's games = events whose `et_date` is today.
 - No games today → stop quietly.
-- `bets/data/<today>/card.json` already exists → stop quietly.
+- `bets/data/<today>/card.json` already exists → skip to **8. Late check**.
 - First kickoff more than 3 h 30 min away → stop quietly; a later run handles it.
 - First kickoff already passed → build the card for the games not yet started and say so.
 - If `schedule.json` `updated` is more than 2 hours old, the Action may be stuck: note it on the card.
@@ -110,8 +110,43 @@ One message (SendUserMessage): the headline, then the plays as a short list —
 bet, DraftKings price, units, the one-line reason — total units, and the page link.
 No plays → say so plainly and why. No hype, no certainty words, no "lock".
 
+## 8. Late check (the card already exists)
+The card was built before the first kickoff, so plays in later games (4 PM, night)
+were vetted before their inactives and at morning prices. Later runs re-check them.
+1. Open `bets/data/<today>/card.json`. The **late plays** are those not `scratched`
+   whose game (every leg's game, for a parlay) kicks off within the next 3 h 30 min and
+   has not started.
+2. Stop quietly if there are no late plays, or if every late play's game is already
+   listed in an entry of `late_checks[].games` (it has been checked).
+3. **News** (free): for every late play, web-search the injury report and official
+   inactives (out 90 minutes before kickoff) for the player, or for key players on a
+   game line, plus weather at outdoor stadiums.
+4. **Prices** (3 credits, only when a late play is a game line): write
+   `bets/requests/<today>-late-<HHMM>.json` as
+   `{"mode": "latecheck", "date": "<today>", "requested_at": "<UTC ISO>"}`, commit, push,
+   and poll as in step 2 until the file has `fulfilled_at`. Read `bets/data/<today>/late.json`:
+   `ev_now` is the edge at DraftKings' price now, `ev_at_card_price_now` what the card's
+   price is worth against the fair price now. If it says the check was skipped to protect
+   the budget, judge on news alone. Props are never re-priced (it would cost 4 credits a game).
+5. **Scratch** a play only when it no longer holds:
+   - the player is out, doubtful or inactive, or a teammate's absence changes his role
+     against the bet (a prop on a WR whose QB was ruled out, an under when the starter
+     ahead of him sits);
+   - a game line whose `ev_now` is below half its threshold, or whose number DraftKings
+     no longer offers at a price that clears;
+   - weather that now argues against it.
+   Never add new plays in a late check, and never scratch a game that has started.
+6. Write `{"scratch": [{"id": "...", "why": "one sentence"}], "games": ["PIT @ CLE", ...],
+   "note": "one line"}` (list every late play's game under `games`, scratched or not, so
+   it is not checked twice) and run `python3 bets/engine.py late <today> <file>`.
+   Commit (`bets: late check <today>`), `git pull --rebase -q`, push.
+7. Message Anthony (SendUserMessage) **only if something was scratched**: which play
+   and why, in one line each, "skip it if you haven't placed it". Otherwise stay quiet.
+
 ## Standing rules
 - Only bet what is in `candidates.json`: the DraftKings price must be real and current.
 - Units never change with results. No chasing.
-- One odds request per gameday. A second only if the first failed, never to "refresh".
+- One odds request per gameday, plus at most one late-check request per kickoff window
+  (and only when a late play is a game line). Never a request just to "refresh".
+  The engine refuses late checks below 100 credits and closing snapshots below 40.
 - Don't touch `index.html` or anything outside `bets/`.
