@@ -1,0 +1,18 @@
+{
+ "updated": "2026-09-28T22:56:53Z",
+ "season": {
+  "picks": 0,
+  "won": 0,
+  "lost": 0,
+  "push": 0,
+  "units": 0,
+  "roi": null,
+  "avg_ev_at_bet": null,
+  "avg_clv": null,
+  "clv_n": 0
+ },
+ "by_type": {},
+ "pending": 0,
+ "scratched": 0,
+ "to_check": []
+}

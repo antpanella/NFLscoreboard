@@ -1,0 +1,44 @@
+{
+ "date": "2026-09-28",
+ "generated_at": "2026-09-28T22:56:53Z",
+ "headline": "No play for Eagles at Bears. DraftKings is within a few cents of Pinnacle's fair price across the board; nothing clears the bar.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "47dc7baa254659f3beb2ed2b38c207b6",
+   "game": "PHI @ CHI",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-09-29T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 52,
+   "picks": [],
+   "note": "Lines tight. Best edges are three receiving/rushing unders at +2.9% to +3.2% on adjusted Pinnacle numbers, below the 4.5% bar; CHI +3.5 at -105 is about +0.8%."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Makai Lemon under 28.5 rec yds (-110)",
+   "why": "+3.2% on a pinnacle-adjusted number, under the 4.5% bar"
+  },
+  {
+   "label": "Jalen Hurts under 26.5 rush yds (-115)",
+   "why": "+2.9% on a pinnacle-adjusted number, under the 4.5% bar"
+  },
+  {
+   "label": "Rome Odunze under 26.5 rec yds (-112)",
+   "why": "+2.9% on a pinnacle-adjusted number, under the 4.5% bar"
+  },
+  {
+   "label": "Luther Burden III / Makai Lemon anytime TD",
+   "why": "Showed +6-7% in the 3:23 PM pull; gone at kickoff-time prices"
+  }
+ ],
+ "notes": [
+  "Single-game day; parlays need legs from different games, so none.",
+  "schedule.json last updated 19:23Z (3.5 h before this card); the 15-minute Action refresh may be stuck."
+ ],
+ "credits_left": 470
+}
