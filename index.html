@@ -1205,7 +1205,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-28a';
+var BUILD = 'build 2026-09-28b';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1444,9 +1444,20 @@ function aheadGet(url){
 }
 function aheadTick(){
   if (REPLAY || DEMO || AHEAD.busy) return;
+  /* Not before the scoreboard has answered once. At start-up the games list is
+     empty for a few seconds, which looked like "nothing on" and started the
+     look-ahead; the first fantasy poll landed in that window, every team missing
+     from the look-ahead counted as still to play, and each lineup's full
+     projection went on top of its points (163 / 311.7 on 28 September) until the
+     next poll five minutes later. */
+  if (!LASTDATA) return;
   var now = window.__games || [];
   if (now.some(function(g){ return g.state === 'in' || upcoming(g); })){
-    AHEAD.games = []; AHEAD.note = ''; return;
+    var had = AHEAD.games.length;
+    AHEAD.games = []; AHEAD.note = '';
+    // totals worked out while the look-ahead was in use are wrong now: redo them
+    if (had){ LOBSIG = null; if (FAN.ready && FAN.week) fanPoints(); }
+    return;
   }
   if (Date.now() - AHEAD.at < 600000) return;
   AHEAD.busy = true; AHEAD.at = Date.now();
@@ -4482,15 +4493,26 @@ function learnPlayers(ids){
   fetch(SLEEP + '/players/nfl?active=true')
     .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
     .then(function(all){
+      var learned = 0;
       missing.forEach(function(id){
         var pl = all[id];
         if (!pl) return;
+        var had = map[id] && map[id].t;
         map[id] = {n: pl.search_full_name || '', d: ((pl.first_name || '') + ' ' +
           (pl.last_name || '')).trim(), t: pl.team || '', p: pl.position || '',
           j: String(pl.number != null ? pl.number : '')};
+        if (!had && map[id].t) learned++;
       });
       var c = pcache();
       pcache({at: c.at || Date.now(), map: map});
+      /* The projected totals were worked out before these players' teams were
+         known, which counts them as finished; before kickoff the next poll is five
+         minutes off. Redo them now. Only when a team was actually learned, so ids
+         Sleeper does not know cannot set off a loop of refetches. */
+      if (learned && FAN.ready && FAN.week){
+        clearTimeout(learnPlayers.redo);
+        learnPlayers.redo = setTimeout(fanPoints, 500);
+      }
       /* The opponent's side was built from this cache before the fetch returned,
          so every one of them read "player". Rebuild it now the names are in. */
       if (FAN.foeIds && FAN.foeIds.length){ FAN.foes = rosterFrom(FAN.foeIds); LOBSIG = null; render(); }
