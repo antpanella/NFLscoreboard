@@ -1,15 +1,6 @@
 {
- "updated": "2026-09-29T03:21:31Z",
+ "updated": "2026-09-29T03:46:33Z",
  "events": [
-  {
-   "id": "47dc7baa254659f3beb2ed2b38c207b6",
-   "commence": "2026-09-29T00:16:16Z",
-   "et_date": "2026-09-28",
-   "kickoff_et": "Mon 8:16 PM ET",
-   "home": "Chicago Bears",
-   "away": "Philadelphia Eagles",
-   "game": "PHI @ CHI"
-  },
   {
    "id": "d55cb69fed50a09170560b5b75d8de86",
    "commence": "2026-10-02T00:15:00Z",
