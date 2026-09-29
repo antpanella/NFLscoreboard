@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-29T00:26:16Z",
+ "updated": "2026-09-29T00:51:08Z",
  "events": [
   {
    "id": "47dc7baa254659f3beb2ed2b38c207b6",
@@ -56,15 +56,6 @@
    "game": "NE @ BUF"
   },
   {
-   "id": "164e6eb68f31bac190381903c3cccd31",
-   "commence": "2026-10-04T17:00:00Z",
-   "et_date": "2026-10-04",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Chicago Bears",
-   "away": "New York Jets",
-   "game": "NYJ @ CHI"
-  },
-  {
    "id": "2ea94ddf20f66432b9024fe2e2eaba5f",
    "commence": "2026-10-04T17:00:00Z",
    "et_date": "2026-10-04",
@@ -90,15 +81,6 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Green Bay Packers",
    "game": "GB @ TB"
-  },
-  {
-   "id": "1b4f2e60ce83fa1d63a5dff83769d27c",
-   "commence": "2026-10-04T17:00:00Z",
-   "et_date": "2026-10-04",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Los Angeles Rams",
-   "game": "LAR @ PHI"
   },
   {
    "id": "c327223d76a3b7b0db8c6c104442f44b",
