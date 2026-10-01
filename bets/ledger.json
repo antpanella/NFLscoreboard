@@ -1,1 +1,32 @@
-[]
+[
+ {
+  "id": "44229e3e",
+  "event_id": "d55cb69fed50a09170560b5b75d8de86",
+  "game": "PIT @ CLE",
+  "home": "Cleveland Browns",
+  "away": "Pittsburgh Steelers",
+  "commence": "2026-10-02T00:15:00Z",
+  "market": "player_receptions",
+  "subject": "Michael Pittman Jr.",
+  "side": "Over",
+  "point": 3.5,
+  "label": "Michael Pittman Jr. over 3.5 receptions",
+  "dk_price": 134,
+  "fair_prob": 0.4501,
+  "fair_price": 122,
+  "ev": 0.0532,
+  "source": "pinnacle",
+  "dk_updated": "2026-10-01T22:54:29Z",
+  "pin_vig": 0.048,
+  "pin_updated": "2026-10-01T22:56:19Z",
+  "consensus_prob": 0.4507,
+  "consensus_books": 4,
+  "kind": "single",
+  "units": 1,
+  "reason": "DraftKings (+134) is well off the market: Pinnacle's no-vig price and four other books both put four catches at 45% (FanDuel +106, BetMGM +100); he is off the injury report after the Week 2 foot issue and ran routes on 78% of dropbacks in his first game back.",
+  "date": "2026-10-01",
+  "recorded_at": "2026-10-01T23:00:27Z",
+  "result": null,
+  "pl": null
+ }
+]

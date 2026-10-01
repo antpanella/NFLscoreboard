@@ -1,0 +1,80 @@
+{
+ "date": "2026-10-01",
+ "generated_at": "2026-10-01T23:00:27Z",
+ "headline": "One play on a one-game night: Michael Pittman Jr. over 3.5 receptions at +134. Game lines are tight and the three touchdown props that cleared the bar were cut.",
+ "total_units": 1,
+ "games": [
+  {
+   "event_id": "d55cb69fed50a09170560b5b75d8de86",
+   "game": "PIT @ CLE",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "commence": "2026-10-02T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 94,
+   "picks": [
+    "44229e3e"
+   ],
+   "note": "One play (Pittman receptions). Spread, moneyline and total are all priced below fair at DraftKings; Pinnacle has barely moved since the morning. Weather is a non-factor: mid-70s, wind around 9 mph, showers only a late-game risk."
+  }
+ ],
+ "picks": [
+  {
+   "id": "44229e3e",
+   "event_id": "d55cb69fed50a09170560b5b75d8de86",
+   "game": "PIT @ CLE",
+   "home": "Cleveland Browns",
+   "away": "Pittsburgh Steelers",
+   "commence": "2026-10-02T00:15:00Z",
+   "market": "player_receptions",
+   "subject": "Michael Pittman Jr.",
+   "side": "Over",
+   "point": 3.5,
+   "label": "Michael Pittman Jr. over 3.5 receptions",
+   "dk_price": 134,
+   "fair_prob": 0.4501,
+   "fair_price": 122,
+   "ev": 0.0532,
+   "source": "pinnacle",
+   "dk_updated": "2026-10-01T22:54:29Z",
+   "pin_vig": 0.048,
+   "pin_updated": "2026-10-01T22:56:19Z",
+   "consensus_prob": 0.4507,
+   "consensus_books": 4,
+   "kind": "single",
+   "units": 1,
+   "reason": "DraftKings (+134) is well off the market: Pinnacle's no-vig price and four other books both put four catches at 45% (FanDuel +106, BetMGM +100); he is off the injury report after the Week 2 foot issue and ran routes on 78% of dropbacks in his first game back.",
+   "date": "2026-10-01",
+   "recorded_at": "2026-10-01T23:00:27Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Jerry Jeudy anytime TD +950 (+7.1%)",
+   "why": "No targets in two straight games and no end-zone looks this season; the edge on a 9-to-1 shot depends on how Pinnacle's juice is split and I found no news explaining why DraftKings would be off."
+  },
+  {
+   "label": "Pat Freiermuth anytime TD +400 (+5.6%)",
+   "why": "DraftKings matches Bovada (+400) and BetMGM (+390), so it is not out of line with the market; his route share has slipped to about 57% with Darnell Washington at a season high, and he has no red-zone targets."
+  },
+  {
+   "label": "KC Concepcion anytime TD +360 (+5.0%)",
+   "why": "Sits exactly on the 5% bar with DraftKings level with FanDuel and Bovada; his targets are short-area (3.8 air yards) while the end-zone looks go to Boston and Fannin, behind a line missing two starters."
+  },
+  {
+   "label": "Harold Fannin Jr. anytime TD +295 (+2.5%)",
+   "why": "Below the 5% bar for touchdown props."
+  }
+ ],
+ "notes": [
+  "Single-game night: 1u at risk against a 4u cap. No parlay: only one play, and parlays need legs from different games.",
+  "Official inactives came out about 15 minutes before this card and I could not pull the full lists; Pittman is not on the injury report, so check he is active before placing.",
+  "Steelers are without RB Rico Dowdle and CB Joey Porter Jr. (traded); Browns are without C Elgton Jenkins, G Teven Jenkins and WR Tylan Wallace.",
+  "schedule.json still shows updated 2026-09-29T19:44Z, more than 2 hours old. The Action answered today's odds request in 9 seconds, so it is running, but the schedule refresh may not be rewriting the file.",
+  "Odds pull cost 9 credits; 485 left."
+ ],
+ "credits_left": 485
+}
