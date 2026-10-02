@@ -26,7 +26,14 @@
   "reason": "DraftKings (+134) is well off the market: Pinnacle's no-vig price and four other books both put four catches at 45% (FanDuel +106, BetMGM +100); he is off the injury report after the Week 2 foot issue and ran routes on 78% of dropbacks in his first game back.",
   "date": "2026-10-01",
   "recorded_at": "2026-10-01T23:00:27Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "2 receptions",
+  "close_fair_prob": 0.4501,
+  "close_fair_price": 122,
+  "close_source": "pinnacle",
+  "clv": 0.0532,
+  "close_dk_price": 134,
+  "graded_at": "2026-10-02T03:57:35Z"
  }
 ]

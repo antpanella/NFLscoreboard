@@ -1,18 +1,30 @@
 {
- "updated": "2026-10-01T23:00:27Z",
+ "updated": "2026-10-02T03:57:36Z",
  "season": {
-  "picks": 0,
+  "picks": 1,
   "won": 0,
-  "lost": 0,
+  "lost": 1,
   "push": 0,
-  "units": 0,
-  "roi": null,
-  "avg_ev_at_bet": null,
-  "avg_clv": null,
-  "clv_n": 0
+  "units": -1,
+  "roi": -1.0,
+  "avg_ev_at_bet": 0.0532,
+  "avg_clv": 0.0532,
+  "clv_n": 1
  },
- "by_type": {},
- "pending": 1,
+ "by_type": {
+  "yardage props": {
+   "picks": 1,
+   "won": 0,
+   "lost": 1,
+   "push": 0,
+   "units": -1,
+   "roi": -1.0,
+   "avg_ev_at_bet": 0.0532,
+   "avg_clv": 0.0532,
+   "clv_n": 1
+  }
+ },
+ "pending": 0,
  "scratched": 0,
  "to_check": []
 }
