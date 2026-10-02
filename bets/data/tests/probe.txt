@@ -1,12 +1,6 @@
-2026-10-02T02:05:54Z
+2026-10-02T02:08:56Z
 https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100
-  200 276035 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/test-ftd/00.json.gz
+  200 276629 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/test-ftd2/00.json.gz
 
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401872963
-  200 553742 bytes | '{"boxscore":{"teams":[{"team":{"id":"21","uid":"s:20~l:28~t:21","slug":"philadelphia-eagles","location":"Philadelphia","name":"Eagles","abbreviation":"PHI","dis' | saved probe/test-ftd/01.json.gz
-
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401872948
-  200 591681 bytes | '{"boxscore":{"teams":[{"team":{"id":"1","uid":"s:20~l:28~t:1","slug":"atlanta-falcons","location":"Atlanta","name":"Falcons","abbreviation":"ATL","displayName":' | saved probe/test-ftd/02.json.gz
-
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401872953
-  200 612230 bytes | '{"boxscore":{"teams":[{"team":{"id":"24","uid":"s:20~l:28~t:24","slug":"los-angeles-chargers","location":"Los Angeles","name":"Chargers","abbreviation":"LAC","d' | saved probe/test-ftd/03.json.gz
+https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401872964
+  200 401542 bytes | '{"boxscore":{"teams":[{"team":{"id":"23","uid":"s:20~l:28~t:23","slug":"pittsburgh-steelers","location":"Pittsburgh","name":"Steelers","abbreviation":"PIT","dis' | saved probe/test-ftd2/01.json.gz
