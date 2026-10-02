@@ -1218,7 +1218,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-01c';
+var BUILD = 'build 2026-10-01d';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -5976,7 +5976,8 @@ function guestCall(body){
 
 /* Stat words as bettors and sportsbooks write them, mapped to ESPN's box keys. */
 var STAT_WORDS = [
-  [/rush(ing)?\s*\+\s*rec(eiving)?\s*(yds|yards)|rush\s*&\s*rec/i, 'rushRecYards', 'rush+rec yds'],
+  // "rushing & receiving yards", "rush + rec yds", "rush and rec", "receiving + rushing", "scrimmage yards"
+  [/rush(ing)?\s*(\+|&|\/|and)\s*rec(eiving)?(\s*(yds|yards|yd))?|rec(eiving)?\s*(\+|&|\/|and)\s*rush(ing)?(\s*(yds|yards|yd))?|scrimmage\s*(yds|yards|yd)/i, 'rushRecYards', 'rush+rec yds'],
   [/pass(ing)?\s*(yds|yards|yd)/i,            'passingYards',       'pass yds'],
   [/rush(ing)?\s*(yds|yards|yd)/i,            'rushingYards',       'rush yds'],
   [/rec(eiving)?\s*(yds|yards|yd)/i,          'receivingYards',     'rec yds'],
@@ -6026,7 +6027,7 @@ function parseBet(line){
   if (m){ odds = parseInt(m[1].replace('−', '-'), 10); text = text.replace(m[1], ' '); }
 
   // "100+ Rushing + Receiving Yards" is one leg: its plus sign must not split the parlay
-  text = text.replace(/(rush(?:ing)?)\s*\+\s*(rec)/ig, '$1+$2');
+  text = text.replace(/(rush(?:ing)?|rec(?:eiving)?)\s*\+\s*(rush|rec)/ig, '$1+$2');
   var parts = [text], isParlay = false;
   if (/\bparlay\b|\bsgp\b|same.?game/i.test(text) || / \+ | \| |;/.test(text)){
     parts = text.replace(/\b(same.?game\s*)?parlay\b|\bsgp\b|\(\s*\d+\s*legs?\s*\)|\d+\s*legs?\s*:?/gi, ' ')
