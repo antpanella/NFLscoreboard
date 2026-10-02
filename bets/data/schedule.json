@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-02T00:28:15Z",
+ "updated": "2026-10-02T00:52:42Z",
  "events": [
   {
    "id": "d55cb69fed50a09170560b5b75d8de86",
@@ -182,15 +182,6 @@
    "game": "CIN @ MIA"
   },
   {
-   "id": "9db4ed15fe34fca1fb62f040cd244591",
-   "commence": "2026-10-11T17:00:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "New York Jets",
-   "away": "Cleveland Browns",
-   "game": "CLE @ NYJ"
-  },
-  {
    "id": "cc52bba56e74f5cddbe9011046181c3d",
    "commence": "2026-10-11T17:00:00Z",
    "et_date": "2026-10-11",
@@ -198,15 +189,6 @@
    "home": "Tennessee Titans",
    "away": "Houston Texans",
    "game": "HOU @ TEN"
-  },
-  {
-   "id": "448d7cf18c6db4c811ed82ded1b72867",
-   "commence": "2026-10-11T17:00:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Pittsburgh Steelers",
-   "away": "Indianapolis Colts",
-   "game": "IND @ PIT"
   },
   {
    "id": "6b024bad1abb54f597225e4ab9b39d89",
