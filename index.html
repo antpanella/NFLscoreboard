@@ -1218,7 +1218,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-09-28e';
+var BUILD = 'build 2026-10-01a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -5701,6 +5701,21 @@ function loadBets(){
   try { return JSON.parse(localStorage.getItem('sundayBoardBets') || '[]') || []; }
   catch(e){ return []; }
 }
+/* A bet is stored the way it was read when it was added. When the reader is
+   fixed, a bet already on the board is read again from the line that was typed,
+   so nobody has to delete it and type it in again mid-game. Card plays are built
+   from the card's fields, not from text, and are left alone. */
+function rereadBets(list){
+  (list || []).forEach(function(b){
+    try {
+      if (!b || !b.src || b.cardId || b.demo || !b.legs) return;
+      var p = parseBet(b.src);
+      if (!p || p.error || p.legs.length !== b.legs.length) return;
+      if (JSON.stringify(p.legs) !== JSON.stringify(b.legs)){ b.legs = p.legs; b.parlay = p.parlay; }
+    } catch(e){}
+  });
+  return list;
+}
 function saveBets(){
   if (REPLAY) return;                       // a replay's bets are the recording's, not yours
   /* The bets a demo seeds are scenery. They are kept out of the saved list and
@@ -5778,6 +5793,9 @@ var localOnly = [];
 function takeBets(list){
   var live = (list || []).filter(function(b){ return !b.deleted && b.legs && b.legs.length; });
   var before = JSON.stringify(BETS.map(betKey));
+  /* Read again before the base is taken, so a bet this build reads differently
+     does not look like a local change and get sent back up under another name. */
+  rereadBets(live);
   SYNC.base = {};
   (list || []).forEach(function(b){ if (!b.deleted && b.legs) SYNC.base[b.id] = betKey(b); });
   if (REPLAY) return;
@@ -6007,6 +6025,8 @@ function parseBet(line){
   m = /(?:^|\s)([+\-−]\d{3,4})(?=\s|$)/.exec(text);
   if (m){ odds = parseInt(m[1].replace('−', '-'), 10); text = text.replace(m[1], ' '); }
 
+  // "100+ Rushing + Receiving Yards" is one leg: its plus sign must not split the parlay
+  text = text.replace(/(rush(?:ing)?)\s*\+\s*(rec)/ig, '$1+$2');
   var parts = [text], isParlay = false;
   if (/\bparlay\b|\bsgp\b|same.?game/i.test(text) || / \+ | \| |;/.test(text)){
     parts = text.replace(/\b(same.?game\s*)?parlay\b|\bsgp\b|\(\s*\d+\s*legs?\s*\)|\d+\s*legs?\s*:?/gi, ' ')
@@ -6025,6 +6045,18 @@ function parseBet(line){
           added: Date.now()};
 }
 
+/* The team a player bet names, read only from the words around his name —
+   "Travis Kelce (KC)". His own name is not a team: "Washington anytime TD" is
+   Darnell Washington, not the Commanders, and "KC Concepcion" is not a Chief.
+   Read the old way, those bets were pinned to a game he is not playing in and
+   never counted. */
+function teamBeside(t, name){
+  var i = name ? t.indexOf(name) : -1;
+  if (i >= 0) return teamsIn(t.slice(0, i) + ' ' + t.slice(i + name.length))[0] || '';
+  var own = teamsIn(name);
+  return teamsIn(t).filter(function(x){ return own.indexOf(x) < 0; })[0] || '';
+}
+
 function parseLeg(p){
   var t = ' ' + p.replace(/\s+/g, ' ').trim() + ' ';
   var low = t.toLowerCase();
@@ -6037,7 +6069,7 @@ function parseLeg(p){
       .replace(/\b(yes|to score)\b/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
       .replace(/\s+/g, ' ').trim();
     if (!who) return null;
-    return {type:'td', player:who, team:teams[0] || '', label: shortName(who) + ' anytime TD'};
+    return {type:'td', player:who, team:teamBeside(t, who), label: shortName(who) + ' anytime TD'};
   }
 
   // player props: a stat word decides it
@@ -6045,14 +6077,15 @@ function parseLeg(p){
     if (!STAT_WORDS[i][0].test(t)) continue;
     var stat = STAT_WORDS[i][1], statLabel = STAT_WORDS[i][2];
     var side = null, line = null, mm;
-    if ((mm = /\b(o|over)\s*(\d+(?:\.\d+)?)/i.exec(t))){ side = 'over'; line = +mm[2]; }
-    else if ((mm = /\b(u|under)\s*(\d+(?:\.\d+)?)/i.exec(t))){ side = 'under'; line = +mm[2]; }
+    // "un. .5" and "ov 249.5" are how people shorten it; ".5" is a half with no zero in front
+    if ((mm = /\b(o|ov|over)\.??\s*(\d*\.\d+|\d+)/i.exec(t))){ side = 'over'; line = +mm[2]; }
+    else if ((mm = /\b(u|un|und|under)\.??\s*(\d*\.\d+|\d+)/i.exec(t))){ side = 'under'; line = +mm[2]; }
     else if ((mm = /(\d+(?:\.\d+)?)\s*\+/.exec(t))){ side = 'over'; line = +mm[1] - 0.5; }   // "250+" means 250 or more
     else if ((mm = /\b(\d+(?:\.\d+)?)\b/.exec(t))){ side = 'over'; line = +mm[1]; }
     if (line === null) return null;
     var name = t.slice(0, mm.index).replace(/\(.*?\)/g, ' ')
       .replace(new RegExp(STAT_WORDS[i][0].source, 'ig'), ' ')
-      .replace(/\b(o|u|over|under|alt|alternate)\b/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
+      .replace(/\b(over|under|alt|alternate|ov|un|und|o|u)\b(?!\.\s*[A-Za-z])/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
       .replace(/\s+/g, ' ').trim();
     if (!name){
       // "Over 249.5 passing yards — Josh Allen"
@@ -6060,7 +6093,7 @@ function parseLeg(p){
         .replace(/\(.*?\)|[-–—:]/g, ' ').trim();
     }
     if (!name) return null;
-    return {type:'prop', player:name, team:teams[0] || '', stat:stat, side:side, line:line,
+    return {type:'prop', player:name, team:teamBeside(t, name), stat:stat, side:side, line:line,
             label: shortName(name) + ' ' + (side === 'over' ? 'o' : 'u') + line + ' ' + statLabel};
   }
 
@@ -6086,6 +6119,7 @@ function parseLeg(p){
   if (/\b(pk|pick|pick.?em)\b/i.test(low)) return {type:'spread', team:teams[0], line:0, label: teams[0] + ' PK'};
   return null;
 }
+rereadBets(BETS);        // the bets this browser saved, read with the reader as it is now
 
 /* ---- box scores ----
    ESPN's summary lists, per team, categories (passing, rushing, receiving ...)
