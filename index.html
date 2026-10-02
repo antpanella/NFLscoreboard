@@ -1106,7 +1106,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
     <div><b>Yards</b><code>Josh Allen o249.5 pass yds</code><code>Josh Allen 250+ passing yards</code><code>Nico Collins u64.5 rec yds</code><code>Barkley o89.5 rush+rec yds</code></div>
     <div><b>Counting</b><code>Dalton Kincaid 5+ receptions</code><code>Allen o1.5 pass TDs</code><code>Cook o12.5 carries</code><code>Allen o21.5 completions</code><code>Allen o0.5 INTs</code></div>
     <div><b>Longest</b><code>Cook o17.5 long rush</code><code>Shakir o22.5 long reception</code></div>
-    <div><b>Touchdown</b><code>James Cook anytime TD +140</code><code>Anytime TD Scorer: Khalil Shakir</code></div>
+    <div><b>Touchdown</b><code>James Cook anytime TD +140</code><code>Anytime TD Scorer: Khalil Shakir</code><code>D. Watson first TD +900</code><code>First TD Scorer: James Cook</code></div>
     <div><b>Parlay</b><code>Parlay: BUF ML + Allen o1.5 pass TDs $10 +260</code><code>SGP (3 legs) BUF -3.5 + Allen o249.5 pass yds + Cook anytime TD $5 +800</code></div>
   </div>
   <textarea id="sBetText" rows="4" style="width:100%;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.4em .5em;font:inherit;font-size:.95rem;border-radius:2px"></textarea>
@@ -1218,7 +1218,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-01d';
+var BUILD = 'build 2026-10-01e';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -3558,7 +3558,7 @@ function stakeIn(g){
     var st = betState(b).state;
     if (st !== 'live' && st !== 'pending') return false;
     return b.legs.some(function(leg){
-      var lg = leg.team && leg.type !== 'prop' && leg.type !== 'td' ? gameFor(leg.team) : gameForLeg(leg);
+      var lg = leg.team && !isPlayerLeg(leg) ? gameFor(leg.team) : gameForLeg(leg);
       return lg && String(lg.id) === String(g.id);
     });
   });
@@ -6063,6 +6063,27 @@ function parseLeg(p){
   var low = t.toLowerCase();
   var teams = teamsIn(t);
 
+  // first touchdown scorer of the game
+  var FTD = /\b(first|1st)\s*(td|touchdown)(\s*scorer)?\b|\b(first|1st)\s*to\s*score(\s*a\s*(td|touchdown))?\b|\b(to\s*score|scores?)\s*(the\s*)?(first|1st)(\s*(td|touchdown))?\b/ig;
+  if (FTD.test(t)){
+    var fwho = t.replace(/\(.*?\)/g, ' ').replace(FTD, ' ')
+      .replace(/\b(yes|of the game|in the game|game)\b/ig, ' ').replace(/[:,\-\u2013\u2014]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    /* "PIT first TD scorer G. Pickens": a team abbreviation beside the name says
+       whose game it is; it is not part of the name, and left in it the initial
+       no longer matched the scorer. */
+    var fteam = '', fwords = fwho.split(' ').filter(function(w){
+      if (TEAMS.indexOf(w) >= 0 && fwho.split(' ').length > 1){ fteam = fteam || w; return false; }
+      return true;
+    });
+    fwho = fwords.join(' ').trim();
+    if (!fwho) return null;
+    var fe = fwho.split(/\s+or\s+|\s*\/\s*/i).map(function(x){ return x.trim(); }).filter(Boolean);
+    var fleg = {type:'ftd', player:fe[0], team:fteam || teamBeside(t, fwho), label: fe.map(shortName).join(' or ') + ' first TD'};
+    if (fe.length > 1) fleg.alt = fe.slice(1);
+    return fleg;
+  }
+
   // anytime touchdown scorer
   if (/any\s*time\s*(td|touchdown)|\btd\s*scorer|to score a (td|touchdown)|\batd\b/i.test(t)){
     var who = t.replace(/\(.*?\)/g, ' ')
@@ -6132,7 +6153,62 @@ rereadBets(BETS);        // the bets this browser saved, read with the reader as
    ESPN's summary lists, per team, categories (passing, rushing, receiving ...)
    with a keys array and each player's stats in the same order. Combined cells
    like "24/35" (completions/attempts) are split into both keys. */
+/* ---- the first touchdown of each game ----
+   ESPN's summary lists every scoring play in order, so the first touchdown is
+   known for good the moment it is on that list — including for a bet put up at
+   half-time, long after it happened. The scorer is the name the play opens with
+   ("Luther Burden III 8 Yd pass from Case Keenum"): the man who crossed the
+   line, never the quarterback who threw it. */
+var FIRSTTD = Object.create(null);       // gameId -> {name, team, text}
+var FTDSEEN = Object.create(null);       // games whose scoring list has been read at least once
+function isPlayerLeg(leg){ return leg.type === 'prop' || leg.type === 'td' || leg.type === 'ftd'; }
+function captureFirstTD(id, j){
+  if (!j || (!j.scoringPlays && !j.boxscore)) return;
+  FTDSEEN[id] = 1;
+  var first = null;
+  (j.scoringPlays || []).forEach(function(p){
+    if (first || !p) return;
+    var kind = (p.scoringType && p.scoringType.name) || '', ty = (p.type && p.type.text) || '';
+    if (kind === 'touchdown' || (!kind && /touchdown/i.test(ty))) first = p;
+  });
+  if (!first){ delete FIRSTTD[id]; return; }
+  var txt = String(first.text || '').trim();
+  var m = /^(.+?)\s+(?:\d+\s*y(?:ar)?ds?\b|fumble|interception|blocked|punt\b|kickoff|recover)/i.exec(txt);
+  FIRSTTD[id] = {name: (m ? m[1] : txt).trim(), team: (first.team && first.team.abbreviation) || '', text: txt};
+}
+/* Is the man a bet names the man a scoring play names? Full names compare
+   whole; "D. Watson" needs the surname and the initial; a bare surname is enough. */
+function sameMan(a, b){
+  var strip = function(x){ return String(x || '').replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim(); };
+  a = strip(a); b = strip(b);
+  if (!a || !b) return false;
+  if (norm(a) === norm(b)) return true;
+  var la = surnameOf(a) || a, lb = surnameOf(b) || b;
+  if (norm(la) !== norm(lb)) return false;
+  if (!/[\s.]/.test(a)) return true;
+  return a.charAt(0).toLowerCase() === b.charAt(0).toLowerCase();
+}
+function firstTdState(leg){
+  var names = [leg.player].concat(leg.alt || []);
+  var g = null;
+  names.forEach(function(n){ if (!g) g = gameForLeg({type:'ftd', player:n, team:leg.team}); });
+  if (!g) return {state:'pending', good:false, cur:0};
+  var ft = FIRSTTD[g.id];
+  if (ft){
+    var hit = names.some(function(n){
+      // the box score's spelling of him when he is in it, so a typo still matches
+      var f = findPlayer(n, leg.team);
+      return sameMan(n, ft.name) || !!(f && f.rec && String(f.gid) === String(g.id) && sameMan(f.rec.name, ft.name));
+    });
+    return {state: hit ? 'won' : 'lost', good:hit, cur: hit ? 1 : 0, g:g, first:ft};
+  }
+  // final with no touchdown at all loses; final but not read yet waits for the read
+  if (g.state === 'post') return {state: FTDSEEN[g.id] ? 'lost' : 'live', good:false, cur:0, g:g};
+  return {state: g.state === 'in' ? 'live' : 'pending', good:false, cur:0, g:g};
+}
+
 function captureBox(id, j){
+  captureFirstTD(id, j);
   var bp = j && j.boxscore && j.boxscore.players;
   if (!bp || !bp.length) return;
   var out = Object.create(null);
@@ -6359,6 +6435,7 @@ function legState(leg){
     var pick = function(st){ return each.filter(function(s){ return s.state === st; })[0]; };
     return pick('won') || pick('live') || pick('pending') || each[0];
   }
+  if (leg.type === 'ftd') return firstTdState(leg);
   if (leg.type === 'prop' || leg.type === 'td'){
     var f = findPlayer(leg.player, leg.team);
     if (!f){
@@ -6431,7 +6508,7 @@ function evaluateBets(){
   if (!BETS.length) { paintBets(); return; }
   var settled = [];
   if (BETS.some(function(b){ return b.legs.some(function(l){
-        return (l.type === 'prop' || l.type === 'td') && !l.team; }); })) fetchNames();
+        return isPlayerLeg(l) && !l.team; }); })) fetchNames();
   var first = BETSEEN === null;
   if (first) BETSEEN = Object.create(null);
   BETS.forEach(function(b){
@@ -6514,6 +6591,7 @@ function betBanner(b, leg, ls, kind, tone){
 function legDetail(leg, ls){
   if (!ls) return '';
   if (leg.type === 'prop') return ' · ' + (ls.cur || 0) + ' so far';
+  if (leg.type === 'ftd' && ls.first) return ' · first TD: ' + ls.first.name + (ls.first.team ? ' (' + ls.first.team + ')' : '');
   if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined) return ' · ' + ls.cur + ' scored';
   if ((leg.type === 'spread' || leg.type === 'ml') && ls.margin !== undefined)
     return ' · ' + (ls.margin > 0 ? 'covering by ' + ls.margin : (ls.margin < 0 ? 'short by ' + (-ls.margin) : 'on the number'));
@@ -6528,7 +6606,7 @@ function legDetail(leg, ls){
    backed on a spread or moneyline. Totals belong to both, so neither. */
 function betSide(leg, g){
   if (!g || leg.type === 'total') return '';
-  var t = (leg.type === 'prop' || leg.type === 'td') ? (leg.team || playerTeam(leg.player)) : leg.team;
+  var t = isPlayerLeg(leg) ? (leg.team || playerTeam(leg.player)) : leg.team;
   if (!t) return '';
   if (g.away.abbr === t || g.away.abbr === ALIAS[t]) return 'away';
   if (g.home.abbr === t || g.home.abbr === ALIAS[t]) return 'home';
@@ -6541,7 +6619,7 @@ function betSide(leg, g){
    the drawing once it knows each chip's size. */
 function betSkin(leg, ls){
   var g = (ls && ls.g) || (leg.team ? gameFor(leg.team) : null);
-  if (!g && (leg.type === 'prop' || leg.type === 'td')) g = gameForLeg(leg);
+  if (!g && isPlayerLeg(leg)) g = gameForLeg(leg);
   if (!g || !cfg.tint || !g.away.color) return null;
   return {attrs: ' data-ca="' + tint(g.away.color, g.away.alt, 0.19) +
                  '" data-cb="' + tint(g.home.color, g.home.alt, 0.19) +
@@ -6601,6 +6679,8 @@ function legChip(leg, ls){
     inner += ' <i>' + (ls.margin > 0 ? '+' : '') + ls.margin + '</i>';
   } else if (leg.type === 'total' && ls.cur !== null && ls.cur !== undefined && ls.state !== 'pending'){
     inner += ' <i>' + ls.cur + '</i>';
+  } else if (leg.type === 'ftd' && ls.state === 'lost' && ls.first){
+    inner += ' <i>' + esc(shortName(ls.first.name)) + '</i>';
   }
   var mark = ls.state === 'won' ? '\u2713' : (ls.state === 'lost' ? '\u2717' : (ls.state === 'push' ? '=' : ''));
   return '<span class="' + cls + '"' + (skin ? skin.attrs : '') + '>' +
@@ -6814,7 +6894,7 @@ function betBadge(g){
   BETS.forEach(function(b){
     var here = 0;
     b.legs.forEach(function(leg){
-      var lg = leg.team && leg.type !== 'prop' && leg.type !== 'td' ? gameFor(leg.team) : gameForLeg(leg);
+      var lg = leg.team && !isPlayerLeg(leg) ? gameFor(leg.team) : gameForLeg(leg);
       if (lg && String(lg.id) === String(g.id)) here++;
     });
     if (here){ bets++; legs += here; }
@@ -7096,13 +7176,13 @@ function betGameIds(){
   BETS.forEach(function(b){
     b.legs.forEach(function(leg){
       var g = leg.team ? gameFor(leg.team)
-        : ((leg.type === 'prop' || leg.type === 'td') ? gameForLeg(leg) : null);
+        : (isPlayerLeg(leg) ? gameForLeg(leg) : null);
       (leg.alt || []).forEach(function(n){            // the other man in an either-or bet
         var ga = gameForLeg({type:'td', player:n, team:leg.team});
         if (ga) ids[ga.id] = 1;
       });
       if (g) ids[g.id] = 1;
-      else if (leg.type === 'prop' || leg.type === 'td'){
+      else if (isPlayerLeg(leg)){
         // still no idea whose game it is: watch them all until the index lands
         (window.__games || []).forEach(function(x){ if (x.state === 'in') ids[x.id] = 1; });
       }
@@ -7389,6 +7469,7 @@ function startReplay(id, speed, from){
     prev = null; fired = Object.create(null); queue = []; showing = false;
     clearTimeout(alertTimer); document.getElementById('alert').className = '';
     BOX = Object.create(null); DEEP = Object.create(null); BETSEEN = null;
+    FIRSTTD = Object.create(null); FTDSEEN = Object.create(null);
     FAN.seen = {}; FAN.plays = [];
     buffer = [];
     poll();
@@ -7404,6 +7485,7 @@ function stopReplay(){
   if (REPLAY.liveBets) BETS = REPLAY.liveBets;
   REPLAY = null;
   prev = null; fired = Object.create(null); BOX = Object.create(null);
+  FIRSTTD = Object.create(null); FTDSEEN = Object.create(null);
   DEEP = Object.create(null); BETSEEN = null; FAN.seen = {}; FAN.plays = [];
   poll();
   paintReplay();
