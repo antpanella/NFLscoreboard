@@ -497,6 +497,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .bet.s-won .bar>span{background:var(--live)}
 .meta .betm{color:var(--flag);font-weight:700}
 #betPreview .ok{color:var(--live)} #betPreview .bad{color:var(--redzone)}
+#shotNote b{color:var(--chalk)} #shotNote .warn{color:var(--flag);display:block;margin-top:.15rem}
 #betHelp{font-size:.88rem;line-height:1.5;color:var(--sideline);margin-bottom:.5rem}
 #phoneQR,.qrbox{display:flex;justify-content:center;margin:.6rem 0 .2rem}
 .qrbox svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
@@ -1109,6 +1110,10 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
     <div><b>Touchdown</b><code>James Cook anytime TD +140</code><code>Anytime TD Scorer: Khalil Shakir</code><code>D. Watson first TD +900</code><code>First TD Scorer: James Cook</code></div>
     <div><b>Parlay</b><code>Parlay: BUF ML + Allen o1.5 pass TDs $10 +260</code><code>SGP (3 legs) BUF -3.5 + Allen o249.5 pass yds + Cook anytime TD $5 +800</code></div>
   </div>
+  <label><button id="sShot" type="button" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600;white-space:nowrap">Add from screenshot</button>
+    <input type="file" id="sShotFile" accept="image/*" multiple hidden></label>
+  <p class="note" style="margin:.2rem 0 .4rem">Screenshots of DraftKings’ My Bets, with a parlay’s legs showing. Read on this device; the picture goes nowhere.</p>
+  <div id="shotNote" class="note" style="margin:.2rem 0 .4rem" hidden></div>
   <textarea id="sBetText" rows="4" style="width:100%;background:var(--turf);color:var(--chalk);border:1px solid var(--line);padding:.4em .5em;font:inherit;font-size:.95rem;border-radius:2px"></textarea>
   <div id="betPreview" class="note" style="margin:.3rem 0"></div>
   <label><button id="sBetAdd" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Add bets</button>
@@ -1218,7 +1223,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-01e';
+var BUILD = 'build 2026-10-02a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -6023,7 +6028,7 @@ function parseBet(line){
   var m = /\$\s*(\d+(?:\.\d{1,2})?)/.exec(text);
   if (m){ stake = parseFloat(m[1]); text = text.replace(m[0], ' '); }
   // American odds: a signed three- or four-digit whole number standing alone
-  m = /(?:^|\s)([+\-−]\d{3,4})(?=\s|$)/.exec(text);
+  m = /(?:^|\s)([+\-−]\d{3,6})(?=\s|$)/.exec(text);
   if (m){ odds = parseInt(m[1].replace('−', '-'), 10); text = text.replace(m[1], ' '); }
 
   // "100+ Rushing + Receiving Yards" is one leg: its plus sign must not split the parlay
@@ -6940,6 +6945,320 @@ function paintBetList(){
       ta.setSelectionRange(ta.value.length, ta.value.length);
     });
   });
+}
+
+/* ---- bets from a DraftKings screenshot ----
+   My Bets is read on the device: the picture is drawn to a canvas, turned into
+   black text on white (DraftKings is light text on near-black, and its green and
+   gold text only survives if the brightest colour channel is what counts), and
+   handed to Tesseract, which is loaded from this site's own ocr/ folder the first
+   time the button is used. Nothing is uploaded.
+
+   What comes back is lines of text with icon noise in between. A bet card is the
+   run of lines between two landmarks (Share, Bet ID, the gold banner, the tabs);
+   inside it the Wager line splits the header from a parlay's legs, and the score
+   table ends the legs. Each card becomes one line in the words the bet box
+   already reads, so the usual preview shows exactly what was understood and
+   nothing reaches the board unchecked.
+
+   Odds: the purple boosted-odds badge does not survive the read, so when the
+   card shows what it paid (or will pay) the odds are worked out from that and
+   the wager, which is right for boosts as well. */
+var DK_END = /(^|[^a-z])share\b|bet\s*id\b|^\W*bet\W*$|crown\s+is\s+yours|raftkings|home\s+live|my\s+activity|cash\s*out\s+open|horse\s+bets|logged\s+out|wires\s+crossed|get\s+in\s+the\s+action|(hide|show)\s+legs/i;
+var DK_SCORE = /\bq[1t]\s+q2\b|^\W*final\b/i;
+var DK_ODDS = /(^|[\s(|])([+\-])\s?(\d{3,6})(?![\d.,])/g;
+function dkMoney(s){ return parseFloat(String(s).replace(/,/g, '')); }
+function dkAmerican(dec){
+  if (!(dec > 1)) return null;
+  return dec >= 2 ? Math.round((dec - 1) * 100) : -Math.round(100 / (dec - 1));
+}
+function dkLastOdds(line){
+  var m, last = null;
+  DK_ODDS.lastIndex = 0;
+  while ((m = DK_ODDS.exec(line))) last = {v: parseInt(m[2] + m[3], 10), at: m.index + m[1].length};
+  if (!last){
+    // the sign did not survive the read: "CLE Browns +3.5 | 143". The number's
+    // place is known, its sign is not, so the payout has to supply the odds.
+    var u = /\s[|]\s*(\d{3,6})(?![\d.,])/.exec(line);
+    if (u) last = {v: null, at: u.index};
+  }
+  return last;
+}
+/* Icons, jersey numbers and logos read as short scraps in front of the words:
+   "-10- Quinshon Judkins", "11s 4+", "4» CLEBrowns +3.5". Drop scraps until the
+   first thing that could start a selection; split a team code run into its name. */
+function dkClean(t){
+  t = String(t || '').replace(/[|]/g, ' ').replace(/\s+/g, ' ').trim();
+  t = t.replace(/\b([A-Z]{2,3})([A-Z][a-z]{2,})/g, function(all, ab, rest){ return TEAMS.indexOf(ab) >= 0 ? ab + ' ' + rest : all; });
+  var w = t.split(' ');
+  var ok = function(x){
+    return /^[A-Z][A-Za-z'’.\-]+$/.test(x) || /^\d+(\.\d+)?\+$/.test(x) || /^(over|under|yes|no)$/i.test(x);
+  };
+  while (w.length > 1 && !ok(w[0])) w.shift();
+  while (w.length > 1 && /^[^A-Za-z0-9+]+$/.test(w[w.length - 1])) w.pop();
+  return w.join(' ').trim();
+}
+function dkStatAt(mk){
+  for (var i = 0; i < STAT_WORDS.length; i++){
+    var m = STAT_WORDS[i][0].exec(mk);
+    if (m) return m.index;
+  }
+  return -1;
+}
+/* One selection and the market under it, in the bet box's own words. */
+function dkLeg(sel, mk, teams, inParlay){
+  sel = dkClean(sel);
+  mk = dkClean(String(mk || '').replace(/\bO\s*\/\s*U\b/i, ' '));
+  var m, num = /^(\d+(?:\.\d+)?)\s*\+$/.exec(sel), ou = /^(over|under)\s*(\d+(?:\.\d+)?)$/i.exec(sel);
+  if ((m = /^(.+?)\s*-\s*either\s+player\s+to\s+score/i.exec(mk))){
+    if (num && +num[1] === 1) return {t: m[1].trim() + ' anytime TD'};
+    return {bad: 'a 2+ touchdown bet, which the board does not track'};
+  }
+  if (/\b(first|1st)\s*(td|touchdown)/i.test(mk)) return sel ? {t: sel + ' first TD'} : {bad: 'a touchdown bet whose player it could not read'};
+  if (/any\s*time\s*(td|touchdown)|\b(td|touchdown)\s*scorer/i.test(mk)) return sel ? {t: sel + ' anytime TD'} : {bad: 'a touchdown bet whose player it could not read'};
+  if (num || ou){
+    var at = dkStatAt(mk);
+    if (at > 0){
+      var who = mk.slice(0, at).trim(), stat = mk.slice(at).trim();
+      return {t: who + ' ' + (num ? num[1] + '+' : ou[1].toLowerCase() + ' ' + ou[2]) + ' ' + stat};
+    }
+    if (ou && (!mk || /total|points/i.test(mk)) && teams.length && teams.length <= 2){
+      /* On its own card the teams in view are the game. In a parlay they may be
+         two legs from two games, so the pair has to be a real fixture. */
+      var g0 = inParlay ? gameFor(teams[0]) : null;
+      var paired = !inParlay || (teams.length === 2 && g0 &&
+        [g0.home.abbr, g0.away.abbr, ALIAS[g0.home.abbr], ALIAS[g0.away.abbr]].indexOf(teams[1]) >= 0);
+      if (paired) return {t: teams.join('/') + ' ' + (/^o/i.test(ou[1]) ? 'o' : 'u') + ou[2]};
+    }
+    if (ou && /total|points/i.test(mk)) return {bad: 'a game total whose game it could not tell (type it as “BUF/NYJ o44.5”)'};
+    return {bad: mk ? 'a bet on “' + mk + '”, a market the board does not track' : 'a bet whose market it could not read (“' + sel + '”)'};
+  }
+  var tm = teamsIn(sel)[0];
+  if (tm){
+    var sp = /([+\-]\s?\d+(?:\.\d+)?)\s*$/.exec(sel);
+    if (sp) return {t: tm + ' ' + sp[1].replace(/\s/g, '')};
+    return {t: tm + ' ML'};
+  }
+  return {bad: 'a bet it could not read (“' + [sel, mk].filter(Boolean).join(' / ') + '”)'};
+}
+// of the pieces a wide gap splits a line into, the first that starts like a selection
+function dkFirstGood(text){
+  var segs = String(text || '').split(/\s{3,}/).map(dkClean).filter(Boolean);
+  for (var i = 0; i < segs.length; i++){
+    if (/^([A-Z][A-Za-z'’.\-]+|\d+(\.\d+)?\+|over\b|under\b)/i.test(segs[i]) && /^[A-Z0-9ou]/.test(segs[i])) return segs[i];
+  }
+  return segs[0] || '';
+}
+function dkCards(text){
+  var cards = [], cur = null, state = 'head';
+  var close = function(end){
+    if (cur && (cur.head.length || cur.wager !== null)){
+      if (end && /show\s+legs/i.test(end)) cur.hidden = true;
+      cards.push(cur);
+    }
+    cur = null; state = 'head';
+  };
+  String(text || '').replace(/[\u2212\u2013\u2014]/g, '-').split(/\n/).forEach(function(ln){
+    if (!ln.trim()) return;
+    if (DK_END.test(ln)){ close(ln); return; }
+    if (!cur) cur = {head:[], legs:[], all:[], wager:null, paid:null, profit:null};
+    cur.all.push(ln);
+    var pd = /(paid|to\s*pay|payout|pays|total\s*return|returns?)\W{0,3}[$S]?\s*([\d,]+\.\d\d)/i.exec(ln);
+    var tw = /(to\s*win|winnings|profit)\W{0,3}[$S]?\s*([\d,]+\.\d\d)/i.exec(ln);
+    if (pd) cur.paid = dkMoney(pd[2]);
+    if (tw) cur.profit = dkMoney(tw[2]);
+    var w = /wager\W{0,3}[$S]?\s*([\d,]+\.\d\d)/i.exec(ln);
+    if (w){ cur.wager = dkMoney(w[1]); state = 'legs'; return; }
+    if (pd || tw) return;
+    if (DK_SCORE.test(ln)){ state = 'score'; return; }
+    if (state === 'head') cur.head.push(ln);
+    else if (state === 'legs') cur.legs.push(ln);
+  });
+  close();
+  return cards;
+}
+function dkCardBet(c){
+  // the header line is the one carrying the odds, or the parlay's title
+  var hi = -1, parlay = null;
+  c.head.forEach(function(ln, i){
+    if (hi >= 0) return;
+    var pm = /(\d+)\s*pick\s*parlay|\b(sgpx?|parlay)\b/i.exec(ln);
+    if (pm || dkLastOdds(ln)){ hi = i; if (pm) parlay = pm; }
+  });
+  if (hi < 0) return c.wager !== null ? {bad: 'a bet cut off at the top of the screenshot'} : null;
+  var main = c.head[hi], subs = c.head.slice(hi + 1), odds = dkLastOdds(main);
+  var stake = c.wager, price = odds ? odds.v : null;
+  var dec = stake && c.paid ? c.paid / stake : (stake && c.profit ? 1 + c.profit / stake : null);
+  if (dec){
+    var fromPay = dkAmerican(dec);
+    var readDec = price ? decimalOdds(price) : null;
+    // the header's number stands when the payout agrees with it; otherwise the payout wins (a boost)
+    if (fromPay !== null && (!readDec || Math.abs(readDec - dec) / dec > 0.02)) price = fromPay;
+  }
+  var tail = (price ? ' ' + (price > 0 ? '+' : '') + price : '') + (stake ? ' $' + stake : '');
+  var teams = teamsIn(c.all.map(dkClean).join(' '));
+
+  if (parlay){
+    var want = parlay[1] ? +parlay[1] : 0, legs = [], bad = null, pendSel = null, lastName = null;
+    c.legs.forEach(function(raw){
+      var ln = dkClean(raw);
+      if (!ln || !/[A-Za-z0-9]/.test(ln)) return;
+      var isSel = /^(\d+(\.\d+)?\+|(over|under)\s*\d+(\.\d+)?|yes|no)$/i.test(ln);
+      var isMk = dkStatAt(ln) >= 0 || /(td|touchdown)\s*scorer|either\s+player|\b(spread|moneyline|money\s*line|total)\b/i.test(ln);
+      if (isSel){ pendSel = ln; return; }
+      if (isMk){
+        var r = dkLeg(pendSel || lastName || '', ln, teams, true);
+        if (r.t) legs.push(r.t); else bad = bad || r.bad;
+        pendSel = null; lastName = null;
+        return;
+      }
+      if (/^[A-Z]/.test(ln) && ln.split(' ').length <= 5) lastName = ln;
+    });
+    if (bad) return {bad: 'a parlay, because of one leg: ' + bad};
+    if (legs.length < Math.max(2, want)){
+      return {bad: (want ? 'a ' + want + '-pick parlay' : 'a parlay') + (c.hidden || !legs.length
+        ? ' with its legs hidden: tap Show Legs in DraftKings and screenshot it again'
+        : ' showing only ' + legs.length + ' of its legs: scroll so the whole bet is on screen')};
+    }
+    if (want && legs.length > want) legs = legs.slice(0, want);
+    return {t: 'Parlay: ' + legs.join(' + ') + tail};
+  }
+
+  // text to the left of the odds; a wide gap is where the right-hand column starts
+  var sel = dkFirstGood(main.slice(0, odds.at).replace(/\s[|Il1]\s*$/, ' '));
+  var subText = subs.map(function(x){ return x.split(/\s{3,}/)[0]; });
+  var full = (sel + ' ' + subText.join(' ')).replace(/\s+/g, ' ');
+  // a special: "X to Have 160+ Passing Yards, Y to Have 160+ Passing Yards"
+  if (/\bto\s+(have|record|get|throw|score|rush|catch)\b/i.test(full) && !/either\s+player/i.test(full)){
+    var body = full.replace(/\b(player\s+prop\s+specials?|specials?|odds\s+boosts?|profit\s+boosts?)\b.*$/i, ' ');
+    var legs2 = [], bad2 = null;
+    body.split(/\s*,\s*|\s+and\s+|\s*&\s*/i).forEach(function(cl){
+      cl = cl.trim();
+      if (!cl) return;
+      var m = /^(.+?)\s+to\s+(?:have|record|get|throw|rush\s+for|catch)\s+(\d+(?:\.\d+)?)\s*\+\s+(.+)$/i.exec(cl);
+      if (m && dkStatAt(m[3]) >= 0){ legs2.push(dkClean(m[1]) + ' ' + m[2] + '+ ' + m[3].trim()); return; }
+      if ((m = /^(.+?)\s+to\s+score\s+(?:a\s+)?(?:td|touchdown)/i.exec(cl))){ legs2.push(dkClean(m[1]) + ' anytime TD'); return; }
+      bad2 = bad2 || cl;
+    });
+    if (bad2 || !legs2.length) return {bad: 'a special the board cannot read (“' + (bad2 || full) + '”)'};
+    return {t: (legs2.length > 1 ? 'Parlay: ' : '') + legs2.join(' + ') + tail};
+  }
+  var mk = '';
+  subText.forEach(function(x){ if (!mk && /[A-Za-z]{3}/.test(x)) mk = x; });
+  var r = dkLeg(sel, mk, teams);
+  if (r.t) return {t: r.t + tail};
+  // no wager in view and nothing readable: the bottom edge of the screenshot
+  return {bad: c.wager === null ? 'a bet cut off at the bottom of the screenshot' : r.bad};
+}
+/* Text of one screenshot -> {lines, notes}. A line is kept only if the bet box
+   reads it; anything else is reported, never guessed at. */
+function dkRead(text){
+  var lines = [], notes = [];
+  dkCards(text).forEach(function(c){
+    var r = dkCardBet(c);
+    if (!r) return;
+    if (r.t){
+      var b = parseBet(r.t);
+      if (b && !b.error){ lines.push(r.t); return; }
+      r = {bad: 'a bet the board could not read (“' + r.t + '”)'};
+    }
+    notes.push(r.bad);
+  });
+  return {lines: lines, notes: notes};
+}
+
+var OCR = {lib: null, worker: null};
+function ocrLib(){
+  if (OCR.lib) return OCR.lib;
+  OCR.lib = new Promise(function(res, rej){
+    var sc = document.createElement('script');
+    sc.src = 'ocr/tesseract.min.js';
+    sc.onload = function(){ window.Tesseract ? res(window.Tesseract) : rej(new Error('reader did not load')); };
+    sc.onerror = function(){ OCR.lib = null; rej(new Error('could not load the text reader')); };
+    document.head.appendChild(sc);
+  });
+  return OCR.lib;
+}
+function ocrWorker(){
+  if (OCR.worker) return OCR.worker;
+  OCR.worker = ocrLib().then(function(T){
+    return T.createWorker('eng', 1, {workerPath: 'ocr/worker.min.js', corePath: 'ocr/', langPath: 'ocr/', gzip: true});
+  }).then(function(w){
+    // "4": one column of text in mixed sizes, which is what a phone screen is
+    return w.setParameters({tessedit_pageseg_mode: '4', preserve_interword_spaces: '1'}).then(function(){ return w; });
+  });
+  OCR.worker.catch(function(){ OCR.worker = null; });
+  return OCR.worker;
+}
+function shotCanvas(file){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function(){
+      // a phone screenshot is ~1300 px wide; anything much larger only costs time
+      var k = Math.min(1, 1400 / img.width);
+      var c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      var x = c.getContext('2d');
+      x.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      var d = x.getImageData(0, 0, c.width, c.height), p = d.data, sum = 0;
+      for (var i = 0; i < p.length; i += 16) sum += Math.max(p[i], p[i + 1], p[i + 2]);
+      var dark = sum / (p.length / 16) < 128;             // light text on dark, as DraftKings is
+      for (var j = 0; j < p.length; j += 4){
+        var v = Math.max(p[j], p[j + 1], p[j + 2]);
+        if (dark) v = 255 - v;
+        p[j] = p[j + 1] = p[j + 2] = v;
+      }
+      x.putImageData(d, 0, 0);
+      res(c);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('could not open that picture')); };
+    img.src = url;
+  });
+}
+function shotNote(html){
+  var el = document.getElementById('shotNote');
+  if (!el) return;
+  el.hidden = !html; el.innerHTML = html || '';
+}
+function readShots(files){
+  files = [].slice.call(files || []).filter(function(f){ return /^image\//.test(f.type) || /\.(png|jpe?g|heic|webp)$/i.test(f.name); });
+  if (!files.length) return Promise.resolve();
+  var btn = document.getElementById('sShot'), ta = document.getElementById('sBetText');
+  var found = [], notes = [], n = 0;
+  btn.disabled = true;
+  shotNote('Loading the text reader (a few MB the first time)\u2026');
+  var step = function(w){
+    if (n >= files.length) return null;
+    var f = files[n++];
+    shotNote('Reading screenshot ' + n + ' of ' + files.length + '\u2026');
+    return shotCanvas(f).then(function(c){ return w.recognize(c); }).then(function(r){
+      var got = dkRead(r.data.text);
+      flog('shot', {lines: got.lines, notes: got.notes, conf: Math.round(r.data.confidence)});
+      found = found.concat(got.lines); notes = notes.concat(got.notes);
+      return step(w);
+    });
+  };
+  return ocrWorker().then(step).then(function(){
+    // the same bet in two overlapping screenshots, already in the box, or already on the board
+    var have = Object.create(null), fresh = [], dup = 0;
+    ta.value.split(/\n/).forEach(function(l){ if (l.trim()) have[l.trim()] = 1; });
+    BETS.forEach(function(b){ if (b.src) have[b.src.trim()] = 1; });
+    found.forEach(function(l){ if (have[l]){ dup++; return; } have[l] = 1; fresh.push(l); });
+    if (fresh.length){
+      ta.value = (ta.value ? ta.value.replace(/\s*$/, '') + '\n' : '') + fresh.join('\n');
+      previewBets();
+    }
+    var seen = Object.create(null), uniq = notes.filter(function(x){ if (seen[x]) return false; seen[x] = 1; return true; });
+    var msg = fresh.length
+      ? '<b>Read ' + fresh.length + ' bet' + (fresh.length === 1 ? '' : 's') + '.</b> Check ' + (fresh.length === 1 ? 'it' : 'them') + ' below, fix anything that is off, then tap Add bets.'
+      : (dup ? 'Nothing new: ' + (dup === 1 ? 'that bet is' : 'those bets are') + ' already here.' : '<b>No bets found in ' + (files.length === 1 ? 'that screenshot' : 'those screenshots') + '.</b> It reads DraftKings\u2019 My Bets screen.');
+    if (fresh.length && dup) msg += ' ' + dup + ' already here, skipped.';
+    msg += uniq.map(function(x){ return '<span class="warn">Skipped: ' + esc(x) + '.</span>'; }).join('');
+    shotNote(msg);
+  }).catch(function(e){
+    shotNote('<span class="warn">Could not read the screenshot: ' + esc(e && e.message ? e.message : 'unknown error') + '. Type the bet instead.</span>');
+  }).then(function(){ btn.disabled = false; });
 }
 function previewBets(){
   var ta = document.getElementById('sBetText'), out = document.getElementById('betPreview');
@@ -8145,6 +8464,11 @@ function paintPhoneQR(){
 })(); bind('sBetAlerts','betAlerts','bool'); bind('sBetMoney','betMoney','bool');
 document.getElementById('sBetText').addEventListener('input', previewBets);
 document.getElementById('sBetAdd').addEventListener('click', addBets);
+document.getElementById('sShot').addEventListener('click', function(e){ e.preventDefault(); document.getElementById('sShotFile').click(); });
+document.getElementById('sShotFile').addEventListener('change', function(){
+  var inp = this;
+  readShots(inp.files).then(function(){ inp.value = ''; });       // so the same picture can be picked again
+});
 document.getElementById('sBetEditAll').addEventListener('click', function(){
   var ta = document.getElementById('sBetText');
   var lines = BETS.map(function(b){ return b.src; }).filter(Boolean);
@@ -8289,6 +8613,7 @@ var TIPS = {
   sFanAlerts: 'Whether a fantasy scoring play raises a banner, a chime, both or neither.',
   sFanMin: 'How big a points swing has to be before it is worth a banner.',
   // bets
+  sShot: 'Pick one or more screenshots of DraftKings’ My Bets screen. The text is read on this device — the picture is not sent anywhere — and the bets it finds go in the box below for you to check before adding. Tap Show Legs on a parlay first.',
   sBetText: 'One bet per line, in plain English — "Giants ML $10 +220", "Rams -6.5", "Parlay: A + B". Open the guide below for every form it understands.',
   sCfgSync: 'Push your settings through the relay so your phone can drive the board, and so your own bets follow you between devices.',
   sBetSync: 'Keep the bet list on the relay rather than in this browser alone, so every device sees the same one.',
