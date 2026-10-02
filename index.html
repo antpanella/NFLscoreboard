@@ -1218,7 +1218,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-01a';
+var BUILD = 'build 2026-10-01b';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -6162,8 +6162,9 @@ var NIDX = null;
 function nameIndex(){
   if (NIDX) return NIDX;
   try {
-    // v2: the first index lacked initials; anything saved under the old key is ignored
-    var c = JSON.parse(localStorage.getItem('sundayBoardNames2') || 'null');
+    // v2: the first index lacked initials. v3: every team a surname plays for, so a
+    // bare "Washington" can be settled by who is on the field. Older keys are ignored.
+    var c = JSON.parse(localStorage.getItem('sundayBoardNames3') || 'null');
     if (c && c.at && Date.now() - c.at < 36 * 3600000 && c.map) return (NIDX = c.map);
   } catch(e){}
   return null;
@@ -6191,10 +6192,14 @@ function fetchNames(){
         // "K. Walker": there are several Walkers, but one K. Walker
         if (first) once('^' + first.charAt(0).toLowerCase() + ':' + norm(last), pl.team);
         once('~' + norm(last), pl.team);
+        // everyone of that surname, for a bet that names nothing else
+        var lk = '~~' + norm(last);
+        (map[lk] || (map[lk] = [])).push([pl.team, pl.position || '']);
       }
       NIDX = map;
       sleeperInjuries(all);
-      try { localStorage.setItem('sundayBoardNames2', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
+      try { localStorage.removeItem('sundayBoardNames2'); } catch(e){}
+      try { localStorage.setItem('sundayBoardNames3', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
       paintBets(); render();
     })
     .catch(function(){})
@@ -6218,8 +6223,38 @@ function playerTeam(name){
     if (byIni && byIni.one && byIni.t) return byIni.t;
     var one = idx['~' + norm(ln)];
     if (one && one.one && one.t) return one.t;
+  } else if (name && !/[\s.]/.test(name)){
+    /* A bare surname: "Concepcion anytime TD". It used to find its game only once
+       the player had a stat in the box score, so until his first catch the bet sat
+       grey with no game, and a man who never touched the ball was never settled. */
+    var solo1 = idx['~' + norm(name)];
+    if (solo1 && solo1.one && solo1.t) return solo1.t;
+    return soloTeam(norm(name), idx['~~' + norm(name)]);
   }
   return '';
+}
+/* Several players share the surname: take the one whose team is on the field
+   now, a ball-carrier or passer before a defender. What it settles on while the
+   game is live is remembered for a few hours, so the bet still has its game at
+   the final whistle. */
+var SOLO = Object.create(null);
+function soloTeam(key, list){
+  if (!list || !list.length) return '';
+  var among = function(state){
+    var c = list.filter(function(x){ var g = gameFor(x[0]); return g && g.state === state; });
+    var skill = c.filter(function(x){ return /^(QB|RB|FB|WR|TE)$/.test(x[1]); });
+    if (skill.length) c = skill;
+    var teams = [];
+    c.forEach(function(x){ if (teams.indexOf(x[0]) < 0) teams.push(x[0]); });
+    return teams;
+  };
+  var live = among('in');
+  if (live.length === 1){ SOLO[key] = {t: live[0], at: Date.now()}; return live[0]; }
+  if (live.length > 1) return '';
+  var kept = SOLO[key];
+  if (kept && Date.now() - kept.at < 6 * 3600000) return kept.t;
+  var soon = among('pre');
+  return soon.length === 1 ? soon[0] : '';
 }
 
 /* Find the player a bet names, in whichever game he is playing. */
@@ -6255,6 +6290,14 @@ function findPlayer(name, teamHint){
         if (surnameOf(r2.name) === want1) only.push({gid:gid2, rec:r2});
       }
     }
+    /* Bets are on the men who throw, carry and catch. A defender of the same
+       surname with a tackle to his name is not who "Washington" means, and
+       before the tight end's first catch he was the only Washington there. */
+    only = only.filter(function(o){
+      var r = o.rec;
+      return ['receptions', 'receivingYards', 'rushingAttempts', 'rushingYards', 'passingAttempts', 'passingYards', 'completions']
+        .some(function(k){ return r[k] !== undefined; });
+    });
     if (only.length === 1) return only[0];
   }
   return hit;
@@ -6291,7 +6334,9 @@ function legState(leg){
     var g = gameById(f.gid), r = f.rec;
     var done = g && g.state === 'post';
     if (leg.type === 'td'){
-      var tds = (r.rushingTouchdowns || 0) + (r.receivingTouchdowns || 0);
+      // a returner's touchdown pays an anytime-TD bet the same as a catch does
+      var tds = (r.rushingTouchdowns || 0) + (r.receivingTouchdowns || 0) +
+                (r.kickReturnTouchdowns || 0) + (r.puntReturnTouchdowns || 0);
       if (tds >= 1) return {state:'won', good:true, cur:tds, g:g};
       return {state: done ? 'lost' : (g && g.state === 'in' ? 'live' : 'pending'), good:false, cur:0, g:g};
     }
