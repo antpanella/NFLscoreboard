@@ -61,8 +61,10 @@
   "reason": "Pinnacle makes him 27% to score against DraftKings' 25%; he leads Patriots receivers in snaps and has three red-zone targets with A.J. Brown on IR, and he is not on the injury report.",
   "date": "2026-10-04",
   "recorded_at": "2026-10-04T12:21:17Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "0 TD",
+  "graded_at": "2026-10-04T21:10:53Z"
  },
  {
   "id": "e3930c92",
@@ -90,8 +92,10 @@
   "reason": "DraftKings hangs 38.5 where Pinnacle is at 34.5; rain is likely in Baltimore and Zay Flowers is expected back, both of which trim his volume. Half a unit because the price is shifted four yards and Flowers is still questionable.",
   "date": "2026-10-04",
   "recorded_at": "2026-10-04T12:21:17Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.455,
+  "result_note": "27 rec yds",
+  "graded_at": "2026-10-04T21:10:53Z"
  },
  {
   "id": "d17fce88",
