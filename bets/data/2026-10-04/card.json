@@ -428,5 +428,16 @@
   "schedule.json still shows 'updated' as Oct 2; the odds pull itself ran normally at 12:12Z, so this looks like the schedule job only writing on change, but it is worth a look.",
   "Odds credits left: 417."
  ],
- "credits_left": 417
+ "credits_left": 417,
+ "late_checks": [
+  {
+   "at": "2026-10-04T15:42:50Z",
+   "games": [
+    "NE @ BUF",
+    "TEN @ BAL"
+   ],
+   "scratched": [],
+   "note": "1 PM check after inactives: both plays hold. Hollins is not on the Patriots' inactive list, Maye starts and A.J. Brown is still out; sunny with light wind in Orchard Park. Zay Flowers is active for Baltimore with no hard pitch count, Andrews is not on the injury report, and showers are about a coin flip with 6 mph wind. Props are not re-priced."
+  }
+ ]
 }
