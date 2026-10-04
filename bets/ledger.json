@@ -124,8 +124,9 @@
   "reason": "+295 is the top of the market and Pinnacle's no-vig price is +283, steady since the morning snapshot; Herbert starts and McConkey is expected to play, so nothing in the news argues with Pinnacle's number.",
   "date": "2026-10-04",
   "recorded_at": "2026-10-04T12:21:17Z",
-  "result": null,
-  "pl": null
+  "result": "scratched",
+  "pl": 0.0,
+  "scratch_reason": "DraftKings has cut the Chargers to +280 while Pinnacle's fair price drifted out to +287, so the bet is -1.9% at today's price, under half the 2% bar; a ticket already placed at +295 is still worth about +2%."
  },
  {
   "id": "103c9078",

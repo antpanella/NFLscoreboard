@@ -2,7 +2,7 @@
  "date": "2026-10-04",
  "generated_at": "2026-10-04T12:21:17Z",
  "headline": "Thin Sunday: 18 selections cleared the price bar and 14 were cut on news, leaving four small plays and one two-leg parlay for 4 units. Nothing in the London game: both receiving unders ran into this morning's inactives.",
- "total_units": 4.0,
+ "total_units": 3.0,
  "games": [
   {
    "event_id": "c9d8ed8aa4889486eaf10a630138ede0",
@@ -271,7 +271,10 @@
    "date": "2026-10-04",
    "recorded_at": "2026-10-04T12:21:17Z",
    "result": null,
-   "pl": null
+   "pl": null,
+   "scratched": true,
+   "scratch_reason": "DraftKings has cut the Chargers to +280 while Pinnacle's fair price drifted out to +287, so the bet is -1.9% at today's price, under half the 2% bar; a ticket already placed at +295 is still worth about +2%.",
+   "scratched_at": "2026-10-04T19:00:39Z"
   },
   {
    "id": "103c9078",
@@ -438,6 +441,17 @@
    ],
    "scratched": [],
    "note": "1 PM check after inactives: both plays hold. Hollins is not on the Patriots' inactive list, Maye starts and A.J. Brown is still out; sunny with light wind in Orchard Park. Zay Flowers is active for Baltimore with no hard pitch count, Andrews is not on the injury report, and showers are about a coin flip with 6 mph wind. Props are not re-priced."
+  },
+  {
+   "at": "2026-10-04T19:00:39Z",
+   "games": [
+    "LAC @ SEA",
+    "DEN @ SF"
+   ],
+   "scratched": [
+    "d17fce88"
+   ],
+   "note": "4:25 PM check: Chargers ML scratched on price (DraftKings +280, fair +287). Purdy anytime TD holds: he is not on the injury report and starts; Mike Evans (ribs) is a game-time decision, which does not touch a quarterback keeper; about 90 degrees and dry in Santa Clara, no wind issue. The official inactive lists were not yet indexed when this ran. Props are not re-priced."
   }
  ]
 }
