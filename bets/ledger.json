@@ -157,8 +157,10 @@
   "reason": "Pinnacle has him 22.5% to score against DraftKings' 21.3%; he is healthy, already has a keeper touchdown this year and ran in three in nine games last season.",
   "date": "2026-10-04",
   "recorded_at": "2026-10-04T12:21:17Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "0 TD",
+  "graded_at": "2026-10-04T23:44:18Z"
  },
  {
   "id": "p89859ff",
@@ -185,7 +187,8 @@
     "dk_updated": "2026-10-04T12:11:35Z",
     "pin_vig": 0.0472,
     "pin_updated": "2026-10-04T12:12:10Z",
-    "result": null
+    "result": "loss",
+    "result_note": "0 TD"
    },
    {
     "id": "103c9078",
@@ -207,7 +210,8 @@
     "dk_updated": "2026-10-04T12:12:08Z",
     "pin_vig": 0.0477,
     "pin_updated": "2026-10-04T12:11:53Z",
-    "result": null
+    "result": "loss",
+    "result_note": "0 TD"
    }
   ],
   "dk_price": 1780,
@@ -219,7 +223,8 @@
   "reason": "Two standalone plays from different games; the product pays +1780 against a fair +1550.",
   "date": "2026-10-04",
   "recorded_at": "2026-10-04T12:21:17Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-10-04T23:44:18Z"
  }
 ]
