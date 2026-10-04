@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-04T22:43:59Z",
+ "updated": "2026-10-04T23:18:21Z",
  "events": [
-  {
-   "id": "c327223d76a3b7b0db8c6c104442f44b",
-   "commence": "2026-10-04T20:05:42Z",
-   "et_date": "2026-10-04",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Minnesota Vikings",
-   "away": "Miami Dolphins",
-   "game": "MIA @ MIN"
-  },
   {
    "id": "e0cbd266dcf997089203a1b33ba0333d",
    "commence": "2026-10-04T20:25:14Z",
@@ -144,15 +135,6 @@
    "home": "Washington Commanders",
    "away": "New York Giants",
    "game": "NYG @ WSH"
-  },
-  {
-   "id": "d1d408fdfd272046fb517fe992a1c5a0",
-   "commence": "2026-10-11T20:05:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Los Angeles Chargers",
-   "away": "Denver Broncos",
-   "game": "DEN @ LAC"
   },
   {
    "id": "f8e7f43f73aa983c5c99c189587f0118",
