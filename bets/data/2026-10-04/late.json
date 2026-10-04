@@ -1,0 +1,19 @@
+{
+ "date": "2026-10-04",
+ "checked_at": "2026-10-04T18:59:54Z",
+ "credits_left": 414,
+ "picks": [
+  {
+   "id": "d17fce88",
+   "label": "LAC ML",
+   "card_price": 295,
+   "card_ev": 0.0304,
+   "fair_prob_now": 0.2582,
+   "fair_price_now": 287,
+   "source_now": "pinnacle",
+   "ev_at_card_price_now": 0.0198,
+   "ev_now": -0.0189,
+   "dk_price_now": 280
+  }
+ ]
+}
