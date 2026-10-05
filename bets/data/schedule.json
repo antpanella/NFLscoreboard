@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-05T00:29:59Z",
+ "updated": "2026-10-05T00:57:02Z",
  "events": [
   {
    "id": "a73a76599a4f3422803e57bd8f61b626",
@@ -117,15 +117,6 @@
    "home": "Los Angeles Chargers",
    "away": "Denver Broncos",
    "game": "DEN @ LAC"
-  },
-  {
-   "id": "f8e7f43f73aa983c5c99c189587f0118",
-   "commence": "2026-10-11T20:25:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Detroit Lions",
-   "game": "DET @ ARI"
   },
   {
    "id": "8e5d515b10d8a5ffb324640ed60bcc55",
