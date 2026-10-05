@@ -1,0 +1,38 @@
+{
+ "date": "2026-10-05",
+ "generated_at": "2026-10-05T22:57:57Z",
+ "headline": "No play for Falcons at Saints. DraftKings is at or inside Pinnacle's fair price on all six game-line sides and 84 of 86 priced selections; the one prop that cleared the bar, Michael Penix Jr. to score at +900, was cut.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "8bd90781e17e6d97df3941063cedae1e",
+   "game": "ATL @ NO",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-10-06T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 86,
+   "picks": [],
+   "note": "No play. Game lines are tight (best side is under 47.5 at -2.8%) and Pinnacle has not moved since the morning snapshot; the only edge over the bar was Penix anytime TD, cut on role."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Michael Penix Jr. anytime TD +900 (+9.1%)",
+   "why": "One game back from a third ACL tear with two carries for -2 yards, and two rushing touchdowns in 13 career starts; DraftKings and Pinnacle both updated in the same minute with no news behind the gap, so the edge on a 9-to-1 shot rests on how Pinnacle's juice is split."
+  },
+  {
+   "label": "Alvin Kamara anytime TD +165 (+2.8%)",
+   "why": "Below the 5% bar for touchdown props."
+  }
+ ],
+ "notes": [
+  "Single-game night: 0u at risk against a 4u cap. No parlay: no plays, and parlays need legs from different games.",
+  "Built at 7:05 PM ET, after inactives. Penix is active and starts for Atlanta; Saints are without LB Kaden Elliss, DE Carl Granderson and LB Anfernee Jennings. The game is indoors.",
+  "schedule.json shows 'updated' as 2026-10-05T04:19Z, more than 2 hours old. The Action answered today's odds request in 10 seconds, so it is running; this again looks like the schedule job only rewriting the file on change.",
+  "Odds credits left: 399."
+ ],
+ "credits_left": 399
+}
