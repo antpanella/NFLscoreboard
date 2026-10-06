@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-06T00:28:59Z",
+ "updated": "2026-10-06T00:55:26Z",
  "events": [
   {
    "id": "8bd90781e17e6d97df3941063cedae1e",
@@ -83,15 +83,6 @@
    "game": "LV @ NE"
   },
   {
-   "id": "2cda9bf0fbe35a2735f0dd8aaafe9eff",
-   "commence": "2026-10-11T17:00:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "New Orleans Saints",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ NO"
-  },
-  {
    "id": "fbffd0b7722fd81d68d5d62472dc80e8",
    "commence": "2026-10-11T17:00:00Z",
    "et_date": "2026-10-11",
@@ -126,15 +117,6 @@
    "home": "Seattle Seahawks",
    "away": "San Francisco 49ers",
    "game": "SF @ SEA"
-  },
-  {
-   "id": "86457f91112732f21ad4bb7d37bd291c",
-   "commence": "2026-10-12T00:20:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 8:20 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "Baltimore Ravens",
-   "game": "BAL @ ATL"
   },
   {
    "id": "e6d00eedd87d367e510314bd8cab8f6f",
