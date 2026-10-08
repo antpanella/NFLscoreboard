@@ -1,6 +1,6 @@
 {
  "date": "2026-10-08",
- "generated_at": "2026-10-08T23:00:02Z",
+ "generated_at": "2026-10-08T23:00:23Z",
  "headline": "One game tonight, TB @ DAL. Four selections cleared the price bar; two were cut on role and game script, leaving two small Dallas props for 2 units.",
  "total_units": 2,
  "games": [
@@ -45,7 +45,7 @@
    "units": 1,
    "reason": "Dallas waived Emari Demercado this afternoon, leaving Goodson as the only back behind Javonte Williams on an 8.5-point home favorite; he practiced in full all week and is active, and DraftKings' +700 is longer than Pinnacle's fair +649.",
    "date": "2026-10-08",
-   "recorded_at": "2026-10-08T23:00:02Z",
+   "recorded_at": "2026-10-08T23:00:23Z",
    "result": null,
    "pl": null
   },
@@ -75,7 +75,7 @@
    "units": 1,
    "reason": "Dallas' full-time slot receiver (about 75% of routes, 5+ targets in three of four games, 4 and 5 catches in two of them) against a Tampa secondary missing CB Benjamin Morrison and S Antoine Winfield Jr.; +128 is longer than Pinnacle's +121 at the same number. Thin edge: it only just clears the 3% bar and the other US books price it nearer fair.",
    "date": "2026-10-08",
-   "recorded_at": "2026-10-08T23:00:02Z",
+   "recorded_at": "2026-10-08T23:00:23Z",
    "result": null,
    "pl": null
   }
@@ -95,7 +95,7 @@
   }
  ],
  "notes": [
-  "Card built about 65 minutes before kickoff, after the official inactives: Baker Mayfield is out (Jalon Daniels starts), and nobody on the card is affected.",
+  "Card built about 75 minutes before kickoff, after the official inactives: Baker Mayfield is out (Jalon Daniels starts), and nobody on the card is affected.",
   "No parlay: legs must come from different games and there is only one game tonight.",
   "schedule.json still shows its last update as 2026-10-06 20:17Z, so the 15-minute schedule refresh may be stuck. The odds pull itself ran normally tonight (383 credits left).",
   "AT&T Stadium has a roof; weather is not a factor."
