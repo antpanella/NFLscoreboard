@@ -1,0 +1,104 @@
+{
+ "date": "2026-10-08",
+ "generated_at": "2026-10-08T23:00:02Z",
+ "headline": "One game tonight, TB @ DAL. Four selections cleared the price bar; two were cut on role and game script, leaving two small Dallas props for 2 units.",
+ "total_units": 2,
+ "games": [
+  {
+   "event_id": "259b5df9aa0d10257f56de78523495e0",
+   "game": "TB @ DAL",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "commence": "2026-10-09T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 106,
+   "picks": [
+    "8375e980",
+    "f1156129"
+   ],
+   "note": "Two plays (Goodson TD, Flournoy receptions over). Game lines are tight: best side was TB ML at -1.0%. Ted Hurst TD showed +13% and Gainwell under 1.5 receptions +4.4%; both cut, see passed."
+  }
+ ],
+ "picks": [
+  {
+   "id": "8375e980",
+   "event_id": "259b5df9aa0d10257f56de78523495e0",
+   "game": "TB @ DAL",
+   "home": "Dallas Cowboys",
+   "away": "Tampa Bay Buccaneers",
+   "commence": "2026-10-09T00:15:00Z",
+   "market": "player_anytime_td",
+   "subject": "Tyler Goodson",
+   "side": "Yes",
+   "point": null,
+   "label": "Tyler Goodson anytime TD",
+   "dk_price": 700,
+   "fair_prob": 0.1335,
+   "fair_price": 649,
+   "ev": 0.068,
+   "source": "pinnacle",
+   "dk_updated": "2026-10-08T22:55:36Z",
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-10-08T22:55:30Z",
+   "kind": "single",
+   "units": 1,
+   "reason": "Dallas waived Emari Demercado this afternoon, leaving Goodson as the only back behind Javonte Williams on an 8.5-point home favorite; he practiced in full all week and is active, and DraftKings' +700 is longer than Pinnacle's fair +649.",
+   "date": "2026-10-08",
+   "recorded_at": "2026-10-08T23:00:02Z",
+   "result": null,
+   "pl": null
+  },
+  {
+   "id": "f1156129",
+   "event_id": "259b5df9aa0d10257f56de78523495e0",
+   "game": "TB @ DAL",
+   "home": "Dallas Cowboys",
+   "away": "Tampa Bay Buccaneers",
+   "commence": "2026-10-09T00:15:00Z",
+   "market": "player_receptions",
+   "subject": "Ryan Flournoy",
+   "side": "Over",
+   "point": 3.5,
+   "label": "Ryan Flournoy over 3.5 receptions",
+   "dk_price": 128,
+   "fair_prob": 0.4521,
+   "fair_price": 121,
+   "ev": 0.0307,
+   "source": "pinnacle",
+   "dk_updated": "2026-10-08T22:55:36Z",
+   "pin_vig": 0.0484,
+   "pin_updated": "2026-10-08T22:55:30Z",
+   "consensus_prob": 0.4373,
+   "consensus_books": 4,
+   "kind": "single",
+   "units": 1,
+   "reason": "Dallas' full-time slot receiver (about 75% of routes, 5+ targets in three of four games, 4 and 5 catches in two of them) against a Tampa secondary missing CB Benjamin Morrison and S Antoine Winfield Jr.; +128 is longer than Pinnacle's +121 at the same number. Thin edge: it only just clears the 3% bar and the other US books price it nearer fair.",
+   "date": "2026-10-08",
+   "recorded_at": "2026-10-08T23:00:02Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Ted Hurst III anytime TD +600 (+13.2%)",
+   "why": "Edge over 10% with no news that makes DraftKings the stale book: his route share fell to a season-low 47% last week with Tez Johnson out-snapping him early, and an undrafted rookie QB is starting again."
+  },
+  {
+   "label": "Kenny Gainwell under 1.5 receptions +145 (+4.4%)",
+   "why": "He has 1, 3, 2 and 2 catches in four games, drew the only running back targets last week, and Tampa is an 8.5-point underdog with a rookie QB, which is a script for the passing-down back; the other books also price the under shorter than Pinnacle."
+  },
+  {
+   "label": "Sean Tucker anytime TD +400 (+1.3%)",
+   "why": "Below the 5% bar for touchdown props."
+  }
+ ],
+ "notes": [
+  "Card built about 65 minutes before kickoff, after the official inactives: Baker Mayfield is out (Jalon Daniels starts), and nobody on the card is affected.",
+  "No parlay: legs must come from different games and there is only one game tonight.",
+  "schedule.json still shows its last update as 2026-10-06 20:17Z, so the 15-minute schedule refresh may be stuck. The odds pull itself ran normally tonight (383 credits left).",
+  "AT&T Stadium has a roof; weather is not a factor."
+ ],
+ "credits_left": 383
+}
