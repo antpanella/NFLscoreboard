@@ -252,8 +252,15 @@
   "reason": "Dallas waived Emari Demercado this afternoon, leaving Goodson as the only back behind Javonte Williams on an 8.5-point home favorite; he practiced in full all week and is active, and DraftKings' +700 is longer than Pinnacle's fair +649.",
   "date": "2026-10-08",
   "recorded_at": "2026-10-08T23:00:23Z",
-  "result": null,
-  "pl": null
+  "result": "check",
+  "pl": null,
+  "result_note": "Tyler Goodson not in box score (did not play = void, played = loss)",
+  "close_fair_prob": 0.1335,
+  "close_fair_price": 649,
+  "close_source": "pinnacle",
+  "clv": 0.068,
+  "close_dk_price": 650,
+  "graded_at": "2026-10-09T03:49:19Z"
  },
  {
   "id": "f1156129",
@@ -282,7 +289,14 @@
   "reason": "Dallas' full-time slot receiver (about 75% of routes, 5+ targets in three of four games, 4 and 5 catches in two of them) against a Tampa secondary missing CB Benjamin Morrison and S Antoine Winfield Jr.; +128 is longer than Pinnacle's +121 at the same number. Thin edge: it only just clears the 3% bar and the other US books price it nearer fair.",
   "date": "2026-10-08",
   "recorded_at": "2026-10-08T23:00:23Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "3 receptions",
+  "close_fair_prob": 0.4521,
+  "close_fair_price": 121,
+  "close_source": "pinnacle",
+  "clv": 0.0307,
+  "close_dk_price": 128,
+  "graded_at": "2026-10-09T03:49:19Z"
  }
 ]
