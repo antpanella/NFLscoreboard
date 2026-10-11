@@ -1,0 +1,6 @@
+2026-10-11T19:59:12Z
+https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100
+  200 193017 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/test-wilson/00.json.gz
+
+https://api.sleeper.app/v1/players/nfl?active=true
+  200 11478648 bytes | '{"6462":{"search_rank":9999999,"stats_id":887183,"injury_notes":null,"injury_body_part":null,"sport":"nfl","injury_start_date":null,"search_first_name":"ellis",' | saved probe/test-wilson/01.json.gz

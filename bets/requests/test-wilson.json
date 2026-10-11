@@ -1,4 +1,10 @@
-{"mode": "probe", "save": true, "requested_at": "2026-10-11T19:59:02Z", "urls": [
- "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
- "https://api.sleeper.app/v1/players/nfl?active=true"
-]}
+{
+ "mode": "probe",
+ "save": true,
+ "requested_at": "2026-10-11T19:59:02Z",
+ "urls": [
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
+  "https://api.sleeper.app/v1/players/nfl?active=true"
+ ],
+ "fulfilled_at": "2026-10-11T19:59:12Z"
+}
