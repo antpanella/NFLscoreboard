@@ -388,5 +388,15 @@
   "schedule.json still shows 'updated' as Oct 9 03:49Z, more than two hours old. The odds pull ran normally at 12:11Z and today's opening lines were captured at 07:16Z, so this looks like the schedule job only writing on change, but it is worth a look.",
   "Odds credits left: 318."
  ],
- "credits_left": 318
+ "credits_left": 318,
+ "late_checks": [
+  {
+   "at": "2026-10-11T15:41:48Z",
+   "games": [
+    "NYG @ WSH"
+   ],
+   "scratched": [],
+   "note": "11:45 AM ET, after the 11:30 inactives: White, Croskey-Merritt, Ekeler, McLaurin and Daniels are all active (Washington's inactives are Diggs, Mariota, Owens, Cross, Butler, Togiai, Omenihu), so the White under holds. Rain with wind near 14 mph in Landover; not a reason to drop a rushing under for a rotation back. Props are not re-priced."
+  }
+ ]
 }
