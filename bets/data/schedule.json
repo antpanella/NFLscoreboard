@@ -1,81 +1,9 @@
 {
- "updated": "2026-10-11T19:07:58Z",
+ "updated": "2026-10-11T22:57:06Z",
  "events": [
   {
-   "id": "448d7cf18c6db4c811ed82ded1b72867",
-   "commence": "2026-10-11T17:02:30Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Pittsburgh Steelers",
-   "away": "Indianapolis Colts",
-   "game": "IND @ PIT"
-  },
-  {
-   "id": "fbffd0b7722fd81d68d5d62472dc80e8",
-   "commence": "2026-10-11T17:02:32Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Washington Commanders",
-   "away": "New York Giants",
-   "game": "NYG @ WSH"
-  },
-  {
-   "id": "cc52bba56e74f5cddbe9011046181c3d",
-   "commence": "2026-10-11T17:02:34Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Tennessee Titans",
-   "away": "Houston Texans",
-   "game": "HOU @ TEN"
-  },
-  {
-   "id": "9db4ed15fe34fca1fb62f040cd244591",
-   "commence": "2026-10-11T17:02:36Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "New York Jets",
-   "away": "Cleveland Browns",
-   "game": "CLE @ NYJ"
-  },
-  {
-   "id": "c4647ca1201e6768501877267ca8251b",
-   "commence": "2026-10-11T17:02:46Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Miami Dolphins",
-   "away": "Cincinnati Bengals",
-   "game": "CIN @ MIA"
-  },
-  {
-   "id": "2cda9bf0fbe35a2735f0dd8aaafe9eff",
-   "commence": "2026-10-11T17:03:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "New Orleans Saints",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ NO"
-  },
-  {
-   "id": "6b024bad1abb54f597225e4ab9b39d89",
-   "commence": "2026-10-11T17:03:05Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "New England Patriots",
-   "away": "Las Vegas Raiders",
-   "game": "LV @ NE"
-  },
-  {
-   "id": "2caea57b1e5cfbba1334cfbfd46f6771",
-   "commence": "2026-10-11T17:03:41Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "Green Bay Packers",
-   "away": "Chicago Bears",
-   "game": "CHI @ GB"
-  },
-  {
    "id": "d1d408fdfd272046fb517fe992a1c5a0",
-   "commence": "2026-10-11T20:05:00Z",
+   "commence": "2026-10-11T20:05:27Z",
    "et_date": "2026-10-11",
    "kickoff_et": "Sun 4:05 PM ET",
    "home": "Los Angeles Chargers",
@@ -83,22 +11,22 @@
    "game": "DEN @ LAC"
   },
   {
-   "id": "f8e7f43f73aa983c5c99c189587f0118",
-   "commence": "2026-10-11T20:25:00Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Detroit Lions",
-   "game": "DET @ ARI"
-  },
-  {
    "id": "8e5d515b10d8a5ffb324640ed60bcc55",
-   "commence": "2026-10-11T20:25:00Z",
+   "commence": "2026-10-11T20:25:19Z",
    "et_date": "2026-10-11",
    "kickoff_et": "Sun 4:25 PM ET",
    "home": "Seattle Seahawks",
    "away": "San Francisco 49ers",
    "game": "SF @ SEA"
+  },
+  {
+   "id": "f8e7f43f73aa983c5c99c189587f0118",
+   "commence": "2026-10-11T20:25:54Z",
+   "et_date": "2026-10-11",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Arizona Cardinals",
+   "away": "Detroit Lions",
+   "game": "DET @ ARI"
   },
   {
    "id": "86457f91112732f21ad4bb7d37bd291c",
@@ -117,6 +45,132 @@
    "home": "Los Angeles Rams",
    "away": "Buffalo Bills",
    "game": "BUF @ LAR"
+  },
+  {
+   "id": "855f58fad5f0f14b239f4f63df27998b",
+   "commence": "2026-10-16T00:15:00Z",
+   "et_date": "2026-10-15",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Denver Broncos",
+   "away": "Seattle Seahawks",
+   "game": "SEA @ DEN"
+  },
+  {
+   "id": "57418b2cf5aca558b3c98eafac1e264a",
+   "commence": "2026-10-18T13:30:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 9:30 AM ET",
+   "home": "Jacksonville Jaguars",
+   "away": "Houston Texans",
+   "game": "HOU @ JAX"
+  },
+  {
+   "id": "7c312fdf24fb35f58b0e07c2932cc997",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Atlanta Falcons",
+   "away": "Chicago Bears",
+   "game": "CHI @ ATL"
+  },
+  {
+   "id": "e86227938fd3cf008fc5648fb5128344",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Cleveland Browns",
+   "away": "Baltimore Ravens",
+   "game": "BAL @ CLE"
+  },
+  {
+   "id": "caca2d752fe1a1779029082e95332fcc",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Philadelphia Eagles",
+   "away": "Carolina Panthers",
+   "game": "CAR @ PHI"
+  },
+  {
+   "id": "84aa9e190e625d7e9cd67e1f157a45b4",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Indianapolis Colts",
+   "away": "Tennessee Titans",
+   "game": "TEN @ IND"
+  },
+  {
+   "id": "0b0b582b32b09ab6ff6664ffae0c9653",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New England Patriots",
+   "away": "New York Jets",
+   "game": "NYJ @ NE"
+  },
+  {
+   "id": "1cf74afd313e9fd300e1462012b174cb",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New York Giants",
+   "away": "New Orleans Saints",
+   "game": "NO @ NYG"
+  },
+  {
+   "id": "27f3994841ce8081c0b7349cf3d1e3d7",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Pittsburgh Steelers",
+   "game": "PIT @ TB"
+  },
+  {
+   "id": "3729ac6d2a66b642850caf2044cdc658",
+   "commence": "2026-10-18T20:05:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "home": "Los Angeles Rams",
+   "away": "Arizona Cardinals",
+   "game": "ARI @ LAR"
+  },
+  {
+   "id": "45b2690b350ed45145c7a716b18e8e66",
+   "commence": "2026-10-18T20:25:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Las Vegas Raiders",
+   "away": "Buffalo Bills",
+   "game": "BUF @ LV"
+  },
+  {
+   "id": "20fefae8c296247460ba5773caa42218",
+   "commence": "2026-10-18T20:25:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Kansas City Chiefs",
+   "away": "Los Angeles Chargers",
+   "game": "LAC @ KC"
+  },
+  {
+   "id": "82fd5a159fa130e67abab93a9537f70b",
+   "commence": "2026-10-19T00:20:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "home": "Green Bay Packers",
+   "away": "Dallas Cowboys",
+   "game": "DAL @ GB"
+  },
+  {
+   "id": "f122527f003276d3bca19efa48c902c1",
+   "commence": "2026-10-20T00:15:00Z",
+   "et_date": "2026-10-19",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "home": "San Francisco 49ers",
+   "away": "Washington Commanders",
+   "game": "WSH @ SF"
   }
  ]
 }

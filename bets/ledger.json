@@ -325,8 +325,10 @@
   "reason": "Pinnacle's line is 23.5 and DraftKings is still at 25.5: White is back from a shoulder injury after three limited practices and is expected to rotate with Ekeler while Croskey-Merritt, also cleared, takes most of the carries and Jayden Daniels returns at quarterback.",
   "date": "2026-10-11",
   "recorded_at": "2026-10-11T12:18:07Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.885,
+  "result_note": "18 rush yds",
+  "graded_at": "2026-10-11T22:57:06Z"
  },
  {
   "id": "ddce2659",
