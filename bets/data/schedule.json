@@ -1,11 +1,11 @@
 {
- "updated": "2026-10-09T03:49:19Z",
+ "updated": "2026-10-11T14:18:38Z",
  "events": [
   {
    "id": "21b26266f3d78af02eb672e606275d95",
-   "commence": "2026-10-11T13:30:00Z",
+   "commence": "2026-10-11T13:32:30Z",
    "et_date": "2026-10-11",
-   "kickoff_et": "Sun 9:30 AM ET",
+   "kickoff_et": "Sun 9:32 AM ET",
    "home": "Jacksonville Jaguars",
    "away": "Philadelphia Eagles",
    "game": "PHI @ JAX"
@@ -137,15 +137,6 @@
    "game": "SEA @ DEN"
   },
   {
-   "id": "57418b2cf5aca558b3c98eafac1e264a",
-   "commence": "2026-10-18T13:30:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 9:30 AM ET",
-   "home": "Jacksonville Jaguars",
-   "away": "Houston Texans",
-   "game": "HOU @ JAX"
-  },
-  {
    "id": "7c312fdf24fb35f58b0e07c2932cc997",
    "commence": "2026-10-18T17:00:00Z",
    "et_date": "2026-10-18",
@@ -162,15 +153,6 @@
    "home": "Cleveland Browns",
    "away": "Baltimore Ravens",
    "game": "BAL @ CLE"
-  },
-  {
-   "id": "caca2d752fe1a1779029082e95332fcc",
-   "commence": "2026-10-18T17:00:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Carolina Panthers",
-   "game": "CAR @ PHI"
   },
   {
    "id": "84aa9e190e625d7e9cd67e1f157a45b4",
