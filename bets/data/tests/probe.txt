@@ -1,3 +1,0 @@
-2026-10-11T19:59:58Z
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401872987
-  200 545708 bytes | '{"boxscore":{"teams":[{"team":{"id":"16","uid":"s:20~l:28~t:16","slug":"minnesota-vikings","location":"Minnesota","name":"Vikings","abbreviation":"MIN","display' | saved probe/test-wilson2/00.json.gz

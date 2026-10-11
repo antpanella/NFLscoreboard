@@ -1223,7 +1223,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-02a';
+var BUILD = 'build 2026-10-11a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -6247,12 +6247,34 @@ function captureBox(id, j){
    Sleeper's player list names every active player's team, so it is indexed once
    and kept for a day and a half. */
 var NIDX = null;
+// the positions a yardage or touchdown bet is placed on
+var SKILLPOS = {QB:1, RB:1, WR:1, TE:1, FB:1, K:1};
+/* A box-score line that shows the man touched the ball: what a player bet means.
+   A defender's line (tackles, sacks) is not who "E. Wilson anytime TD" is about. */
+var BALLKEYS = ['receptions', 'receivingYards', 'rushingAttempts', 'rushingYards', 'passingAttempts',
+                'passingYards', 'completions', 'kickReturns', 'puntReturns'];
+function carriesBall(r){ return BALLKEYS.some(function(k){ return r && r[k] !== undefined; }); }
+/* The team the index pins an initial and surname to, among ball carriers first. */
+function indexTeamFor(name){
+  var idx = nameIndex(), ln = surnameOf(name);
+  if (!idx || !ln) return '';
+  var full = idx[norm(String(name).replace(/\b(jr|sr|ii|iii|iv|v)\.?\s*$/i, '').trim())];
+  if (full && full.t) return full.t;
+  var ini = String(name).trim().charAt(0).toLowerCase();
+  var sk = idx['^^' + ini + ':' + norm(ln)];
+  if (sk && sk.one && sk.t) return sk.t;
+  var any = idx['^' + ini + ':' + norm(ln)];
+  return any && any.one && any.t ? any.t : '';
+}
+function sameTeam(a, b){ return !!a && !!b && (a === b || ALIAS[a] === b || ALIAS[b] === a); }
 function nameIndex(){
   if (NIDX) return NIDX;
   try {
     // v2: the first index lacked initials. v3: every team a surname plays for, so a
-    // bare "Washington" can be settled by who is on the field. Older keys are ignored.
-    var c = JSON.parse(localStorage.getItem('sundayBoardNames3') || 'null');
+    // bare "Washington" can be settled by who is on the field. v4: initials among
+    // ball carriers only, so "E. Wilson" is the Seattle back and not a Minnesota
+    // linebacker. Older keys are ignored.
+    var c = JSON.parse(localStorage.getItem('sundayBoardNames4') || 'null');
     if (c && c.at && Date.now() - c.at < 36 * 3600000 && c.map) return (NIDX = c.map);
   } catch(e){}
   return null;
@@ -6279,6 +6301,8 @@ function fetchNames(){
         map[norm(first + ' ' + pl.last_name)] = rec;           // with the suffix, as written
         // "K. Walker": there are several Walkers, but one K. Walker
         if (first) once('^' + first.charAt(0).toLowerCase() + ':' + norm(last), pl.team);
+        if (first && SKILLPOS[String(pl.position || '').toUpperCase()])
+          once('^^' + first.charAt(0).toLowerCase() + ':' + norm(last), pl.team);
         once('~' + norm(last), pl.team);
         // everyone of that surname, for a bet that names nothing else
         var lk = '~~' + norm(last);
@@ -6286,8 +6310,8 @@ function fetchNames(){
       }
       NIDX = map;
       sleeperInjuries(all);
-      try { localStorage.removeItem('sundayBoardNames2'); } catch(e){}
-      try { localStorage.setItem('sundayBoardNames3', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
+      try { localStorage.removeItem('sundayBoardNames2'); localStorage.removeItem('sundayBoardNames3'); } catch(e){}
+      try { localStorage.setItem('sundayBoardNames4', JSON.stringify({at: Date.now(), map: map})); } catch(e){}
       paintBets(); render();
     })
     .catch(function(){})
@@ -6307,6 +6331,8 @@ function playerTeam(name){
   if (ln){
     // first initial and surname beats surname alone: several Walkers, one K. Walker
     var ini = String(name).trim().charAt(0).toLowerCase();
+    var bySkill = idx['^^' + ini + ':' + norm(ln)];
+    if (bySkill && bySkill.one && bySkill.t) return bySkill.t;
     var byIni = idx['^' + ini + ':' + norm(ln)];
     if (byIni && byIni.one && byIni.t) return byIni.t;
     var one = idx['~' + norm(ln)];
@@ -6387,6 +6413,14 @@ function findPlayer(name, teamHint){
       }
     }
   }
+  /* "E. Wilson" against every E. Wilson in today's box scores: on 11 October the
+     only one was Eric Wilson, a Minnesota linebacker with two tackles in a game
+     already over, and the bet on Seattle's Emanuel Wilson was marked lost before
+     his game began. Only a man who has touched the ball counts, and when the
+     player index knows the team, only a man on that team. */
+  byLast = byLast.filter(function(o){ return carriesBall(o.rec); });
+  var known = byLast.length ? indexTeamFor(name) : '';
+  if (known) byLast = byLast.filter(function(o){ return sameTeam(o.rec.team, known); });
   if (byLast.length === 1) return byLast[0];
   /* A bet that names only a surname — "Stafford o2.5 pass TDs" — has no initial
      to check, so it takes the one player of that name in the box scores. Before,
@@ -6780,9 +6814,13 @@ function settledClock(rows){
     var id = r.b.id, done = r.s.state === 'won' || r.s.state === 'lost' || r.s.state === 'push';
     keep[id] = 1;
     if (done && !SETTLED[id]){ SETTLED[id] = t; changed = true; }
-    // only a bet seen live again gets its clock back: before the scoreboard has
-    // loaded every bet reads as pending, and that must not reset anything
-    if (r.s.state === 'live' && SETTLED[id]){ delete SETTLED[id]; changed = true; }
+    /* A bet seen live again gets its clock back, and so does one seen still to
+       come once the scoreboard and the player index are both in (before that every
+       bet reads as pending, which must not reset anything). The second case is a
+       bet that was settled by mistake: it has to come back to the strip now, not
+       when its game starts. */
+    var back = r.s.state === 'live' || (r.s.state === 'pending' && LASTDATA && nameIndex());
+    if (back && SETTLED[id]){ delete SETTLED[id]; changed = true; }
   });
   for (var id in SETTLED) if (!keep[id]){ delete SETTLED[id]; changed = true; }   // bets deleted or aged out
   if (changed && !REPLAY){ try { localStorage.setItem('sundayBoardSettled', JSON.stringify(SETTLED)); } catch(e){} }
