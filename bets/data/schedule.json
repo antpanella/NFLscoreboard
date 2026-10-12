@@ -1,38 +1,11 @@
 {
- "updated": "2026-10-11T22:57:06Z",
+ "updated": "2026-10-12T02:15:48Z",
  "events": [
   {
-   "id": "d1d408fdfd272046fb517fe992a1c5a0",
-   "commence": "2026-10-11T20:05:27Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Los Angeles Chargers",
-   "away": "Denver Broncos",
-   "game": "DEN @ LAC"
-  },
-  {
-   "id": "8e5d515b10d8a5ffb324640ed60bcc55",
-   "commence": "2026-10-11T20:25:19Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Seattle Seahawks",
-   "away": "San Francisco 49ers",
-   "game": "SF @ SEA"
-  },
-  {
-   "id": "f8e7f43f73aa983c5c99c189587f0118",
-   "commence": "2026-10-11T20:25:54Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Detroit Lions",
-   "game": "DET @ ARI"
-  },
-  {
    "id": "86457f91112732f21ad4bb7d37bd291c",
-   "commence": "2026-10-12T00:20:00Z",
+   "commence": "2026-10-12T00:23:29Z",
    "et_date": "2026-10-11",
-   "kickoff_et": "Sun 8:20 PM ET",
+   "kickoff_et": "Sun 8:23 PM ET",
    "home": "Atlanta Falcons",
    "away": "Baltimore Ravens",
    "game": "BAL @ ATL"
@@ -63,24 +36,6 @@
    "home": "Jacksonville Jaguars",
    "away": "Houston Texans",
    "game": "HOU @ JAX"
-  },
-  {
-   "id": "7c312fdf24fb35f58b0e07c2932cc997",
-   "commence": "2026-10-18T17:00:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "Chicago Bears",
-   "game": "CHI @ ATL"
-  },
-  {
-   "id": "e86227938fd3cf008fc5648fb5128344",
-   "commence": "2026-10-18T17:00:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Cleveland Browns",
-   "away": "Baltimore Ravens",
-   "game": "BAL @ CLE"
   },
   {
    "id": "caca2d752fe1a1779029082e95332fcc",

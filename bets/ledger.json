@@ -355,8 +355,10 @@
   "reason": "McConkey is not expected to play (reported this morning), Johnston and Thompson are out and Njoku is on IR, so Gadsden is one of the few healthy Chargers targets; Pinnacle's fair price is +310 and DraftKings is at +340.",
   "date": "2026-10-11",
   "recorded_at": "2026-10-11T12:18:07Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "0 TD",
+  "graded_at": "2026-10-12T02:15:48Z"
  },
  {
   "id": "d26a9234",
@@ -384,8 +386,10 @@
   "reason": "Pinnacle's line is 37.5 against DraftKings' 42.5: four Chargers linemen are out (Slater, Alt, Penning, Awosika) and Hampton had 9 carries last week in a three-way split with Keaton Mitchell and Vidal; half a unit because the fair price is stretched across five yards.",
   "date": "2026-10-11",
   "recorded_at": "2026-10-11T12:18:07Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.435,
+  "result_note": "33 rush yds",
+  "graded_at": "2026-10-12T02:15:48Z"
  },
  {
   "id": "128cd0ff",
@@ -412,8 +416,10 @@
   "reason": "Barner is healthy and is Seattle's sneak man at the goal line (he already has a rushing touchdown this season); DraftKings' +340 is longer than Pinnacle's fair +317, an edge that clears the bar only narrowly.",
   "date": "2026-10-11",
   "recorded_at": "2026-10-11T12:18:07Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "0 TD",
+  "graded_at": "2026-10-12T02:15:48Z"
  },
  {
   "id": "p7779c36",
@@ -441,7 +447,8 @@
     "from_point": 23.5,
     "pin_vig": 0.0711,
     "pin_updated": "2026-10-11T12:10:58Z",
-    "result": null
+    "result": "win",
+    "result_note": "18 rush yds"
    },
    {
     "id": "ddce2659",
@@ -463,7 +470,8 @@
     "dk_updated": "2026-10-11T12:11:29Z",
     "pin_vig": 0.0479,
     "pin_updated": "2026-10-11T12:11:34Z",
-    "result": null
+    "result": "loss",
+    "result_note": "0 TD"
    }
   ],
   "dk_price": 729,
@@ -475,7 +483,8 @@
   "reason": "The two best-supported plays, from different games; DraftKings pays about +729 for the pair against a fair +613.",
   "date": "2026-10-11",
   "recorded_at": "2026-10-11T12:18:07Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-10-12T02:15:48Z"
  }
 ]
