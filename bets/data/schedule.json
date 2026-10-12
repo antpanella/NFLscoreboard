@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-12T02:15:48Z",
+ "updated": "2026-10-12T09:39:04Z",
  "events": [
-  {
-   "id": "86457f91112732f21ad4bb7d37bd291c",
-   "commence": "2026-10-12T00:23:29Z",
-   "et_date": "2026-10-11",
-   "kickoff_et": "Sun 8:23 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "Baltimore Ravens",
-   "game": "BAL @ ATL"
-  },
   {
    "id": "e6d00eedd87d367e510314bd8cab8f6f",
    "commence": "2026-10-13T00:15:00Z",
@@ -36,6 +27,24 @@
    "home": "Jacksonville Jaguars",
    "away": "Houston Texans",
    "game": "HOU @ JAX"
+  },
+  {
+   "id": "7c312fdf24fb35f58b0e07c2932cc997",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Atlanta Falcons",
+   "away": "Chicago Bears",
+   "game": "CHI @ ATL"
+  },
+  {
+   "id": "e86227938fd3cf008fc5648fb5128344",
+   "commence": "2026-10-18T17:00:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Cleveland Browns",
+   "away": "Baltimore Ravens",
+   "game": "BAL @ CLE"
   },
   {
    "id": "caca2d752fe1a1779029082e95332fcc",
