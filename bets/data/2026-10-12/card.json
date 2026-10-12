@@ -1,0 +1,33 @@
+{
+ "date": "2026-10-12",
+ "generated_at": "2026-10-12T22:57:30Z",
+ "headline": "No play on Bills at Rams tonight. DraftKings is in line with Pinnacle on the game lines and the props; the best gap is 2.8%, short of the bar.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "e6d00eedd87d367e510314bd8cab8f6f",
+   "game": "BUF @ LAR",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-10-13T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 87,
+   "picks": [],
+   "note": "Lines tight: best edge Konata Mumpfield under 0.5 receptions +149 at +2.8% (needs 3.0% on a count prop); Blake Corum over 31.5 rush yds +1.6% on an adjusted line (needs 4.5%). Nothing on the spread, total or moneyline."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Konata Mumpfield under 0.5 receptions +149",
+   "why": "+2.8% EV, below the 3.0% count-prop threshold"
+  }
+ ],
+ "notes": [
+  "No parlay: single-game day and no qualifying plays.",
+  "schedule.json 'updated' stamp was 09:39Z (over 13 hours old) when this run started; the Action's 15-minute schedule refresh may be stuck, though the odds pull itself worked.",
+  "Settle by hand: Tyler Goodson anytime TD (8375e980, Thu Oct 8 TB @ DAL) is flagged to_check; if he is missing from the box score, void or loss per DraftKings."
+ ],
+ "credits_left": 301
+}
