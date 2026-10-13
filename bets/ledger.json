@@ -252,15 +252,16 @@
   "reason": "Dallas waived Emari Demercado this afternoon, leaving Goodson as the only back behind Javonte Williams on an 8.5-point home favorite; he practiced in full all week and is active, and DraftKings' +700 is longer than Pinnacle's fair +649.",
   "date": "2026-10-08",
   "recorded_at": "2026-10-08T23:00:23Z",
-  "result": "check",
-  "pl": null,
-  "result_note": "Tyler Goodson not in box score (did not play = void, played = loss)",
+  "result": "loss",
+  "pl": -1,
+  "result_note": "0 TD (active, no touches)",
   "close_fair_prob": 0.1335,
   "close_fair_price": 649,
   "close_source": "pinnacle",
   "clv": 0.068,
   "close_dk_price": 650,
-  "graded_at": "2026-10-09T03:49:19Z"
+  "graded_at": "2026-10-13T13:56:45Z",
+  "checked_at": "2026-10-13T13:56:45Z"
  },
  {
   "id": "f1156129",
