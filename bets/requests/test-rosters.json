@@ -1,4 +1,10 @@
-{"mode": "probe", "save": true, "requested_at": "2026-10-13T13:39:47Z", "urls": [
- "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2026.csv",
- "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261008"
-]}
+{
+ "mode": "probe",
+ "save": true,
+ "requested_at": "2026-10-13T13:39:47Z",
+ "urls": [
+  "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2026.csv",
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261008"
+ ],
+ "fulfilled_at": "2026-10-13T13:39:58Z"
+}
