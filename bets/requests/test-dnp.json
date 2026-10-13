@@ -1,3 +1,9 @@
-{"mode": "probe", "save": true, "requested_at": "2026-10-13T13:50:36Z", "urls": [
- "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261008"
-]}
+{
+ "mode": "probe",
+ "save": true,
+ "requested_at": "2026-10-13T13:50:36Z",
+ "urls": [
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261008"
+ ],
+ "fulfilled_at": "2026-10-13T13:50:48Z"
+}
