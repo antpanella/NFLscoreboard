@@ -1,9 +1,9 @@
 {
- "updated": "2026-10-12T09:39:04Z",
+ "updated": "2026-10-13T01:34:39Z",
  "events": [
   {
    "id": "e6d00eedd87d367e510314bd8cab8f6f",
-   "commence": "2026-10-13T00:15:00Z",
+   "commence": "2026-10-13T00:15:45Z",
    "et_date": "2026-10-12",
    "kickoff_et": "Mon 8:15 PM ET",
    "home": "Los Angeles Rams",
@@ -90,24 +90,6 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Pittsburgh Steelers",
    "game": "PIT @ TB"
-  },
-  {
-   "id": "3729ac6d2a66b642850caf2044cdc658",
-   "commence": "2026-10-18T20:05:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Los Angeles Rams",
-   "away": "Arizona Cardinals",
-   "game": "ARI @ LAR"
-  },
-  {
-   "id": "45b2690b350ed45145c7a716b18e8e66",
-   "commence": "2026-10-18T20:25:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Las Vegas Raiders",
-   "away": "Buffalo Bills",
-   "game": "BUF @ LV"
   },
   {
    "id": "20fefae8c296247460ba5773caa42218",
