@@ -1,3 +1,0 @@
-2026-10-13T13:50:48Z
-https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261008
-  200 13626 bytes | '{"leagues":[{"id":"28","uid":"s:20~l:28","name":"National Football League","abbreviation":"NFL","slug":"nfl","season":{"year":2026,"startDate":"2026-08-06T07:00' | saved probe/test-dnp/00.json.gz

@@ -13,6 +13,8 @@ Modes
   parlay D id id ...   price a parlay from candidate ids (used by the pre-kickoff session)
   record D picks.json  write the day's card, ledger entries and latest.json from the session's choices
   late D scratch.json  record a late check: scratch card plays that no longer hold
+  watchend D START / watchneeded D / watchstep D   the kickoff watcher (see bets.yml)
+  (request file {"mode": "watch", "date": D} makes sure a watcher is running for D)
   (request file {"mode": "latecheck", "date": D} re-prices the card's game-line plays: 3 credits)
   (request file {"mode": "extra", "date": D} adds count props to the day's pull: 5 credits a game)
   selftest  run the math against the saved coverage test in data/odds-test/ (no network)
@@ -79,13 +81,23 @@ CONSENSUS_MIN_BOOKS = 3
 CREDIT_RESERVE = 15          # never spend below this
 LATE_MIN_CREDITS = 100       # the late check is a nice-to-have: it never eats into the core budget
 CLOSE_MIN_CREDITS = 40       # nor does the closing-line snapshot
-CLOSE_WINDOW_MIN = 45        # closing snapshot when kickoff is this close (GitHub's 15-min cron fires 13-31 min apart)
+CLOSE_WINDOW_MIN = 20        # closing snapshot when kickoff is this close (the watcher looks every 5 minutes)
 EXTRA_MIN_CREDITS = 150      # count props ride along on primetime pulls only above this
 EXTRA_FROM_HOUR_ET = 19      # "primetime": kickoff at or after 7 PM ET
+OPENER_ENABLED = False       # 13 Oct: the snapshot only ever tagged game lines, and the card is props
 OPENER_MIN_CREDITS = 60      # the morning game-line snapshot (line movement)
 OPENER_HOURS = 10            # take it once the day's first kickoff is this close...
 OPENER_MIN_LEAD_H = 4        # ...and still at least this far away (before the pre-kickoff pull)
 MOVE_TAG_PTS = 0.015         # fair-probability move that counts as Pinnacle moving
+TD_MARKETS = ('player_anytime_td', 'player_1st_td')
+TD_MAX_PLAYS = 2             # 13 Oct review: TD longshots carried almost all the variance
+TD_MAX_UNITS = 0.5
+WATCH_RUN = timedelta(hours=5, minutes=40)      # one watcher run; GitHub stops a job at 6 h
+WATCH_TAIL = timedelta(hours=4, minutes=15)     # after the day's last kickoff
+WATCH_AHEAD_H = 10                              # no watching a day whose first kickoff is further off
+CHECK_EVERY = timedelta(minutes=60)             # a pick waiting on the gameday roster is looked at hourly
+ROSTERS = 'https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_{season}.csv'
+NV_TEAM = {'LAR': 'LA', 'WSH': 'WAS'}            # engine abbreviations -> nflverse's
 
 TEAMS = {
     'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL',
@@ -637,6 +649,15 @@ def write_top(date, out):
         f.write('\n'.join(lines) + '\n')
 
 
+def want_watch(date):
+    """Tell the workflow to start a watcher for this date (it checks none is running)."""
+    out = os.environ.get('GITHUB_OUTPUT')
+    if out:
+        with open(out, 'a') as f:
+            f.write(f'watch_date={date}\n')
+    log(f'watch {date}: requested')
+
+
 def run_requests():
     """Pull for every request file the pre-kickoff session has pushed and not yet had filled."""
     if not os.path.isdir(REQS):
@@ -687,6 +708,11 @@ def run_requests():
             r['fulfilled_at'] = iso(now())
             save(path, r)
             continue
+        if r.get('mode') == 'watch':                           # a ping: make sure a watcher runs
+            want_watch(date)
+            r['fulfilled_at'] = iso(now())
+            save(path, r)
+            continue
         if r.get('mode') == 'extra':
             pull_extra(date, r.get('markets') or EXTRA_MARKETS)
             r['fulfilled_at'] = iso(now())
@@ -719,6 +745,8 @@ def run_requests():
             pull(date, evs)
         r['fulfilled_at'] = iso(now())
         save(path, r)
+        if date >= et_date(iso(now())):
+            want_watch(date)                                  # the card's day: watch it through
 
 
 # ---------------------------------------------------------------- closing lines
@@ -801,6 +829,8 @@ def capture_opener(evs):
     for e in evs:
         if parse(e['commence_time']) > t:
             by_date.setdefault(et_date(e['commence_time']), []).append(e)
+    if not OPENER_ENABLED:
+        return False
     for date, games in by_date.items():
         lead = min(parse(e['commence_time']) for e in games) - t
         if not (timedelta(hours=OPENER_MIN_LEAD_H) <= lead <= timedelta(hours=OPENER_HOURS)):
@@ -865,6 +895,59 @@ def _num(v):
         return 0.0
 
 
+_ROSTERS = {}
+
+
+def roster_status(season, week, teams, name):
+    """A player's gameday status from nflverse's weekly rosters: 'ACT' (dressed),
+    'INA' (inactive), 'RES', 'DEV', ... ; None when that week is not published yet
+    or he cannot be found on either team (then it stays for a human to settle)."""
+    import csv
+    import io
+    if season not in _ROSTERS:
+        req = urllib.request.Request(ROSTERS.format(season=season), headers={'User-Agent': UA})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            text = r.read().decode('utf-8', 'replace')
+        idx, weeks = {}, set()
+        for row in csv.DictReader(io.StringIO(text)):
+            if row.get('game_type') not in ('REG', '', None):
+                continue
+            try:
+                wk = int(row['week'])
+            except (TypeError, ValueError):
+                continue
+            weeks.add(wk)
+            idx[(wk, row['team'], norm_name(row.get('full_name') or ''))] = row.get('status') or ''
+        _ROSTERS[season] = (idx, weeks)
+    idx, weeks = _ROSTERS[season]
+    if week not in weeks:
+        return None
+    for tm in teams:
+        st = idx.get((week, NV_TEAM.get(tm, tm), norm_name(name)))
+        if st:
+            return st
+    return None
+
+
+def absent_player(leg, ev):
+    """He is not in the box score. Dressed and never touched the ball: his stat is 0.
+    Not dressed: DraftKings voids the bet. Unknown yet: leave it to be looked at again."""
+    try:
+        season = int((ev.get('season') or {}).get('year'))
+        week = int((ev.get('week') or {}).get('number'))
+        stype = int((ev.get('season') or {}).get('type') or 2)
+    except (TypeError, ValueError):
+        return None
+    if stype != 2:
+        return None
+    try:
+        st = roster_status(season, week, [abbr(leg['home']), abbr(leg['away'])], leg['subject'])
+    except Exception as e:                                   # nflverse hiccup: try next time
+        log(f'rosters: {e}')
+        return None
+    return st
+
+
 def find_espn_game(events, home, away):
     for ev in events:
         comp = (ev.get('competitions') or [{}])[0]
@@ -900,19 +983,24 @@ def grade_leg(leg, game_cache, box_cache):
     if ev['id'] not in box_cache:
         box_cache[ev['id']] = espn_box(ev['id'])
     rec = box_cache[ev['id']].get(norm_name(subj))
+    note = ''
+    if not rec:
+        st = absent_player(leg, ev)
+        if st is None:
+            return 'check', f'{subj} not in box score; gameday roster not out yet (did not play = void, played = 0)'
+        if st != 'ACT':
+            return 'void', f'{subj} {"inactive" if st == "INA" else "not active (" + st + ")"}: void'
+        rec, note = {}, ' (active, no touches)'
     if mk == 'player_anytime_td':
-        if not rec:
-            return 'check', f'{subj} not in box score (did not play = void, played = loss)'
-        tds = rec.get('rushingTouchdowns', 0) + rec.get('receivingTouchdowns', 0)
-        return ('win' if tds >= 1 else 'loss'), f'{tds:g} TD'
+        tds = (rec.get('rushingTouchdowns', 0) + rec.get('receivingTouchdowns', 0) +
+               rec.get('kickReturnTouchdowns', 0) + rec.get('puntReturnTouchdowns', 0))
+        return ('win' if tds >= 1 else 'loss'), f'{tds:g} TD{note}'
     stat = ESPN_STAT.get(mk)
     if not stat:
         return 'check', 'market not graded automatically'
-    if not rec:
-        return 'check', f'{subj} not in box score (did not play = void, played = 0)'
     v = rec.get(stat, 0)
     m = v - pt if side == 'Over' else pt - v
-    return ('win' if m > 0 else 'loss' if m < 0 else 'push'), f'{v:g} {PROP_SHORT[mk]}'
+    return ('win' if m > 0 else 'loss' if m < 0 else 'push'), f'{v:g} {PROP_SHORT[mk]}{note}'
 
 
 def closing_clv(leg):
@@ -943,8 +1031,14 @@ def grade():
     game_cache, box_cache = {}, {}
     changed = False
     for pick in ledger:
-        if pick.get('result') not in (None, 'pending'):
+        # 'check' is looked at again (hourly): the gameday roster may be out now
+        if pick.get('result') not in (None, 'pending', 'check'):
             continue
+        if pick.get('result') == 'check':
+            if pick.get('checked_at') and t - parse(pick['checked_at']) < CHECK_EVERY:
+                continue
+            pick['checked_at'] = iso(t)
+            changed = True
         legs = pick['legs'] if pick.get('kind') == 'parlay' else [pick]
         if any(parse(l['commence']) + timedelta(hours=3, minutes=15) > t for l in legs):
             continue
@@ -961,9 +1055,9 @@ def grade():
             if r is None:
                 results.append(None)
                 continue
-            l['result'], l['result_note'] = r, why
-            if l is not pick:
+            if l.get('result') != r or l.get('result_note') != why:
                 changed = True
+            l['result'], l['result_note'] = r, why
             results.append(r)
             if 'clv' not in l:
                 c = closing_clv(l)
@@ -973,7 +1067,12 @@ def grade():
             continue
         units = pick.get('units', 1)
         if 'check' in results:
-            pick['result'] = 'check'
+            if pick.get('result') != 'check':
+                pick['result'] = 'check'
+                changed = True
+            continue
+        if all(r == 'void' for r in results):
+            pick['result'], pick['pl'] = 'void', 0.0              # stake back
         elif 'loss' in results:
             pick['result'], pick['pl'] = 'loss', -units
         else:
@@ -1021,6 +1120,7 @@ def write_summary(ledger):
                    'by_type': {k: block(v) for k, v in sorted(groups.items())},
                    'pending': sum(1 for p in ledger if p.get('result') in (None, 'pending')),
                    'scratched': sum(1 for p in ledger if p.get('result') == 'scratched'),
+                   'void': sum(1 for p in ledger if p.get('result') == 'void'),
                    'to_check': [p['id'] for p in ledger if p.get('result') == 'check']})
 
 
@@ -1147,6 +1247,18 @@ def record(date, picks_path):
     spec = load(picks_path)
     cj = load(os.path.join(day_dir(date), 'candidates.json'), {})
     cands = {c['id']: c for c in cj.get('candidates', [])}
+    # the TD cap is checked before anything is written, so a card over it is never half-recorded
+    tds = [p for p in spec.get('picks', []) if cands.get(p['id'], {}).get('market') in TD_MARKETS]
+    over = []
+    if len(tds) > TD_MAX_PLAYS:
+        over.append(f'{len(tds)} touchdown plays; the cap is {TD_MAX_PLAYS} a day')
+    over += [f'{cands[p["id"]]["label"]} at {p.get("units", 1)}u; touchdown plays are {TD_MAX_UNITS}u at most'
+             for p in tds if p.get('units', 1) > TD_MAX_UNITS]
+    over += ['a parlay with a touchdown leg (' + ', '.join(cands[i]['label'] for i in par['ids'] if i in cands) + '); TD legs stay out of parlays'
+             for par in spec.get('parlays', []) if any(cands.get(i, {}).get('market') in TD_MARKETS for i in par['ids'])]
+    if over:
+        print('\n'.join('PROBLEM: ' + x for x in over))
+        raise SystemExit(1)
     t = iso(now())
     entries, problems = [], []
     for p in spec.get('picks', []):
@@ -1198,6 +1310,56 @@ def record(date, picks_path):
     print(f'recorded {len(entries)} plays ({card["total_units"]}u) for {date}')
     if problems:
         raise SystemExit(1)
+
+
+# ---------------------------------------------------------------- the kickoff watcher
+# GitHub's 15-minute schedule is best effort and on Sundays barely runs (5 of 96 runs on
+# 11 Oct), which is exactly when closing lines and grading are needed. A watcher is a
+# workflow run started by a push or a dispatch (those start at once) that loops through
+# the gameday itself, and hands over to a fresh run before GitHub's 6-hour limit.
+def day_kickoffs(date):
+    kicks = [parse(e['commence']) for e in load(SCHEDULE, {}).get('events', []) if e.get('et_date') == date]
+    card = load(os.path.join(day_dir(date), 'card.json'), {}) or {}
+    kicks += [parse(g['commence']) for g in card.get('games', []) if g.get('commence')]
+    return kicks
+
+
+def watch_end(date, start):
+    stop = datetime.fromtimestamp(int(start), timezone.utc) + WATCH_RUN
+    kicks = day_kickoffs(date)
+    if kicks:
+        stop = min(stop, max(kicks) + WATCH_TAIL)
+    print(int(stop.timestamp()))
+
+
+def watch_needed(date):
+    """Is there anything left to watch on this gameday: a kickoff ahead (or recent enough
+    for its closing line and grade), or a pick of the day still ungraded?"""
+    t = now()
+    kicks = day_kickoffs(date)
+    # a day whose first game is still far off is not watched yet: the card's own odds
+    # pull starts the watcher a little over an hour before kickoff
+    if kicks and min(kicks) - t > timedelta(hours=WATCH_AHEAD_H):
+        return False
+    if kicks and t < max(kicks) + WATCH_TAIL:
+        card = load(os.path.join(day_dir(date), 'card.json'))
+        if card is None or any(not p.get('scratched') for p in card.get('picks', [])):
+            return True
+    for p in load(LEDGER, []):
+        if p.get('date') == date and p.get('result') in (None, 'pending'):
+            if t < parse(p['commence']) + timedelta(hours=8):
+                return True
+    return False
+
+
+def watch_step(date):
+    evs = fetch_events()                                     # free
+    write_schedule(evs)
+    capture_closing(evs)
+    grade()
+    if not watch_needed(date):
+        log(f'watch {date}: nothing left to watch')
+        raise SystemExit(3)
 
 
 # ---------------------------------------------------------------- self test
@@ -1288,6 +1450,12 @@ def main(argv):
         return pull(argv[2])
     if mode == 'request':
         return run_requests()
+    if mode == 'watchend':
+        return watch_end(argv[2], argv[3])
+    if mode == 'watchneeded':
+        raise SystemExit(0 if watch_needed(argv[2]) else 1)
+    if mode == 'watchstep':
+        return watch_step(argv[2])
     if mode == 'tick':
         evs = fetch_events()
         write_schedule(evs)

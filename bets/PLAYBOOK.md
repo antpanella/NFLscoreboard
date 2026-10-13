@@ -16,7 +16,8 @@ reach the Odds API or ESPN; GitHub Actions can, so odds arrive through the repo.
 2. Get the current time (current_time tool). "Today" is the date in America/New_York.
 
 ## 1. Decide whether to run
-Read `bets/data/schedule.json` (refreshed by the Action every 15 minutes).
+Read `bets/data/schedule.json` (refreshed every 5 minutes by the kickoff watcher on a
+gameday, and by GitHub's 15-minute schedule when it gets round to it).
 - Today's games = events whose `et_date` is today.
 - No games today → stop quietly.
 - `bets/data/<today>/card.json` already exists → skip to **8. Late check**.
@@ -41,10 +42,10 @@ above fair, best first. `candidates.json` has the same rows with all fields.
   normal curve (never across 3 or 7 on spreads, never on yardage lines under 20).
   `consensus` = median no-vig price of other US books (Pinnacle missing).
 - `EV` = fair probability × DraftKings decimal price − 1.
-- `move` (when there is an earlier price that day: the morning game-line snapshot, or an
-  earlier prop pull): how Pinnacle's fair price moved since. `CHASING` = Pinnacle moved
-  toward our side (≥ 1.5 pts) and DraftKings hasn't caught up: the classic stale-book edge.
-  `FADING` = Pinnacle moved away from our side: it knows something. `flat` = little move.
+- `move` tags are rare since 13 Oct: the morning game-line snapshot was switched off (it
+  only ever tagged game lines, and the card is nearly all props). When a row has one — from
+  a second prop pull the same day — `FADING` (Pinnacle moved away from our side) is a reason
+  to look harder at the news; it no longer raises the bar by itself.
 - Primetime games (7 PM ET or later) also carry count props (receptions, pass TDs,
   completions, pass and rush attempts) while credits allow. Treat them as yardage props for
   the thresholds; they are only priced at Pinnacle's or the consensus's exact number.
@@ -58,8 +59,7 @@ A row is a **contender** only if it clears:
 | consensus | ≥ 3.5% | ≥ 5.0% | ≥ 7.0% |
 
 Raise the bar 1 point where Pinnacle's vig on the market (`pin_vig`) is above 8%, and
-2 points where the row is flagged "pinnacle and consensus disagree", and 1 point
-where the row is `FADING`.
+2 points where the row is flagged "pinnacle and consensus disagree".
 If nothing clears, the card says so. **A no-play day is a correct result.**
 
 ## 4. Vet every contender (this is the job)
@@ -69,8 +69,7 @@ Work down the contenders by EV. For each, web-search and decide in one sentence:
 2. **Why is DraftKings off?** Compare the update times in the notes column.
    Pinnacle moved more recently and news explains it → DraftKings is stale, the
    edge is real. DraftKings moved more recently than Pinnacle → Pinnacle may be
-   the stale one; cut unless the news backs Pinnacle's number. Use `move` too:
-   `CHASING` supports the edge, `FADING` needs news that explains why the move is wrong.
+   the stale one; cut unless the news backs Pinnacle's number.
 3. **Role.** Backup QB starting, a committee backfield, a receiver back from injury
    on a snap count, a new play-caller: things that make a line look wrong but aren't.
 4. **Weather** at outdoor stadiums. Wind 15 mph+ or heavy rain works against passing
@@ -84,9 +83,15 @@ Cut anything you cannot justify in one sentence.
   over plus his receiver's over, a game over plus both passing overs) — keep the best one.
 - **Units:** 1u standard. 2u only for `pinnacle` source, EV ≥ 6%, clean news.
   0.5u for `pinnacle-adjusted` or `consensus` rows near their threshold.
+- **Touchdown cap (13 Oct review):** at most **2** anytime/first TD plays a day, **0.5u**
+  each, and **never as a parlay leg**. TD props are +300 to +700 longshots where most of the
+  day's edges show up and nearly all of the variance lives: through 12 Oct they were 0–4
+  singles and 0–2 in parlays, −5u of −5.2u. When more than two clear the bar, keep the two
+  with the best edge at a `pinnacle` (exact-number) price and list the rest under `passed`.
+  `record` refuses a card over the cap.
 - **Exposure:** Sunday ≤ 10u in total; a single-game day ≤ 4u.
 - **Parlays** (Anthony wants them when they're worth it): only legs that are plays on
-  their own, from **different games**, 2–3 legs, 0.5u. Price them with
+  their own, from **different games**, 2–3 legs, 0.5u, no touchdown legs. Price them with
   `python3 bets/engine.py parlay <today> <id> <id> [...]`; include only if EV ≥ 8%.
   DraftKings pays the product of the prices for legs from different games. Never
   same-game parlays: there is no same-game price in the data and the legs are not
@@ -122,6 +127,13 @@ No plays → say so plainly and why. No hype, no certainty words, no "lock".
 ## 8. Late check (the card already exists)
 The card was built before the first kickoff, so plays in later games (4 PM, night)
 were vetted before their inactives and at morning prices. Later runs re-check them.
+
+0. **Keep the watcher alive** (free, every run that gets this far): the card's odds pull
+   starts a kickoff watcher that captures closing lines and grades through the day. As a
+   backstop, if today's card has plays not yet graded, write
+   `bets/requests/<today>-watch-<HHMM>.json` as `{"mode": "watch", "date": "<today>"}`,
+   commit (`bets: watcher ping <today>`), `git pull --rebase -q`, push. The workflow starts
+   one only if none is running. Do this even when the rest of the late check stops quietly.
 1. Open `bets/data/<today>/card.json`. The **late plays** are those not `scratched`
    whose game (every leg's game, for a parlay) kicks off within the next 3 h 30 min and
    has not started.
@@ -157,6 +169,7 @@ were vetted before their inactives and at morning prices. Later runs re-check th
 - Units never change with results. No chasing.
 - One odds request per gameday, plus at most one late-check request per kickoff window
   (and only when a late play is a game line). Never a request just to "refresh".
+  Watcher pings cost nothing and are not odds requests.
   Exception: when Anthony asks for more prop markets, a `{"mode": "extra", "date": D}`
   request adds count props to the day's pull (5 credits a game, game lines reused).
   The engine refuses late checks below 100 credits and closing snapshots below 40.

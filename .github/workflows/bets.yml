@@ -1,9 +1,17 @@
 name: Bets
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('bets {0} {1}', inputs.mode, inputs.date) || format('bets {0}', github.event_name) }}
 
 # Odds pulls, closing lines and grading for the bet recommender.
-#  - push to bets/requests/**  -> the pre-kickoff session asked for fresh odds
-#  - every 15 minutes          -> schedule refresh (free), closing lines just before
-#                                 kickoff (3 credits per kickoff window), grading (free)
+#  - push to bets/requests/**  -> the pre-kickoff session asked for fresh odds (or a late
+#                                 check, extra markets, or a watcher); a card's odds pull
+#                                 also starts the kickoff watcher for that day
+#  - watcher (workflow_dispatch mode=watch) -> loops through the gameday every 5 minutes:
+#                                 schedule, closing lines just before each kickoff, grading.
+#                                 GitHub's schedule below is best effort and on Sundays
+#                                 barely runs (5 of 96 runs on 11 Oct); a dispatched run
+#                                 starts at once. Each watcher hands over to a fresh run
+#                                 before GitHub's 6-hour limit. Public repo: no minutes cost.
+#  - every 15 minutes (when GitHub gets round to it) -> the same, as a fallback
 #  - by hand from the Actions tab: pick a mode
 # The Odds API key lives only in the repository secret ODDS_API_KEY.
 
@@ -16,27 +24,29 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'tick | request | pull | grade | gradetest'
+        description: 'tick | request | pull | grade | gradetest | watch'
         default: tick
       date:
-        description: 'YYYY-MM-DD (for pull / gradetest)'
+        description: 'YYYY-MM-DD (for pull / gradetest / watch)'
         default: ''
 
 permissions:
   contents: write
-
-concurrency:
-  group: bets
-  cancel-in-progress: false
+  actions: write
 
 jobs:
   run:
+    if: github.event_name != 'workflow_dispatch' || inputs.mode != 'watch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: bets
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
       - name: Run engine
+        id: engine
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           EVENT: ${{ github.event_name }}
@@ -64,3 +74,69 @@ jobs:
             git pull -q --rebase
           done
           exit 1
+
+      - name: Start the kickoff watcher
+        if: steps.engine.outputs.watch_date != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          D: ${{ steps.engine.outputs.watch_date }}
+        run: |
+          busy=$(gh api "repos/${{ github.repository }}/actions/runs?per_page=100" \
+            --jq "[.workflow_runs[] | select(.status != \"completed\" and .display_title == \"bets watch $D\")] | length")
+          if [ "$busy" = "0" ]; then
+            gh workflow run bets.yml --ref main -f mode=watch -f date="$D"
+            echo "watcher started for $D"
+          else
+            echo "a watcher for $D is already running"
+          fi
+
+  watch:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'watch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    concurrency:
+      group: bets-watch-${{ inputs.date }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Watch the gameday
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          D: ${{ inputs.date }}
+        run: |
+          git config user.name "bets-bot"
+          git config user.email "bets-bot@users.noreply.github.com"
+          START=$(date +%s)
+          END=$(python3 bets/engine.py watchend "$D" "$START")
+          echo "watching $D until $(date -u -d @$END +%H:%MZ)"
+          while [ "$(date +%s)" -lt "$END" ]; do
+            # start every step from what is on GitHub now, so the card session's
+            # pushes and this run's never collide
+            git fetch -q origin main && git reset -q --hard origin/main || echo "fetch failed; using what is here"
+            set +e
+            python3 bets/engine.py watchstep "$D"
+            rc=$?
+            set -e
+            git add bets
+            if ! git diff --cached --quiet; then
+              git commit -q -m "bets: watch $D $(date -u +%H:%MZ)"
+              git push -q origin HEAD:main || echo "push lost a race; the next step redoes it"
+            fi
+            if [ "$rc" = "3" ]; then echo "nothing left to watch"; exit 0; fi
+            sleep 300
+          done
+
+      - name: Hand over to a fresh watcher
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          D: ${{ inputs.date }}
+        run: |
+          git fetch -q origin main && git reset -q --hard origin/main
+          if python3 bets/engine.py watchneeded "$D"; then
+            gh workflow run bets.yml --ref main -f mode=watch -f date="$D"
+            echo "handed over"
+          else
+            echo "day done"
+          fi
