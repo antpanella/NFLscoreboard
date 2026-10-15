@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-13T21:29:44Z",
+ "updated": "2026-10-15T19:26:33Z",
  "events": [
   {
    "id": "855f58fad5f0f14b239f4f63df27998b",
@@ -243,15 +243,6 @@
    "home": "Seattle Seahawks",
    "away": "Kansas City Chiefs",
    "game": "KC @ SEA"
-  },
-  {
-   "id": "4853610e63c246f2027a6a248e642c9a",
-   "commence": "2026-10-27T00:15:00Z",
-   "et_date": "2026-10-26",
-   "kickoff_et": "Mon 8:15 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Dallas Cowboys",
-   "game": "DAL @ PHI"
   }
  ]
 }
