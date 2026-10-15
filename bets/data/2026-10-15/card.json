@@ -1,0 +1,101 @@
+{
+ "date": "2026-10-15",
+ "generated_at": "2026-10-15T22:59:04Z",
+ "headline": "Thursday night, SEA @ DEN: two small Seattle props clear the bar, 1.5u total. The game lines are tight to Pinnacle.",
+ "total_units": 1.5,
+ "games": [
+  {
+   "event_id": "855f58fad5f0f14b239f4f63df27998b",
+   "game": "SEA @ DEN",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "commence": "2026-10-16T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 113,
+   "picks": [
+    "861f9120",
+    "f531673d"
+   ],
+   "note": "Two props; spread and total within the bar. Weather mild: 52F, wind about 7 mph, no rain at kickoff."
+  }
+ ],
+ "picks": [
+  {
+   "id": "861f9120",
+   "event_id": "855f58fad5f0f14b239f4f63df27998b",
+   "game": "SEA @ DEN",
+   "home": "Denver Broncos",
+   "away": "Seattle Seahawks",
+   "commence": "2026-10-16T00:15:00Z",
+   "market": "player_rush_attempts",
+   "subject": "George Holani",
+   "side": "Under",
+   "point": 4.5,
+   "label": "George Holani under 4.5 rush att",
+   "dk_price": -126,
+   "fair_prob": 0.5809,
+   "fair_price": -139,
+   "ev": 0.0419,
+   "source": "pinnacle",
+   "dk_updated": "2026-10-15T22:56:08Z",
+   "pin_vig": 0.0464,
+   "pin_updated": "2026-10-15T22:56:01Z",
+   "kind": "single",
+   "units": 1,
+   "reason": "Pinnacle exact number (-139 fair) vs DK -126; Holani is the clear RB2 behind Emanuel Wilson (8 touches to Wilson's 22 last week with Charbonnet already out), so his role is the same and the under holds.",
+   "date": "2026-10-15",
+   "recorded_at": "2026-10-15T22:59:04Z",
+   "result": null,
+   "pl": null
+  },
+  {
+   "id": "f531673d",
+   "event_id": "855f58fad5f0f14b239f4f63df27998b",
+   "game": "SEA @ DEN",
+   "home": "Denver Broncos",
+   "away": "Seattle Seahawks",
+   "commence": "2026-10-16T00:15:00Z",
+   "market": "player_reception_yds",
+   "subject": "Rashid Shaheed",
+   "side": "Over",
+   "point": 20.5,
+   "label": "Rashid Shaheed over 20.5 rec yds",
+   "dk_price": -114,
+   "fair_prob": 0.5587,
+   "fair_price": -127,
+   "ev": 0.0487,
+   "source": "pinnacle-adjusted",
+   "dk_updated": "2026-10-15T22:56:08Z",
+   "from_point": 22.5,
+   "pin_vig": 0.0475,
+   "pin_updated": "2026-10-15T22:56:01Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "Pinnacle's 22.5 adjusted to DK's 20.5 gives -127 fair vs -114; Shaheed is healthy, averages about 21 yds a game in Seattle, and Denver is without CB Pat Surtain. Half unit because it sits just over the adjusted-line bar.",
+   "date": "2026-10-15",
+   "recorded_at": "2026-10-15T22:59:04Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "George Holani under 14.5 rush yds (+4.8%)",
+   "why": "Pinnacle and consensus disagree by more than 4 pts, which raises the bar to 5.0%; one Holani prop is enough anyway."
+  },
+  {
+   "label": "Evan Engram anytime TD (+3.4%)",
+   "why": "Below the 5% TD bar."
+  },
+  {
+   "label": "RJ Harvey under 23.5 rec yds (+3.4%)",
+   "why": "Adjusted line, below the 4.5% bar."
+  }
+ ],
+ "notes": [
+  "Single-game day, so no parlays (legs must come from different games).",
+  "schedule.json was last refreshed 19:26Z, about 3.5 h before this run; the odds pull itself was fresh (22:56Z)."
+ ],
+ "credits_left": 288
+}
