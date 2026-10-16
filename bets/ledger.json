@@ -513,8 +513,15 @@
   "reason": "Pinnacle exact number (-139 fair) vs DK -126; Holani is the clear RB2 behind Emanuel Wilson (8 touches to Wilson's 22 last week with Charbonnet already out), so his role is the same and the under holds.",
   "date": "2026-10-15",
   "recorded_at": "2026-10-15T22:59:04Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "5 rush att",
+  "close_fair_prob": 0.5205,
+  "close_fair_price": -109,
+  "close_source": "pinnacle",
+  "clv": -0.0664,
+  "close_dk_price": -143,
+  "graded_at": "2026-10-16T03:37:14Z"
  },
  {
   "id": "f531673d",
@@ -542,7 +549,13 @@
   "reason": "Pinnacle's 22.5 adjusted to DK's 20.5 gives -127 fair vs -114; Shaheed is healthy, averages about 21 yds a game in Seattle, and Denver is without CB Pat Surtain. Half unit because it sits just over the adjusted-line bar.",
   "date": "2026-10-15",
   "recorded_at": "2026-10-15T22:59:04Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.439,
+  "result_note": "66 rec yds",
+  "close_fair_prob": 0.5587,
+  "close_fair_price": -127,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0487,
+  "graded_at": "2026-10-16T03:37:14Z"
  }
 ]
