@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-16T00:16:54Z",
+ "updated": "2026-10-16T00:31:56Z",
  "events": [
   {
    "id": "855f58fad5f0f14b239f4f63df27998b",
@@ -234,15 +234,6 @@
    "home": "Las Vegas Raiders",
    "away": "Los Angeles Rams",
    "game": "LAR @ LV"
-  },
-  {
-   "id": "176d474ed8b2bbf1eb4d7e9c56b4bf22",
-   "commence": "2026-10-26T00:20:00Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 8:20 PM ET",
-   "home": "Seattle Seahawks",
-   "away": "Kansas City Chiefs",
-   "game": "KC @ SEA"
   }
  ]
 }
