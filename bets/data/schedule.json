@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-18T20:34:11Z",
+ "updated": "2026-10-18T20:39:13Z",
  "events": [
-  {
-   "id": "caca2d752fe1a1779029082e95332fcc",
-   "commence": "2026-10-18T17:02:48Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Carolina Panthers",
-   "game": "CAR @ PHI"
-  },
   {
    "id": "27f3994841ce8081c0b7349cf3d1e3d7",
    "commence": "2026-10-18T17:02:52Z",
@@ -18,15 +9,6 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Pittsburgh Steelers",
    "game": "PIT @ TB"
-  },
-  {
-   "id": "1cf74afd313e9fd300e1462012b174cb",
-   "commence": "2026-10-18T17:03:01Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "New York Giants",
-   "away": "New Orleans Saints",
-   "game": "NO @ NYG"
   },
   {
    "id": "3729ac6d2a66b642850caf2044cdc658",
