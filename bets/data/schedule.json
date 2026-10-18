@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T23:14:41Z",
+ "updated": "2026-10-18T23:39:56Z",
  "events": [
   {
    "id": "45b2690b350ed45145c7a716b18e8e66",
@@ -9,15 +9,6 @@
    "home": "Las Vegas Raiders",
    "away": "Buffalo Bills",
    "game": "BUF @ LV"
-  },
-  {
-   "id": "20fefae8c296247460ba5773caa42218",
-   "commence": "2026-10-18T20:25:25Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Kansas City Chiefs",
-   "away": "Los Angeles Chargers",
-   "game": "LAC @ KC"
   },
   {
    "id": "82fd5a159fa130e67abab93a9537f70b",
