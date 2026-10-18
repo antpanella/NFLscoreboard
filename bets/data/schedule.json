@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T16:53:24Z",
+ "updated": "2026-10-18T16:58:25Z",
  "events": [
   {
    "id": "57418b2cf5aca558b3c98eafac1e264a",
@@ -9,15 +9,6 @@
    "home": "Jacksonville Jaguars",
    "away": "Houston Texans",
    "game": "HOU @ JAX"
-  },
-  {
-   "id": "84aa9e190e625d7e9cd67e1f157a45b4",
-   "commence": "2026-10-18T17:00:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Indianapolis Colts",
-   "away": "Tennessee Titans",
-   "game": "TEN @ IND"
   },
   {
    "id": "7c312fdf24fb35f58b0e07c2932cc997",
@@ -45,6 +36,15 @@
    "home": "Philadelphia Eagles",
    "away": "Carolina Panthers",
    "game": "CAR @ PHI"
+  },
+  {
+   "id": "84aa9e190e625d7e9cd67e1f157a45b4",
+   "commence": "2026-10-18T17:05:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Indianapolis Colts",
+   "away": "Tennessee Titans",
+   "game": "TEN @ IND"
   },
   {
    "id": "0b0b582b32b09ab6ff6664ffae0c9653",
