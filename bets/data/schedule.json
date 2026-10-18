@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T20:19:05Z",
+ "updated": "2026-10-18T20:24:07Z",
  "events": [
   {
    "id": "7c312fdf24fb35f58b0e07c2932cc997",
@@ -9,15 +9,6 @@
    "home": "Atlanta Falcons",
    "away": "Chicago Bears",
    "game": "CHI @ ATL"
-  },
-  {
-   "id": "0b0b582b32b09ab6ff6664ffae0c9653",
-   "commence": "2026-10-18T17:02:43Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "New England Patriots",
-   "away": "New York Jets",
-   "game": "NYJ @ NE"
   },
   {
    "id": "caca2d752fe1a1779029082e95332fcc",
@@ -45,15 +36,6 @@
    "home": "New York Giants",
    "away": "New Orleans Saints",
    "game": "NO @ NYG"
-  },
-  {
-   "id": "84aa9e190e625d7e9cd67e1f157a45b4",
-   "commence": "2026-10-18T17:03:40Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "Indianapolis Colts",
-   "away": "Tennessee Titans",
-   "game": "TEN @ IND"
   },
   {
    "id": "3729ac6d2a66b642850caf2044cdc658",
