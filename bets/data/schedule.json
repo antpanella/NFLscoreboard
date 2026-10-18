@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T22:19:31Z",
+ "updated": "2026-10-18T22:24:33Z",
  "events": [
   {
    "id": "3729ac6d2a66b642850caf2044cdc658",
@@ -81,6 +81,51 @@
    "home": "Baltimore Ravens",
    "away": "Cincinnati Bengals",
    "game": "CIN @ BAL"
+  },
+  {
+   "id": "2823e986597c449ab94126cd5ed3fae9",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Carolina Panthers",
+   "away": "Tampa Bay Buccaneers",
+   "game": "TB @ CAR"
+  },
+  {
+   "id": "5dce18baccec5d3ad5fb3a3ce52f7619",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Tennessee Titans",
+   "away": "Cleveland Browns",
+   "game": "CLE @ TEN"
+  },
+  {
+   "id": "2bba7fde6f97d0e54403d53676e4ab63",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Houston Texans",
+   "away": "New York Giants",
+   "game": "NYG @ HOU"
+  },
+  {
+   "id": "f3992ad4496724baf7dcd1ef58245d6b",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Minnesota Vikings",
+   "away": "Indianapolis Colts",
+   "game": "IND @ MIN"
+  },
+  {
+   "id": "be5dd120ca08b43d647b6caa8953500a",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New York Jets",
+   "away": "Miami Dolphins",
+   "game": "MIA @ NYJ"
   }
  ]
 }
