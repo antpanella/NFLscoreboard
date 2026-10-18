@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T13:37:54Z",
+ "updated": "2026-10-18T13:47:56Z",
  "events": [
   {
    "id": "57418b2cf5aca558b3c98eafac1e264a",
@@ -171,15 +171,6 @@
    "home": "Tennessee Titans",
    "away": "Cleveland Browns",
    "game": "CLE @ TEN"
-  },
-  {
-   "id": "2bba7fde6f97d0e54403d53676e4ab63",
-   "commence": "2026-10-25T17:00:00Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Houston Texans",
-   "away": "New York Giants",
-   "game": "NYG @ HOU"
   },
   {
    "id": "f3992ad4496724baf7dcd1ef58245d6b",
