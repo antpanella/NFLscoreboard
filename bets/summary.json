@@ -1,13 +1,13 @@
 {
- "updated": "2026-10-18T20:19:05Z",
+ "updated": "2026-10-18T20:44:15Z",
  "season": {
-  "picks": 16,
+  "picks": 17,
   "won": 4,
-  "lost": 12,
+  "lost": 13,
   "push": 0,
-  "units": -8.29,
-  "roi": -0.6374,
-  "avg_ev_at_bet": 0.0719,
+  "units": -8.79,
+  "roi": -0.6508,
+  "avg_ev_at_bet": 0.0752,
   "avg_clv": 0.0244,
   "clv_n": 7
  },
@@ -24,13 +24,13 @@
    "clv_n": 2
   },
   "parlays": {
-   "picks": 2,
+   "picks": 3,
    "won": 0,
-   "lost": 2,
+   "lost": 3,
    "push": 0,
-   "units": -1.0,
+   "units": -1.5,
    "roi": -1.0,
-   "avg_ev_at_bet": 0.151,
+   "avg_ev_at_bet": 0.1436,
    "avg_clv": null,
    "clv_n": 0
   },
@@ -46,7 +46,7 @@
    "clv_n": 5
   }
  },
- "pending": 2,
+ "pending": 1,
  "scratched": 2,
  "void": 0,
  "to_check": []

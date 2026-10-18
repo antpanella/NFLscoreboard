@@ -742,7 +742,12 @@
     "from_point": 64.5,
     "pin_vig": 0.0471,
     "pin_updated": "2026-10-18T12:11:54Z",
-    "result": null
+    "result": "win",
+    "result_note": "46 rush yds",
+    "close_fair_prob": 0.5556,
+    "close_fair_price": -125,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.0608
    }
   ],
   "dk_price": 258,
@@ -754,7 +759,8 @@
   "reason": "Two qualifying yardage plays from different games, +258 against a fair +217 (EV 12.9%).",
   "date": "2026-10-18",
   "recorded_at": "2026-10-18T12:15:12Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-10-18T20:44:15Z"
  }
 ]
