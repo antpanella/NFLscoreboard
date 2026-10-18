@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T22:09:27Z",
+ "updated": "2026-10-18T22:14:29Z",
  "events": [
   {
    "id": "3729ac6d2a66b642850caf2044cdc658",
@@ -45,6 +45,15 @@
    "home": "San Francisco 49ers",
    "away": "Washington Commanders",
    "game": "WSH @ SF"
+  },
+  {
+   "id": "ffebea881c1d7b2dfb85b3e590c35985",
+   "commence": "2026-10-23T00:15:00Z",
+   "et_date": "2026-10-22",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Chicago Bears",
+   "away": "New England Patriots",
+   "game": "NE @ CHI"
   },
   {
    "id": "2e710ea5a306b614f0f966e3d78732f8",
