@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T16:48:20Z",
+ "updated": "2026-10-18T16:53:24Z",
  "events": [
   {
    "id": "57418b2cf5aca558b3c98eafac1e264a",
@@ -18,15 +18,6 @@
    "home": "Indianapolis Colts",
    "away": "Tennessee Titans",
    "game": "TEN @ IND"
-  },
-  {
-   "id": "27f3994841ce8081c0b7349cf3d1e3d7",
-   "commence": "2026-10-18T17:00:00Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Tampa Bay Buccaneers",
-   "away": "Pittsburgh Steelers",
-   "game": "PIT @ TB"
   },
   {
    "id": "7c312fdf24fb35f58b0e07c2932cc997",
@@ -72,6 +63,15 @@
    "home": "New York Giants",
    "away": "New Orleans Saints",
    "game": "NO @ NYG"
+  },
+  {
+   "id": "27f3994841ce8081c0b7349cf3d1e3d7",
+   "commence": "2026-10-18T17:05:00Z",
+   "et_date": "2026-10-18",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Pittsburgh Steelers",
+   "game": "PIT @ TB"
   },
   {
    "id": "3729ac6d2a66b642850caf2044cdc658",
