@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-18T20:09:01Z",
+ "updated": "2026-10-18T20:14:03Z",
  "events": [
   {
    "id": "7c312fdf24fb35f58b0e07c2932cc997",
@@ -36,15 +36,6 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Pittsburgh Steelers",
    "game": "PIT @ TB"
-  },
-  {
-   "id": "e86227938fd3cf008fc5648fb5128344",
-   "commence": "2026-10-18T17:02:53Z",
-   "et_date": "2026-10-18",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Cleveland Browns",
-   "away": "Baltimore Ravens",
-   "game": "BAL @ CLE"
   },
   {
    "id": "1cf74afd313e9fd300e1462012b174cb",
