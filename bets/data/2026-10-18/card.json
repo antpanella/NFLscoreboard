@@ -2,7 +2,7 @@
  "date": "2026-10-18",
  "generated_at": "2026-10-18T12:15:12Z",
  "headline": "Four singles and one two-leg parlay, 3.5u in total. Most of the day's big edges were Trevor Lawrence's TD price, which I couldn't explain, and Chargers\u2013Chiefs props where Pinnacle and the other books disagree.",
- "total_units": 3.5,
+ "total_units": 3.0,
  "games": [
   {
    "event_id": "57418b2cf5aca558b3c98eafac1e264a",
@@ -213,7 +213,10 @@
    "date": "2026-10-18",
    "recorded_at": "2026-10-18T12:15:12Z",
    "result": null,
-   "pl": null
+   "pl": null,
+   "scratched": true,
+   "scratch_reason": "Sean Tucker (quad) is inactive, so Irving's carries go up, which is the role change the card flagged as working against the under.",
+   "scratched_at": "2026-10-18T15:42:32Z"
   },
   {
    "id": "8278d017",
@@ -364,5 +367,18 @@
   "schedule.json was last updated 2026-10-16 03:52Z (more than 2 hours old), so the watcher Action may be stuck. Today's odds pull itself ran fine and covered all 12 games.",
   "Late check should confirm Packers inactives and Lambeau weather for the Love under, and Sean Tucker's status for the Irving under (out = more Irving carries)."
  ],
- "credits_left": 230
+ "credits_left": 230,
+ "late_checks": [
+  {
+   "at": "2026-10-18T15:42:32Z",
+   "games": [
+    "BAL @ CLE",
+    "PIT @ TB"
+   ],
+   "scratched": [
+    "657fd9d5"
+   ],
+   "note": "1 PM check: Boston cleared to play (foot), Huntley starting for BAL; Irving under scratched with Tucker out. No weather flags found."
+  }
+ ]
 }
