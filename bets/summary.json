@@ -1,27 +1,27 @@
 {
- "updated": "2026-10-18T15:42:32Z",
+ "updated": "2026-10-18T20:19:05Z",
  "season": {
-  "picks": 14,
+  "picks": 16,
   "won": 4,
-  "lost": 10,
+  "lost": 12,
   "push": 0,
-  "units": -6.79,
-  "roi": -0.5901,
-  "avg_ev_at_bet": 0.0722,
-  "avg_clv": 0.0268,
-  "clv_n": 5
+  "units": -8.29,
+  "roi": -0.6374,
+  "avg_ev_at_bet": 0.0719,
+  "avg_clv": 0.0244,
+  "clv_n": 7
  },
  "by_type": {
   "anytime TD": {
-   "picks": 5,
+   "picks": 6,
    "won": 0,
-   "lost": 5,
+   "lost": 6,
    "push": 0,
-   "units": -5,
+   "units": -5.5,
    "roi": -1.0,
-   "avg_ev_at_bet": 0.0663,
-   "avg_clv": 0.068,
-   "clv_n": 1
+   "avg_ev_at_bet": 0.0679,
+   "avg_clv": 0.0549,
+   "clv_n": 2
   },
   "parlays": {
    "picks": 2,
@@ -35,18 +35,18 @@
    "clv_n": 0
   },
   "yardage props": {
-   "picks": 7,
+   "picks": 8,
    "won": 4,
-   "lost": 3,
+   "lost": 4,
    "push": 0,
-   "units": -0.79,
-   "roi": -0.1429,
-   "avg_ev_at_bet": 0.0538,
-   "avg_clv": 0.0165,
-   "clv_n": 4
+   "units": -1.79,
+   "roi": -0.2748,
+   "avg_ev_at_bet": 0.0551,
+   "avg_clv": 0.0122,
+   "clv_n": 5
   }
  },
- "pending": 4,
+ "pending": 2,
  "scratched": 2,
  "void": 0,
  "to_check": []
