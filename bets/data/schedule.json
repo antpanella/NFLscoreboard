@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-19T00:25:06Z",
+ "updated": "2026-10-19T00:40:09Z",
  "events": [
   {
    "id": "82fd5a159fa130e67abab93a9537f70b",
@@ -110,15 +110,6 @@
    "game": "DEN @ ARI"
   },
   {
-   "id": "e8e5715eefb6a9ce64765e9ddf49c0cc",
-   "commence": "2026-10-25T20:25:00Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Detroit Lions",
-   "away": "Green Bay Packers",
-   "game": "GB @ DET"
-  },
-  {
    "id": "f7679cf18454e4d88a8f2b990c3f08ac",
    "commence": "2026-10-25T20:25:00Z",
    "et_date": "2026-10-25",
@@ -135,15 +126,6 @@
    "home": "Seattle Seahawks",
    "away": "Kansas City Chiefs",
    "game": "KC @ SEA"
-  },
-  {
-   "id": "4853610e63c246f2027a6a248e642c9a",
-   "commence": "2026-10-27T00:15:00Z",
-   "et_date": "2026-10-26",
-   "kickoff_et": "Mon 8:15 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Dallas Cowboys",
-   "game": "DAL @ PHI"
   }
  ]
 }
