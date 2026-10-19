@@ -650,8 +650,15 @@
   "reason": "Exact-number Pinnacle price with no-vig 39.4%, and the US consensus (38.3%) agrees DK's +163 is long. Love has no designation; the late check covers weather and inactives.",
   "date": "2026-10-18",
   "recorded_at": "2026-10-18T12:15:12Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 1.63,
+  "result_note": "1 pass TDs",
+  "close_fair_prob": 0.3744,
+  "close_fair_price": 167,
+  "close_source": "pinnacle",
+  "clv": -0.0152,
+  "close_dk_price": 154,
+  "graded_at": "2026-10-19T03:50:36Z"
  },
  {
   "id": "7fc665fb",
