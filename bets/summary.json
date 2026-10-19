@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-19T03:50:37Z",
+ "updated": "2026-10-19T22:57:14Z",
  "season": {
   "picks": 18,
   "won": 5,
@@ -46,7 +46,7 @@
    "clv_n": 6
   }
  },
- "pending": 0,
+ "pending": 1,
  "scratched": 2,
  "void": 0,
  "to_check": []
