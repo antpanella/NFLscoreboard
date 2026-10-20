@@ -797,7 +797,14 @@
   "reason": "Both books updated after inactives (Nick Bosa and Deebo Samuel out for SF); DraftKings simply hangs a longer price than Pinnacle's fair 25.0%, a 4.9% edge with 3% Pinnacle vig.",
   "date": "2026-10-19",
   "recorded_at": "2026-10-19T22:57:14Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "WSH 17 - SF 23",
+  "close_fair_prob": 0.2502,
+  "close_fair_price": 300,
+  "close_source": "pinnacle",
+  "clv": 0.051,
+  "close_dk_price": 310,
+  "graded_at": "2026-10-20T03:31:51Z"
  }
 ]
