@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-20T03:36:53Z",
+ "updated": "2026-10-20T03:56:55Z",
  "events": [
   {
    "id": "ffebea881c1d7b2dfb85b3e590c35985",
@@ -18,6 +18,15 @@
    "home": "New Orleans Saints",
    "away": "Pittsburgh Steelers",
    "game": "PIT @ NO"
+  },
+  {
+   "id": "b1be064fb52a198a62109c279e7ab24c",
+   "commence": "2026-10-25T17:00:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Atlanta Falcons",
+   "away": "San Francisco 49ers",
+   "game": "SF @ ATL"
   },
   {
    "id": "550ec5290f935d311995affbcb0b5c79",
