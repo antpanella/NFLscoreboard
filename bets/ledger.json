@@ -806,5 +806,33 @@
   "clv": 0.051,
   "close_dk_price": 310,
   "graded_at": "2026-10-20T03:31:51Z"
+ },
+ {
+  "id": "8a55468a",
+  "event_id": "ffebea881c1d7b2dfb85b3e590c35985",
+  "game": "NE @ CHI",
+  "home": "Chicago Bears",
+  "away": "New England Patriots",
+  "commence": "2026-10-23T00:15:00Z",
+  "market": "player_anytime_td",
+  "subject": "Corey Kiner",
+  "side": "Yes",
+  "point": null,
+  "label": "Corey Kiner anytime TD",
+  "dk_price": 800,
+  "fair_prob": 0.1261,
+  "fair_price": 693,
+  "ev": 0.1349,
+  "source": "pinnacle",
+  "dk_updated": "2026-10-22T22:55:33Z",
+  "pin_vig": 0.0476,
+  "pin_updated": "2026-10-22T22:55:29Z",
+  "kind": "single",
+  "units": 0.5,
+  "reason": "Pinnacle's exact-number price (4.8% vig) reflects Kiner's new hot-hand role, 11 carries and 5 in the red zone vs the Jets; DK still prices him as a deep RB3. Active, clear 60\u00b0 weather.",
+  "date": "2026-10-22",
+  "recorded_at": "2026-10-22T22:58:02Z",
+  "result": null,
+  "pl": null
  }
 ]
