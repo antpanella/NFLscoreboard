@@ -1,27 +1,27 @@
 {
- "updated": "2026-10-22T22:58:02Z",
+ "updated": "2026-10-23T03:32:16Z",
  "season": {
-  "picks": 19,
+  "picks": 20,
   "won": 5,
-  "lost": 14,
+  "lost": 15,
   "push": 0,
-  "units": -8.16,
-  "roi": -0.5262,
-  "avg_ev_at_bet": 0.0718,
-  "avg_clv": 0.023,
-  "clv_n": 9
+  "units": -8.66,
+  "roi": -0.541,
+  "avg_ev_at_bet": 0.0749,
+  "avg_clv": 0.0341,
+  "clv_n": 10
  },
  "by_type": {
   "anytime TD": {
-   "picks": 6,
+   "picks": 7,
    "won": 0,
-   "lost": 6,
+   "lost": 7,
    "push": 0,
-   "units": -5.5,
+   "units": -6.0,
    "roi": -1.0,
-   "avg_ev_at_bet": 0.0679,
-   "avg_clv": 0.0549,
-   "clv_n": 2
+   "avg_ev_at_bet": 0.0774,
+   "avg_clv": 0.0816,
+   "clv_n": 3
   },
   "game lines": {
    "picks": 1,
@@ -57,7 +57,7 @@
    "clv_n": 6
   }
  },
- "pending": 1,
+ "pending": 0,
  "scratched": 2,
  "void": 0,
  "to_check": []

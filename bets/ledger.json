@@ -832,7 +832,14 @@
   "reason": "Pinnacle's exact-number price (4.8% vig) reflects Kiner's new hot-hand role, 11 carries and 5 in the red zone vs the Jets; DK still prices him as a deep RB3. Active, clear 60\u00b0 weather.",
   "date": "2026-10-22",
   "recorded_at": "2026-10-22T22:58:02Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1261,
+  "close_fair_price": 693,
+  "close_source": "pinnacle",
+  "clv": 0.1349,
+  "close_dk_price": 850,
+  "graded_at": "2026-10-23T03:32:16Z"
  }
 ]
