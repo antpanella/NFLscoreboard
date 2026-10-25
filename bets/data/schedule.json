@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T20:38:54Z",
+ "updated": "2026-10-25T20:58:58Z",
  "events": [
   {
    "id": "436119bb3ccdaa6ed7808aa3ebd82b76",
@@ -45,6 +45,42 @@
    "home": "Philadelphia Eagles",
    "away": "Dallas Cowboys",
    "game": "DAL @ PHI"
+  },
+  {
+   "id": "921859689f5f8b3b8b1caf4248bdb1ec",
+   "commence": "2026-11-01T18:00:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Atlanta Falcons",
+   "game": "ATL @ TB"
+  },
+  {
+   "id": "9c5d8f57e0ba0fbd9ef436c1f0898f99",
+   "commence": "2026-11-01T18:00:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Cincinnati Bengals",
+   "away": "Tennessee Titans",
+   "game": "TEN @ CIN"
+  },
+  {
+   "id": "ab5ab731ab655bd6308bc7a922275518",
+   "commence": "2026-11-01T18:00:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Pittsburgh Steelers",
+   "away": "Cleveland Browns",
+   "game": "CLE @ PIT"
+  },
+  {
+   "id": "159dbf0253dd2038eda2212f84387f0c",
+   "commence": "2026-11-01T18:00:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Jacksonville Jaguars",
+   "away": "Indianapolis Colts",
+   "game": "IND @ JAX"
   }
  ]
 }
