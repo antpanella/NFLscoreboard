@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T20:03:42Z",
+ "updated": "2026-10-25T20:08:44Z",
  "events": [
   {
    "id": "550ec5290f935d311995affbcb0b5c79",
@@ -48,9 +48,9 @@
   },
   {
    "id": "436119bb3ccdaa6ed7808aa3ebd82b76",
-   "commence": "2026-10-25T20:10:00Z",
+   "commence": "2026-10-25T20:05:45Z",
    "et_date": "2026-10-25",
-   "kickoff_et": "Sun 4:10 PM ET",
+   "kickoff_et": "Sun 4:05 PM ET",
    "home": "Arizona Cardinals",
    "away": "Denver Broncos",
    "game": "DEN @ ARI"
