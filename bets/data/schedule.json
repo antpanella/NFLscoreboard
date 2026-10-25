@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T13:52:52Z",
+ "updated": "2026-10-25T16:38:06Z",
  "events": [
   {
    "id": "2e710ea5a306b614f0f966e3d78732f8",
@@ -57,18 +57,18 @@
   },
   {
    "id": "f3992ad4496724baf7dcd1ef58245d6b",
-   "commence": "2026-10-25T17:00:00Z",
+   "commence": "2026-10-25T17:05:00Z",
    "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:00 PM ET",
+   "kickoff_et": "Sun 1:05 PM ET",
    "home": "Minnesota Vikings",
    "away": "Indianapolis Colts",
    "game": "IND @ MIN"
   },
   {
    "id": "be5dd120ca08b43d647b6caa8953500a",
-   "commence": "2026-10-25T17:00:00Z",
+   "commence": "2026-10-25T17:05:00Z",
    "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:00 PM ET",
+   "kickoff_et": "Sun 1:05 PM ET",
    "home": "New York Jets",
    "away": "Miami Dolphins",
    "game": "MIA @ NYJ"
