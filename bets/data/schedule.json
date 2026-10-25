@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T21:03:59Z",
+ "updated": "2026-10-25T23:39:30Z",
  "events": [
   {
    "id": "436119bb3ccdaa6ed7808aa3ebd82b76",
@@ -45,6 +45,15 @@
    "home": "Philadelphia Eagles",
    "away": "Dallas Cowboys",
    "game": "DAL @ PHI"
+  },
+  {
+   "id": "ab2865e9f2d4b012de8bc6fb6de11a7c",
+   "commence": "2026-10-30T00:15:00Z",
+   "et_date": "2026-10-29",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Green Bay Packers",
+   "away": "Carolina Panthers",
+   "game": "CAR @ GB"
   },
   {
    "id": "921859689f5f8b3b8b1caf4248bdb1ec",
