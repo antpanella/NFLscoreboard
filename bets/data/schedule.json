@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-25T20:08:44Z",
+ "updated": "2026-10-25T20:13:46Z",
  "events": [
-  {
-   "id": "550ec5290f935d311995affbcb0b5c79",
-   "commence": "2026-10-25T17:02:42Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Baltimore Ravens",
-   "away": "Cincinnati Bengals",
-   "game": "CIN @ BAL"
-  },
   {
    "id": "b1be064fb52a198a62109c279e7ab24c",
    "commence": "2026-10-25T17:02:44Z",
@@ -27,15 +18,6 @@
    "home": "Houston Texans",
    "away": "New York Giants",
    "game": "NYG @ HOU"
-  },
-  {
-   "id": "be5dd120ca08b43d647b6caa8953500a",
-   "commence": "2026-10-25T17:03:17Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "New York Jets",
-   "away": "Miami Dolphins",
-   "game": "MIA @ NYJ"
   },
   {
    "id": "5dce18baccec5d3ad5fb3a3ce52f7619",
