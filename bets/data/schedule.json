@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-25T19:58:41Z",
+ "updated": "2026-10-25T20:03:42Z",
  "events": [
-  {
-   "id": "f3992ad4496724baf7dcd1ef58245d6b",
-   "commence": "2026-10-25T17:02:25Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Minnesota Vikings",
-   "away": "Indianapolis Colts",
-   "game": "IND @ MIN"
-  },
   {
    "id": "550ec5290f935d311995affbcb0b5c79",
    "commence": "2026-10-25T17:02:42Z",
@@ -27,15 +18,6 @@
    "home": "Atlanta Falcons",
    "away": "San Francisco 49ers",
    "game": "SF @ ATL"
-  },
-  {
-   "id": "2823e986597c449ab94126cd5ed3fae9",
-   "commence": "2026-10-25T17:02:50Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Carolina Panthers",
-   "away": "Tampa Bay Buccaneers",
-   "game": "TB @ CAR"
   },
   {
    "id": "2bba7fde6f97d0e54403d53676e4ab63",
