@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T20:23:51Z",
+ "updated": "2026-10-25T20:28:52Z",
  "events": [
   {
    "id": "2bba7fde6f97d0e54403d53676e4ab63",
@@ -20,22 +20,22 @@
    "game": "DEN @ ARI"
   },
   {
+   "id": "e8e5715eefb6a9ce64765e9ddf49c0cc",
+   "commence": "2026-10-25T20:25:34Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Detroit Lions",
+   "away": "Green Bay Packers",
+   "game": "GB @ DET"
+  },
+  {
    "id": "f7679cf18454e4d88a8f2b990c3f08ac",
-   "commence": "2026-10-25T20:25:00Z",
+   "commence": "2026-10-25T20:25:51Z",
    "et_date": "2026-10-25",
    "kickoff_et": "Sun 4:25 PM ET",
    "home": "Las Vegas Raiders",
    "away": "Los Angeles Rams",
    "game": "LAR @ LV"
-  },
-  {
-   "id": "e8e5715eefb6a9ce64765e9ddf49c0cc",
-   "commence": "2026-10-25T20:28:00Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 4:28 PM ET",
-   "home": "Detroit Lions",
-   "away": "Green Bay Packers",
-   "game": "GB @ DET"
   },
   {
    "id": "176d474ed8b2bbf1eb4d7e9c56b4bf22",
