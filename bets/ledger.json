@@ -868,8 +868,14 @@
   "reason": "Pinnacle has Jeudy at 20.5 and DK still at 23.5; his role has shrunk behind the rookie receivers, which backs the lower number. Healthy, no injury designation.",
   "date": "2026-10-25",
   "recorded_at": "2026-10-25T12:13:44Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.885,
+  "result_note": "21 rec yds",
+  "close_fair_prob": 0.5912,
+  "close_fair_price": -145,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.1143,
+  "graded_at": "2026-10-25T20:18:47Z"
  },
  {
   "id": "6c8182b7",
@@ -897,8 +903,15 @@
   "reason": "Pinnacle (updated after DK) sits at 30.5 vs DK's 33.5; Willis was a full participant all week with the right thumb, so the number moved on pricing, not news.",
   "date": "2026-10-25",
   "recorded_at": "2026-10-25T12:13:44Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "37 rush yds",
+  "close_fair_prob": 0.5688,
+  "close_fair_price": -132,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0907,
+  "close_dk_price": -115,
+  "graded_at": "2026-10-25T20:18:47Z"
  },
  {
   "id": "b2beefb1",
@@ -926,8 +939,15 @@
   "reason": "Huntley confirmed starting with Lamar Jackson ruled out; DK hangs 24.5 against Pinnacle's 25.5 for a mobile starting QB.",
   "date": "2026-10-25",
   "recorded_at": "2026-10-25T12:13:44Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "12 rush yds",
+  "close_fair_prob": 0.5604,
+  "close_fair_price": -127,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0563,
+  "close_dk_price": -113,
+  "graded_at": "2026-10-25T20:18:47Z"
  },
  {
   "id": "p4f0ba48",
@@ -955,7 +975,12 @@
     "from_point": 20.5,
     "pin_vig": 0.0476,
     "pin_updated": "2026-10-25T12:12:15Z",
-    "result": null
+    "result": "win",
+    "result_note": "21 rec yds",
+    "close_fair_prob": 0.5912,
+    "close_fair_price": -145,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.1143
    },
    {
     "id": "6c8182b7",
@@ -978,7 +1003,13 @@
     "from_point": 30.5,
     "pin_vig": 0.0476,
     "pin_updated": "2026-10-25T12:11:42Z",
-    "result": null
+    "result": "loss",
+    "result_note": "37 rush yds",
+    "close_fair_prob": 0.5688,
+    "close_fair_price": -132,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.0907,
+    "close_dk_price": -115
    }
   ],
   "dk_price": 261,
@@ -990,7 +1021,8 @@
   "reason": "Two standalone plays from different games; +261 as a product against a fair +197 (EV +21.5%).",
   "date": "2026-10-25",
   "recorded_at": "2026-10-25T12:13:44Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-10-25T20:18:47Z"
  }
 ]
