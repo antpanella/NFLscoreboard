@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T20:58:58Z",
+ "updated": "2026-10-25T21:03:59Z",
  "events": [
   {
    "id": "436119bb3ccdaa6ed7808aa3ebd82b76",
@@ -56,6 +56,15 @@
    "game": "ATL @ TB"
   },
   {
+   "id": "c93c421e5fa46031a43162d111d981d0",
+   "commence": "2026-11-01T18:00:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Buffalo Bills",
+   "away": "Baltimore Ravens",
+   "game": "BAL @ BUF"
+  },
+  {
    "id": "9c5d8f57e0ba0fbd9ef436c1f0898f99",
    "commence": "2026-11-01T18:00:00Z",
    "et_date": "2026-11-01",
@@ -81,6 +90,24 @@
    "home": "Jacksonville Jaguars",
    "away": "Indianapolis Colts",
    "game": "IND @ JAX"
+  },
+  {
+   "id": "05405af79752f5e742cdf50b61f6745e",
+   "commence": "2026-11-01T21:25:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Miami Dolphins",
+   "away": "New England Patriots",
+   "game": "NE @ MIA"
+  },
+  {
+   "id": "7d664fbcd39350e559d83c0068ba7169",
+   "commence": "2026-11-03T01:20:00Z",
+   "et_date": "2026-11-02",
+   "kickoff_et": "Mon 8:20 PM ET",
+   "home": "Seattle Seahawks",
+   "away": "Chicago Bears",
+   "game": "CHI @ SEA"
   }
  ]
 }
