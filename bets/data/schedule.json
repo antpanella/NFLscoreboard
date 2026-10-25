@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-25T20:13:46Z",
+ "updated": "2026-10-25T20:23:51Z",
  "events": [
-  {
-   "id": "b1be064fb52a198a62109c279e7ab24c",
-   "commence": "2026-10-25T17:02:44Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "San Francisco 49ers",
-   "game": "SF @ ATL"
-  },
   {
    "id": "2bba7fde6f97d0e54403d53676e4ab63",
    "commence": "2026-10-25T17:02:57Z",
@@ -18,15 +9,6 @@
    "home": "Houston Texans",
    "away": "New York Giants",
    "game": "NYG @ HOU"
-  },
-  {
-   "id": "5dce18baccec5d3ad5fb3a3ce52f7619",
-   "commence": "2026-10-25T17:03:28Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "Tennessee Titans",
-   "away": "Cleveland Browns",
-   "game": "CLE @ TEN"
   },
   {
    "id": "436119bb3ccdaa6ed7808aa3ebd82b76",
@@ -38,15 +20,6 @@
    "game": "DEN @ ARI"
   },
   {
-   "id": "e8e5715eefb6a9ce64765e9ddf49c0cc",
-   "commence": "2026-10-25T20:25:00Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Detroit Lions",
-   "away": "Green Bay Packers",
-   "game": "GB @ DET"
-  },
-  {
    "id": "f7679cf18454e4d88a8f2b990c3f08ac",
    "commence": "2026-10-25T20:25:00Z",
    "et_date": "2026-10-25",
@@ -54,6 +27,15 @@
    "home": "Las Vegas Raiders",
    "away": "Los Angeles Rams",
    "game": "LAR @ LV"
+  },
+  {
+   "id": "e8e5715eefb6a9ce64765e9ddf49c0cc",
+   "commence": "2026-10-25T20:28:00Z",
+   "et_date": "2026-10-25",
+   "kickoff_et": "Sun 4:28 PM ET",
+   "home": "Detroit Lions",
+   "away": "Green Bay Packers",
+   "game": "GB @ DET"
   },
   {
    "id": "176d474ed8b2bbf1eb4d7e9c56b4bf22",
