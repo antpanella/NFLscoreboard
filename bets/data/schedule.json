@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T13:37:50Z",
+ "updated": "2026-10-25T13:52:52Z",
  "events": [
   {
    "id": "2e710ea5a306b614f0f966e3d78732f8",
@@ -162,15 +162,6 @@
    "home": "Cincinnati Bengals",
    "away": "Tennessee Titans",
    "game": "TEN @ CIN"
-  },
-  {
-   "id": "ab5ab731ab655bd6308bc7a922275518",
-   "commence": "2026-11-01T18:00:00Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Pittsburgh Steelers",
-   "away": "Cleveland Browns",
-   "game": "CLE @ PIT"
   },
   {
    "id": "52e7ee9c42525e6deec02da32dc2fad8",
