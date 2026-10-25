@@ -327,5 +327,17 @@
   "Jeudy's edge is over 10% and comes from a 3-yard line gap; treat the size of the edge with some caution.",
   "Credits left after the pull: 147."
  ],
- "credits_left": 147
+ "credits_left": 147,
+ "late_checks": [
+  {
+   "at": "2026-10-25T15:43:01Z",
+   "games": [
+    "CLE @ TEN",
+    "MIA @ NYJ",
+    "CIN @ BAL"
+   ],
+   "scratched": [],
+   "note": "Inactives out: Jeudy, Willis and Huntley all active (Lamar Jackson inactive, Huntley starts); clear skies, winds under 5 mph at all three stadiums. No changes."
+  }
+ ]
 }
