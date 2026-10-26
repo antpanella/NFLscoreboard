@@ -1,0 +1,71 @@
+{
+ "date": "2026-10-26",
+ "generated_at": "2026-10-26T22:57:25Z",
+ "headline": "One small play on Monday night: Tanner McKee to score, at a DraftKings longshot price that Pinnacle has well shorter. Everything else in DAL @ PHI is priced tight.",
+ "total_units": 0.5,
+ "games": [
+  {
+   "event_id": "4853610e63c246f2027a6a248e642c9a",
+   "game": "DAL @ PHI",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-10-27T00:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 52,
+   "picks": [
+    "bd2eeee4"
+   ],
+   "note": "One play (McKee ATD). Barkley under 65.5 rush yds (+3.7%, adjusted from 63.5) misses the 4.5% bar, and he is back from a hamstring injury, so his workload is uncertain. Other edges are under 2%."
+  }
+ ],
+ "picks": [
+  {
+   "id": "bd2eeee4",
+   "event_id": "4853610e63c246f2027a6a248e642c9a",
+   "game": "DAL @ PHI",
+   "home": "Philadelphia Eagles",
+   "away": "Dallas Cowboys",
+   "commence": "2026-10-27T00:15:00Z",
+   "market": "player_anytime_td",
+   "subject": "Tanner McKee",
+   "side": "Yes",
+   "point": null,
+   "label": "Tanner McKee anytime TD",
+   "dk_price": 1000,
+   "fair_prob": 0.1164,
+   "fair_price": 759,
+   "ev": 0.2805,
+   "source": "pinnacle",
+   "dk_updated": "2026-10-26T22:55:15Z",
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-10-26T22:56:05Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "McKee starts again with Hurts on IR and has already scored on a tush push this season; Pinnacle (updated after DK) prices him at +759 against DK's +1000. TD cap: 0.5u.",
+   "date": "2026-10-26",
+   "recorded_at": "2026-10-26T22:57:25Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Saquon Barkley under 65.5 rush yds -111",
+   "why": "+3.7% at a pinnacle-adjusted price, below the 4.5% bar; first game back from a hamstring injury"
+  },
+  {
+   "label": "Tyler Goodson anytime TD +1100",
+   "why": "+2.0%, below the 5% TD bar"
+  },
+  {
+   "label": "Darius Cooper anytime TD +280",
+   "why": "+1.6%, below the 5% TD bar"
+  }
+ ],
+ "notes": [
+  "The schedule.json timestamp was about 19 hours old at build time (03:50Z), so the kickoff watcher may not have been refreshing it. The odds pull itself ran fine at 22:56Z.",
+  "Single-game day, total 0.5u. No parlay: only one game and TD legs are excluded."
+ ],
+ "credits_left": 137
+}
