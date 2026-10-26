@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-26T00:39:44Z",
+ "updated": "2026-10-26T03:30:06Z",
  "events": [
-  {
-   "id": "176d474ed8b2bbf1eb4d7e9c56b4bf22",
-   "commence": "2026-10-26T00:22:42Z",
-   "et_date": "2026-10-25",
-   "kickoff_et": "Sun 8:22 PM ET",
-   "home": "Seattle Seahawks",
-   "away": "Kansas City Chiefs",
-   "game": "KC @ SEA"
-  },
   {
    "id": "4853610e63c246f2027a6a248e642c9a",
    "commence": "2026-10-27T00:15:00Z",
@@ -126,6 +117,15 @@
    "home": "Washington Commanders",
    "away": "Philadelphia Eagles",
    "game": "PHI @ WSH"
+  },
+  {
+   "id": "7d664fbcd39350e559d83c0068ba7169",
+   "commence": "2026-11-03T01:20:00Z",
+   "et_date": "2026-11-02",
+   "kickoff_et": "Mon 8:20 PM ET",
+   "home": "Seattle Seahawks",
+   "away": "Chicago Bears",
+   "game": "CHI @ SEA"
   }
  ]
 }
