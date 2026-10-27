@@ -1050,7 +1050,14 @@
   "reason": "McKee starts again with Hurts on IR and has already scored on a tush push this season; Pinnacle (updated after DK) prices him at +759 against DK's +1000. TD cap: 0.5u.",
   "date": "2026-10-26",
   "recorded_at": "2026-10-26T22:57:25Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1166,
+  "close_fair_price": 758,
+  "close_source": "pinnacle",
+  "clv": 0.2821,
+  "close_dk_price": 1000,
+  "graded_at": "2026-10-27T03:31:54Z"
  }
 ]
