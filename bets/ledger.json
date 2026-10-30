@@ -1085,8 +1085,15 @@
   "reason": "DK +750 vs Pinnacle fair +702 (5.9% EV), both books updated within a minute; Love is off the injury report after last week's back issue, and dry low-50s weather at Lambeau.",
   "date": "2026-10-29",
   "recorded_at": "2026-10-29T22:57:47Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1246,
+  "close_fair_price": 702,
+  "close_source": "pinnacle",
+  "clv": 0.0593,
+  "close_dk_price": 850,
+  "graded_at": "2026-10-30T03:32:26Z"
  },
  {
   "id": "87883580",
@@ -1113,7 +1120,14 @@
   "reason": "DK +400 vs Pinnacle fair +372 (5.8% EV), both lines fresh; Williams is healthy and his gadget role can grow with Matthew Golden questionable (shoulder/foot).",
   "date": "2026-10-29",
   "recorded_at": "2026-10-29T22:57:47Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.2116,
+  "close_fair_price": 373,
+  "close_source": "pinnacle",
+  "clv": 0.0581,
+  "close_dk_price": 330,
+  "graded_at": "2026-10-30T03:32:26Z"
  }
 ]
