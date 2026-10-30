@@ -1,15 +1,6 @@
 {
- "updated": "2026-10-30T00:32:07Z",
+ "updated": "2026-10-30T03:37:29Z",
  "events": [
-  {
-   "id": "ab2865e9f2d4b012de8bc6fb6de11a7c",
-   "commence": "2026-10-30T00:15:32Z",
-   "et_date": "2026-10-29",
-   "kickoff_et": "Thu 8:15 PM ET",
-   "home": "Green Bay Packers",
-   "away": "Carolina Panthers",
-   "game": "CAR @ GB"
-  },
   {
    "id": "9255ca8f32aea590d00aa57de79f6bb6",
    "commence": "2026-11-01T18:00:00Z",
