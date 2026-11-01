@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T22:57:45Z",
+ "updated": "2026-11-01T23:02:47Z",
  "events": [
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
@@ -92,6 +92,24 @@
    "game": "DAL @ IND"
   },
   {
+   "id": "44d8c37868b700e90f816db7c5df5cdd",
+   "commence": "2026-11-08T18:00:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Miami Dolphins",
+   "away": "Detroit Lions",
+   "game": "DET @ MIA"
+  },
+  {
+   "id": "e354e6a04b1cb9c96e549b863debb92e",
+   "commence": "2026-11-08T18:00:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Kansas City Chiefs",
+   "away": "New York Jets",
+   "game": "NYJ @ KC"
+  },
+  {
    "id": "89de07377e0aa8ffaa2ae6a7dc0855cc",
    "commence": "2026-11-08T18:00:00Z",
    "et_date": "2026-11-08",
@@ -135,6 +153,24 @@
    "home": "Seattle Seahawks",
    "away": "Arizona Cardinals",
    "game": "ARI @ SEA"
+  },
+  {
+   "id": "2922c573ec3df8466c4a34975e446898",
+   "commence": "2026-11-08T21:25:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "New England Patriots",
+   "away": "Green Bay Packers",
+   "game": "GB @ NE"
+  },
+  {
+   "id": "9760d8f19f84bfee300a74ceb656c95d",
+   "commence": "2026-11-09T01:20:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "home": "Chicago Bears",
+   "away": "Tampa Bay Buccaneers",
+   "game": "TB @ CHI"
   }
  ]
 }
