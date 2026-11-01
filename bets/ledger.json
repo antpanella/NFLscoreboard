@@ -1355,8 +1355,14 @@
   "reason": "Pinnacle's Allen rushing line is 35.5, DK hangs 38.5; healthy, calm weather, edge modestly above the adjusted threshold.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.439,
+  "result_note": "30 rush yds",
+  "close_fair_prob": 0.5611,
+  "close_fair_price": -128,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0532,
+  "graded_at": "2026-11-01T21:27:16Z"
  },
  {
   "id": "a2b99f68",
