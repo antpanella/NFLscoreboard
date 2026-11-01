@@ -1,24 +1,6 @@
 {
- "updated": "2026-11-01T21:37:20Z",
+ "updated": "2026-11-01T21:57:24Z",
  "events": [
-  {
-   "id": "9c5d8f57e0ba0fbd9ef436c1f0898f99",
-   "commence": "2026-11-01T18:02:38Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Cincinnati Bengals",
-   "away": "Tennessee Titans",
-   "game": "TEN @ CIN"
-  },
-  {
-   "id": "9255ca8f32aea590d00aa57de79f6bb6",
-   "commence": "2026-11-01T18:02:39Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Dallas Cowboys",
-   "away": "Arizona Cardinals",
-   "game": "ARI @ DAL"
-  },
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
    "commence": "2026-11-01T21:05:33Z",
