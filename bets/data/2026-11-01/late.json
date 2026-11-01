@@ -1,0 +1,19 @@
+{
+ "date": "2026-11-01",
+ "checked_at": "2026-11-01T19:59:35Z",
+ "credits_left": 435,
+ "picks": [
+  {
+   "id": "6ae651cf",
+   "label": "MIA +7",
+   "card_price": -102,
+   "card_ev": 0.0244,
+   "fair_prob_now": 0.507,
+   "fair_price_now": -103,
+   "source_now": "consensus",
+   "ev_at_card_price_now": 0.004,
+   "ev_now": -0.0321,
+   "dk_price_now": -110
+  }
+ ]
+}

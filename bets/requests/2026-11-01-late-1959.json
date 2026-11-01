@@ -1,1 +1,6 @@
-{"mode": "latecheck", "date": "2026-11-01", "requested_at": "2026-11-01T19:59:25Z"}
+{
+ "mode": "latecheck",
+ "date": "2026-11-01",
+ "requested_at": "2026-11-01T19:59:25Z",
+ "fulfilled_at": "2026-11-01T19:59:35Z"
+}
