@@ -1,24 +1,6 @@
 {
- "updated": "2026-11-01T21:17:11Z",
+ "updated": "2026-11-01T21:22:14Z",
  "events": [
-  {
-   "id": "ab5ab731ab655bd6308bc7a922275518",
-   "commence": "2026-11-01T18:02:23Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Pittsburgh Steelers",
-   "away": "Cleveland Browns",
-   "game": "CLE @ PIT"
-  },
-  {
-   "id": "52e7ee9c42525e6deec02da32dc2fad8",
-   "commence": "2026-11-01T18:02:36Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Detroit Lions",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ DET"
-  },
   {
    "id": "9c5d8f57e0ba0fbd9ef436c1f0898f99",
    "commence": "2026-11-01T18:02:38Z",
@@ -47,15 +29,6 @@
    "game": "BAL @ BUF"
   },
   {
-   "id": "159dbf0253dd2038eda2212f84387f0c",
-   "commence": "2026-11-01T18:02:45Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Jacksonville Jaguars",
-   "away": "Indianapolis Colts",
-   "game": "IND @ JAX"
-  },
-  {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
    "commence": "2026-11-01T21:05:33Z",
    "et_date": "2026-11-01",
@@ -75,9 +48,9 @@
   },
   {
    "id": "05405af79752f5e742cdf50b61f6745e",
-   "commence": "2026-11-01T21:25:00Z",
+   "commence": "2026-11-01T21:30:00Z",
    "et_date": "2026-11-01",
-   "kickoff_et": "Sun 4:25 PM ET",
+   "kickoff_et": "Sun 4:30 PM ET",
    "home": "Miami Dolphins",
    "away": "New England Patriots",
    "game": "NE @ MIA"
