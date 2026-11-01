@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T21:57:24Z",
+ "updated": "2026-11-01T22:47:41Z",
  "events": [
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
@@ -45,6 +45,15 @@
    "home": "Seattle Seahawks",
    "away": "Chicago Bears",
    "game": "CHI @ SEA"
+  },
+  {
+   "id": "c75744790b7acf6260c78ba5e739c0e5",
+   "commence": "2026-11-06T01:15:00Z",
+   "et_date": "2026-11-05",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Baltimore Ravens",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ BAL"
   }
  ]
 }
