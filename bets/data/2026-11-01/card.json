@@ -2,7 +2,7 @@
  "date": "2026-11-01",
  "generated_at": "2026-11-01T16:44:00Z",
  "headline": "Mostly yardage unders and two backfield/TE spots where DraftKings sits 2-3 yards off Pinnacle; two capped TD singles and one small three-leg parlay. 8u total.",
- "total_units": 8.0,
+ "total_units": 7.0,
  "games": [
   {
    "event_id": "9255ca8f32aea590d00aa57de79f6bb6",
@@ -309,7 +309,10 @@
    "date": "2026-11-01",
    "recorded_at": "2026-11-01T16:44:00Z",
    "result": null,
-   "pl": null
+   "pl": null,
+   "scratched": true,
+   "scratch_reason": "DraftKings now -110 on MIA +7 and the fair price has moved to -103 (consensus), so the edge is -3.2% at today's price, below half the 2% threshold.",
+   "scratched_at": "2026-11-01T20:01:30Z"
   },
   {
    "id": "9da7e3ea",
@@ -567,5 +570,19 @@
   "schedule.json 'updated' is 2026-10-31T00:49Z, well over 2 hours old \u2014 the scheduled refresh may be stuck, though today's odds pull worked.",
   "4 PM plays (Vidal, Sutton, Willis TD, MIA +7) and the parlay's Vidal leg get a late check before their inactives; Sutton depends on Waddle's status."
  ],
- "credits_left": 444
+ "credits_left": 444,
+ "late_checks": [
+  {
+   "at": "2026-11-01T20:01:30Z",
+   "games": [
+    "LAC @ LAR",
+    "KC @ DEN",
+    "NE @ MIA"
+   ],
+   "scratched": [
+    "6ae651cf"
+   ],
+   "note": "4 PM late check: MIA +7 scratched on price; Vidal (no injury, committee role unchanged), Sutton (healthy; Waddle questionable but expected to play) and Willis anytime TD (no designation, full practice) hold. Denver clear, ~60F, no wind concern."
+  }
+ ]
 }

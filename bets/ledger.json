@@ -1271,8 +1271,9 @@
   "reason": "Pinnacle prices MIA +7 at -107 with DK at -102 on the key number; consensus is near even, so the edge is small but real.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "scratched",
+  "pl": 0.0,
+  "scratch_reason": "DraftKings now -110 on MIA +7 and the fair price has moved to -103 (consensus), so the edge is -3.2% at today's price, below half the 2% threshold."
  },
  {
   "id": "9da7e3ea",
