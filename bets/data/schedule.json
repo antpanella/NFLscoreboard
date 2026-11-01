@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T22:47:41Z",
+ "updated": "2026-11-01T22:52:43Z",
  "events": [
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
@@ -54,6 +54,15 @@
    "home": "Baltimore Ravens",
    "away": "Jacksonville Jaguars",
    "game": "JAX @ BAL"
+  },
+  {
+   "id": "dc56d980f527ffeef89940133b211b13",
+   "commence": "2026-11-08T14:30:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 9:30 AM ET",
+   "home": "Atlanta Falcons",
+   "away": "Cincinnati Bengals",
+   "game": "CIN @ ATL"
   }
  ]
 }
