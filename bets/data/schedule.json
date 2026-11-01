@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-01T17:51:34Z",
+ "updated": "2026-11-01T17:56:37Z",
  "events": [
-  {
-   "id": "9255ca8f32aea590d00aa57de79f6bb6",
-   "commence": "2026-11-01T18:00:00Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Dallas Cowboys",
-   "away": "Arizona Cardinals",
-   "game": "ARI @ DAL"
-  },
   {
    "id": "ab5ab731ab655bd6308bc7a922275518",
    "commence": "2026-11-01T18:00:00Z",
@@ -20,13 +11,13 @@
    "game": "CLE @ PIT"
   },
   {
-   "id": "98f1b121b793977434c046e76c707145",
-   "commence": "2026-11-01T18:00:00Z",
+   "id": "9255ca8f32aea590d00aa57de79f6bb6",
+   "commence": "2026-11-01T18:05:00Z",
    "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "New York Jets",
-   "away": "Las Vegas Raiders",
-   "game": "LV @ NYJ"
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Dallas Cowboys",
+   "away": "Arizona Cardinals",
+   "game": "ARI @ DAL"
   },
   {
    "id": "921859689f5f8b3b8b1caf4248bdb1ec",
@@ -72,6 +63,15 @@
    "home": "Jacksonville Jaguars",
    "away": "Indianapolis Colts",
    "game": "IND @ JAX"
+  },
+  {
+   "id": "98f1b121b793977434c046e76c707145",
+   "commence": "2026-11-01T18:05:00Z",
+   "et_date": "2026-11-01",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "New York Jets",
+   "away": "Las Vegas Raiders",
+   "game": "LV @ NYJ"
   },
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
