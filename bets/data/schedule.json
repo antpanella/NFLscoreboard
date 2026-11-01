@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T23:02:47Z",
+ "updated": "2026-11-01T23:07:49Z",
  "events": [
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",
@@ -171,6 +171,15 @@
    "home": "Chicago Bears",
    "away": "Tampa Bay Buccaneers",
    "game": "TB @ CHI"
+  },
+  {
+   "id": "17ad7eff2f7875e20a8109abe40470e3",
+   "commence": "2026-11-10T01:15:00Z",
+   "et_date": "2026-11-09",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "home": "Minnesota Vikings",
+   "away": "Buffalo Bills",
+   "game": "BUF @ MIN"
   }
  ]
 }
