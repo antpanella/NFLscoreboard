@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T21:07:08Z",
+ "updated": "2026-11-01T21:17:11Z",
  "events": [
   {
    "id": "ab5ab731ab655bd6308bc7a922275518",
@@ -54,15 +54,6 @@
    "home": "Jacksonville Jaguars",
    "away": "Indianapolis Colts",
    "game": "IND @ JAX"
-  },
-  {
-   "id": "98f1b121b793977434c046e76c707145",
-   "commence": "2026-11-01T18:02:53Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "New York Jets",
-   "away": "Las Vegas Raiders",
-   "game": "LV @ NYJ"
   },
   {
    "id": "2ff84d3f6053d083c8c0a5bebf7cdd4c",

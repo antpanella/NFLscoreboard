@@ -1156,8 +1156,14 @@
   "reason": "Pinnacle hangs Washington at 20.5; DK's 22.5 gives a blocking-first TE two extra yards of cushion, no injury news.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "94 rec yds",
+  "close_fair_prob": 0.5618,
+  "close_fair_price": -128,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0725,
+  "graded_at": "2026-11-01T21:17:11Z"
  },
  {
   "id": "11d77e3d",
@@ -1213,8 +1219,14 @@
   "reason": "Exact-number Pinnacle price is -125 on the under vs DK -113; Goff and the Lions' receivers are clean, dome game.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.885,
+  "result_note": "176 pass yds",
+  "close_fair_prob": 0.5499,
+  "close_fair_price": -122,
+  "close_source": "pinnacle",
+  "clv": 0.0365,
+  "graded_at": "2026-11-01T21:17:11Z"
  },
  {
   "id": "d0135674",
@@ -1241,8 +1253,15 @@
   "reason": "Exact-number Pinnacle edge on Jones' under; he is off the report after a Week 7 knee issue, low 29.5 line in a split backfield.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.877,
+  "result_note": "22 rush yds",
+  "close_fair_prob": 0.5583,
+  "close_fair_price": -126,
+  "close_source": "pinnacle",
+  "clv": 0.0479,
+  "close_dk_price": -114,
+  "graded_at": "2026-11-01T21:17:11Z"
  },
  {
   "id": "6ae651cf",
@@ -1301,8 +1320,14 @@
   "reason": "Meyers is questionable (hamstring/ankle) and Pinnacle already dropped him to 32.5; DK's 35.5 is stale, and an inactive just voids it.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.45,
+  "result_note": "24 rec yds",
+  "close_fair_prob": 0.5565,
+  "close_fair_price": -125,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0578,
+  "graded_at": "2026-11-01T21:17:11Z"
  },
  {
   "id": "a2a86b27",
@@ -1387,8 +1412,15 @@
   "reason": "Exact-number Pinnacle price +312 vs DK +360; Addison is off the injury report and the large gap looks like DK's usual TD-market lag (no news found).",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.2273,
+  "close_fair_price": 340,
+  "close_source": "pinnacle",
+  "clv": 0.0455,
+  "close_dk_price": 350,
+  "graded_at": "2026-11-01T21:17:11Z"
  },
  {
   "id": "d22e4d59",
