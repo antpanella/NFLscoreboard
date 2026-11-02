@@ -1191,8 +1191,14 @@
   "reason": "Pinnacle sets Vidal at 23.5, DK 21.5; both Chargers backs are off the injury report, so DK is just low on his share.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.901,
+  "result_note": "23 rush yds",
+  "close_fair_prob": 0.5529,
+  "close_fair_price": -124,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.051,
+  "graded_at": "2026-11-02T00:23:01Z"
  },
  {
   "id": "c3fd979e",
@@ -1482,7 +1488,12 @@
     "from_point": 20.5,
     "pin_vig": 0.0476,
     "pin_updated": "2026-11-01T16:41:05Z",
-    "result": null
+    "result": "loss",
+    "result_note": "94 rec yds",
+    "close_fair_prob": 0.5618,
+    "close_fair_price": -128,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.0725
    },
    {
     "id": "11d77e3d",
@@ -1505,7 +1516,12 @@
     "from_point": 23.5,
     "pin_vig": 0.0476,
     "pin_updated": "2026-11-01T16:40:52Z",
-    "result": null
+    "result": "win",
+    "result_note": "23 rush yds",
+    "close_fair_prob": 0.5529,
+    "close_fair_price": -124,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.051
    },
    {
     "id": "c3fd979e",
@@ -1527,7 +1543,12 @@
     "dk_updated": "2026-11-01T16:40:06Z",
     "pin_vig": 0.0467,
     "pin_updated": "2026-11-01T16:40:51Z",
-    "result": null
+    "result": "win",
+    "result_note": "176 pass yds",
+    "close_fair_prob": 0.5499,
+    "close_fair_price": -122,
+    "close_source": "pinnacle",
+    "clv": 0.0365
    }
   ],
   "dk_price": 584,
@@ -1539,7 +1560,8 @@
   "reason": "Three standalone plays from three different games; priced at +19% EV by the engine.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-11-02T00:23:01Z"
  }
 ]
