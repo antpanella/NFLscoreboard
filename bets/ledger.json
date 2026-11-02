@@ -1396,8 +1396,14 @@
   "reason": "Pinnacle has Sutton at 38.5, DK 39.5; half unit because Waddle (questionable, chest) sitting would push targets his way \u2014 late check covers it.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "53 rec yds",
+  "close_fair_prob": 0.5732,
+  "close_fair_price": -134,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0897,
+  "graded_at": "2026-11-02T00:43:07Z"
  },
  {
   "id": "8cba0013",
@@ -1459,8 +1465,15 @@
   "reason": "Willis is Miami's starter and a rushing QB; Pinnacle +264 vs DK +290 at the exact market.",
   "date": "2026-11-01",
   "recorded_at": "2026-11-01T16:44:00Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.2705,
+  "close_fair_price": 270,
+  "close_source": "pinnacle",
+  "clv": 0.0548,
+  "close_dk_price": 280,
+  "graded_at": "2026-11-02T00:43:07Z"
  },
  {
   "id": "p5f7abe3",
