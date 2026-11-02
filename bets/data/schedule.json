@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-02T00:48:10Z",
+ "updated": "2026-11-02T00:53:12Z",
  "events": [
-  {
-   "id": "f2a036d5edf483a277880014861e78ad",
-   "commence": "2026-11-01T21:25:29Z",
-   "et_date": "2026-11-01",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Denver Broncos",
-   "away": "Kansas City Chiefs",
-   "game": "KC @ DEN"
-  },
   {
    "id": "b9c60db63b1a19ad319f24b33c0defe8",
    "commence": "2026-11-02T01:20:00Z",
