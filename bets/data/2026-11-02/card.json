@@ -1,0 +1,97 @@
+{
+ "date": "2026-11-02",
+ "generated_at": "2026-11-02T23:56:56Z",
+ "headline": "One game tonight (CHI @ SEA) and two plays: Zach Charbonnet's rushing under in his season debut, and a half-unit on Caleb Williams to score.",
+ "total_units": 1.5,
+ "games": [
+  {
+   "event_id": "7d664fbcd39350e559d83c0068ba7169",
+   "game": "CHI @ SEA",
+   "kickoff_et": "Mon 8:20 PM ET",
+   "commence": "2026-11-03T01:20:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 92,
+   "picks": [
+    "830a8240",
+    "bd2dacb6"
+   ],
+   "note": "Two plays; everything else within 2.3% of fair."
+  }
+ ],
+ "picks": [
+  {
+   "id": "830a8240",
+   "event_id": "7d664fbcd39350e559d83c0068ba7169",
+   "game": "CHI @ SEA",
+   "home": "Seattle Seahawks",
+   "away": "Chicago Bears",
+   "commence": "2026-11-03T01:20:00Z",
+   "market": "player_rush_yds",
+   "subject": "Zach Charbonnet",
+   "side": "Under",
+   "point": 28.5,
+   "label": "Zach Charbonnet under 28.5 rush yds",
+   "dk_price": -108,
+   "fair_prob": 0.5511,
+   "fair_price": -123,
+   "ev": 0.0614,
+   "source": "pinnacle-adjusted",
+   "dk_updated": "2026-11-02T23:54:54Z",
+   "from_point": 27.5,
+   "pin_vig": 0.0471,
+   "pin_updated": "2026-11-02T23:55:27Z",
+   "kind": "single",
+   "units": 1,
+   "reason": "Charbonnet makes his season debut off the knee injury and rookie Jadarian Price was activated from IR the same day, so a split backfield and managed workload back Pinnacle's 27.5 over DK's 28.5.",
+   "date": "2026-11-02",
+   "recorded_at": "2026-11-02T23:56:56Z",
+   "result": null,
+   "pl": null
+  },
+  {
+   "id": "bd2dacb6",
+   "event_id": "7d664fbcd39350e559d83c0068ba7169",
+   "game": "CHI @ SEA",
+   "home": "Seattle Seahawks",
+   "away": "Chicago Bears",
+   "commence": "2026-11-03T01:20:00Z",
+   "market": "player_anytime_td",
+   "subject": "Caleb Williams",
+   "side": "Yes",
+   "point": null,
+   "label": "Caleb Williams anytime TD",
+   "dk_price": 500,
+   "fair_prob": 0.1854,
+   "fair_price": 439,
+   "ev": 0.1122,
+   "source": "pinnacle",
+   "dk_updated": "2026-11-02T23:54:54Z",
+   "pin_vig": 0.0475,
+   "pin_updated": "2026-11-02T23:55:27Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "Pinnacle's exact-number price (+439) is the fresher of the two and there is no news shrinking Williams' rushing role in the league's top rushing offense; DK's +500 lags. TD cap: 0.5u, single only.",
+   "date": "2026-11-02",
+   "recorded_at": "2026-11-02T23:56:56Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Luther Burden III over 4.5 receptions (+123)",
+   "why": "+2.3% at Pinnacle's number, under the 3% bar for count props"
+  },
+  {
+   "label": "Luther Burden III under 3.5 rush yds (-109)",
+   "why": "+1.6%, under the bar"
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 2026-11-02 04:48Z (about 19 hours before this run), so the scheduled Action may be stuck; this run's odds pull itself came through fine.",
+  "Single-game day: 1.5u total. No parlay possible (all edges in one game; no same-game parlays)."
+ ],
+ "credits_left": 420
+}
