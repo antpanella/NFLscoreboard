@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-02T01:28:20Z",
+ "updated": "2026-11-02T01:43:23Z",
  "events": [
   {
    "id": "b9c60db63b1a19ad319f24b33c0defe8",
@@ -81,24 +81,6 @@
    "home": "Kansas City Chiefs",
    "away": "New York Jets",
    "game": "NYJ @ KC"
-  },
-  {
-   "id": "89de07377e0aa8ffaa2ae6a7dc0855cc",
-   "commence": "2026-11-08T18:00:00Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Washington Commanders",
-   "away": "Los Angeles Rams",
-   "game": "LAR @ WSH"
-  },
-  {
-   "id": "fe93e6ab1e553c0169936a0a983c324f",
-   "commence": "2026-11-08T18:00:00Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "New York Giants",
-   "game": "NYG @ PHI"
   },
   {
    "id": "39aeac43cea7b12558b91cdab1255a10",
