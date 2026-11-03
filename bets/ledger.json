@@ -1603,8 +1603,14 @@
   "reason": "Charbonnet makes his season debut off the knee injury and rookie Jadarian Price was activated from IR the same day, so a split backfield and managed workload back Pinnacle's 27.5 over DK's 28.5.",
   "date": "2026-11-02",
   "recorded_at": "2026-11-02T23:56:56Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.926,
+  "result_note": "23 rush yds",
+  "close_fair_prob": 0.5059,
+  "close_fair_price": -102,
+  "close_source": "pinnacle-adjusted",
+  "clv": -0.0257,
+  "graded_at": "2026-11-03T04:36:58Z"
  },
  {
   "id": "bd2dacb6",
@@ -1631,7 +1637,14 @@
   "reason": "Pinnacle's exact-number price (+439) is the fresher of the two and there is no news shrinking Williams' rushing role in the league's top rushing offense; DK's +500 lags. TD cap: 0.5u, single only.",
   "date": "2026-11-02",
   "recorded_at": "2026-11-02T23:56:56Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1861,
+  "close_fair_price": 437,
+  "close_source": "pinnacle",
+  "clv": 0.1166,
+  "close_dk_price": 450,
+  "graded_at": "2026-11-03T04:36:58Z"
  }
 ]
