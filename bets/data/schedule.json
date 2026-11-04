@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-03T22:28:00Z",
+ "updated": "2026-11-04T23:28:50Z",
  "events": [
   {
    "id": "c75744790b7acf6260c78ba5e739c0e5",
@@ -225,15 +225,6 @@
    "home": "Arizona Cardinals",
    "away": "Los Angeles Rams",
    "game": "LAR @ ARI"
-  },
-  {
-   "id": "6079a5cbabf99b265a17edfc92a1da60",
-   "commence": "2026-11-15T21:05:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Las Vegas Raiders",
-   "away": "Seattle Seahawks",
-   "game": "SEA @ LV"
   },
   {
    "id": "7627192fd89b05120ab6c712aa23fd81",
