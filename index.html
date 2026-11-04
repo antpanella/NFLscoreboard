@@ -14,7 +14,7 @@
   --turf-hi:#182C22;
   --line:#24382C;
   --chalk:#F2F5F0;
-  --sideline:#7C9184;
+  --sideline:#8FA396;
   --flag:#FFB000;
   --redzone:#E03A34;
   --live:#4ADE80;
@@ -54,7 +54,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #gate h1 span{display:block;color:var(--flag)}
 #gate p{color:var(--sideline);font-size:clamp(1rem,2vw,1.4rem);max-width:44ch;line-height:1.4}
 #start{background:var(--flag);color:#0A1410;font-weight:700;font-size:clamp(1.2rem,2.4vw,1.8rem);
-  padding:.6em 2em;border-radius:2px;letter-spacing:.02em}
+  padding:.6em 2em;border-radius:6px;letter-spacing:.01em}
 #start:hover{background:#ffc63d}
 
 /* ---------- header rail ---------- */
@@ -223,10 +223,10 @@ body.noyb .yb{display:none}
 #live.prime{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-auto-rows:1fr}
 #live.prime .game .lp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
   overflow:hidden;font-size:calc(.3 * var(--u2));line-height:1.2;color:#DCE7E0;font-weight:500;margin-top:calc(.06 * var(--u))}
-#live.prime .game .lp b{color:var(--flag);font-weight:700;letter-spacing:.06em;margin-right:.5em}
+#live.prime .game .lp b{color:var(--flag);font-weight:700;letter-spacing:.01em;margin-right:.5em}
 .pside{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:calc(.9 * var(--pu));
   font-size:var(--pu);color:var(--chalk);padding:calc(.2 * var(--pu)) calc(.4 * var(--pu))}
-.pside h3{margin:0 0 calc(.3 * var(--pu));font-size:calc(.72 * var(--pu));letter-spacing:.16em;color:var(--sideline);font-weight:700}
+.pside h3{margin:0 0 calc(.3 * var(--pu));font-size:calc(.8 * var(--pu));letter-spacing:.01em;color:var(--sideline);font-weight:700}
 .pside h3 i{font-style:normal;color:var(--chalk);letter-spacing:.02em;font-weight:500;margin-left:.6em}
 .pside section{flex:none}
 .pside .pl{display:flex;gap:.6em;line-height:1.25;padding:calc(.14 * var(--pu)) 0;border-top:1px solid rgba(255,255,255,.08)}
@@ -255,7 +255,7 @@ body.noyb .yb{display:none}
 .game.spot .lp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
   overflow:hidden;font-size:calc(.34 * var(--u2));line-height:1.2;color:#DCE7E0;
   font-weight:500;margin-top:calc(.06 * var(--u))}
-.game.spot .lp b{color:var(--flag);font-weight:700;letter-spacing:.06em;margin-right:.5em}
+.game.spot .lp b{color:var(--flag);font-weight:700;letter-spacing:.01em;margin-right:.5em}
 .game.pinned::after{content:'PINNED';position:absolute;top:calc(.12 * var(--u));right:calc(.2 * var(--u));
   font-size:calc(.22 * var(--u));font-weight:700;letter-spacing:.1em;color:var(--flag);opacity:.85}
 #live .game{cursor:pointer}
@@ -415,13 +415,13 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 /* ---------- strips ---------- */
 .strip{flex:none;border-top:1px solid var(--line);padding-top:calc(.22 * var(--su))}
-.strip h2{font-size:calc(.66 * var(--su));font-weight:600;letter-spacing:.14em;
+.strip h2{font-size:calc(.74 * var(--su));font-weight:700;letter-spacing:.01em;
   color:var(--sideline);margin-bottom:calc(.04 * var(--su));line-height:1.1}
 .strip .items{display:flex;flex-direction:column;gap:.16rem;
   font-size:calc(1.02 * var(--su));font-weight:500;line-height:1.12;
   max-height:calc(5.6 * var(--su));overflow:hidden}
 .strip .day{display:flex;gap:1rem;align-items:baseline}
-.strip .dtag{flex:none;width:5.6em;font-weight:700;font-size:.86em;letter-spacing:.09em;
+.strip .dtag{flex:none;width:5.6em;font-weight:700;font-size:.86em;letter-spacing:.03em;
   color:var(--sideline);border-right:1px solid var(--line);padding-right:.6rem;
   text-align:right;align-self:stretch}
 .strip .dtag.today{color:var(--flag)}
@@ -458,7 +458,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets h2 .lb b{color:var(--chalk);font-weight:700;margin-right:.25em}
 #bets h2 .lb .up{color:var(--live)} #bets h2 .lb .dn{color:var(--redzone)}
 #bets .byw{display:inline-flex;align-items:center;gap:.35rem}
-#bets .by{font-size:.62em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0A1410;
+#bets .by{font-size:.68em;font-weight:700;letter-spacing:.02em;color:#0A1410;
   background:#C9A0FF;border-radius:.3em;padding:.12em .45em;white-space:nowrap}
 #bets .pbox .by{margin-right:.2rem}
 .bl .byl{color:#C9A0FF}
@@ -474,10 +474,10 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .bet.s-pending b{color:var(--sideline)}
 #bets .bet .amt{color:var(--flag)}
 /* parlays: a thin rule boxing the legs together */
-#bets .pbox{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.1rem 1rem;
-  border:2px solid rgba(255,255,255,.28);border-radius:.4em;padding:0 .55em;
+#bets .pbox{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.1rem .7rem;
+  border:2px solid rgba(255,255,255,.22);border-radius:.4em;padding:0 .55em;
   position:relative}
-#bets .pbox .phead{font-size:.7em;font-weight:700;letter-spacing:.1em;color:var(--sideline)}
+#bets .pbox .phead{font-size:.78em;font-weight:700;letter-spacing:.01em;color:var(--sideline)}
 #bets .pbox.s-live.good{border-color:var(--live)}
 #bets .pbox.s-live.bad,#bets .pbox.s-pending{border-color:#FFB020}
 #bets .pbox.s-won{border-color:var(--live)} #bets .pbox.s-won .phead{color:var(--live)}
@@ -490,7 +490,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #bets .bet.tinted{padding:.04em .62em;border-radius:.35em;position:relative;overflow:hidden;
   isolation:isolate}
 #bets .bet .skin{position:absolute;left:0;top:0;z-index:-1;display:block;overflow:visible}
-#bets .bet.tinted b,#bets .bet.tinted i,#bets .bet.tinted em{text-shadow:0 1px 3px rgba(0,0,0,.75)}
+/* flat fills now, at the cards' luminance, so white text needs no shadow */
 #bets .bet.tinted b{color:#fff}
 #bets .pbox .bet.tinted{margin:.12em 0}
 #bets .betrow{gap:.4rem .7rem}
@@ -511,9 +511,9 @@ body.phone>*:not(#phone){display:none !important}
 #phone{max-width:640px;margin:0 auto;padding:16px 16px 60px;font-size:17px;color:var(--chalk)}
 #phone h1{font-size:1.4rem;font-weight:700;letter-spacing:.04em;margin:.3rem 0 .6rem}
 #phone h1 em{font-style:normal;color:var(--flag)}
-#phone h1 span{font-size:.8rem;color:var(--sideline);letter-spacing:.15em;margin-left:.3rem}
-#phone h4{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--flag);
-  font-weight:700;margin:1.2rem 0 .45rem}
+#phone h1 span{font-size:.95rem;color:var(--sideline);letter-spacing:.01em;font-weight:600;margin-left:.4rem}
+#phone h4{font-size:1.15rem;letter-spacing:.01em;color:var(--chalk);
+  font-weight:700;margin:1.6rem 0 .3rem}
 #phone .tvonly{display:none}
 /* the remote: the Settings panel laid flat as a page */
 #phone.remote #panel{position:static;transform:none;width:auto;height:auto;max-height:none;overflow:visible;
@@ -526,7 +526,7 @@ body.phone>*:not(#phone){display:none !important}
 #phone.remote label:has(#sGuestMake),#phone.remote label:has(#sBetSync){display:none}
 #phone .rrow{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.3rem 0}
 #phone .rrow button,#phone .rgames button{border:1px solid var(--line);background:var(--turf);color:var(--chalk);
-  padding:.6em 1.1em;border-radius:6px;font-size:1.05rem;font-weight:700}
+  padding:.6em 1.1em;border-radius:8px;font-size:1.05rem;font-weight:700}
 #phone .rrow b{font-size:1.2rem;min-width:7em;text-align:center}
 #phone .rgames{display:flex;flex-direction:column;gap:.45rem}
 #phone .rgames button{text-align:left}
@@ -540,12 +540,21 @@ body.phone>*:not(#phone){display:none !important}
 #phone #sMyName{width:10rem !important}
 #phone.guest #sBetEditAll,#phone.guest #sBetClear{display:none}
 #phone details{margin-top:1rem;border-top:1px solid var(--line);padding-top:.6rem}
-#phone summary{color:var(--flag);font-weight:700;font-size:.85rem;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;padding:.3rem 0}
+#phone summary{color:var(--flag);font-weight:700;font-size:1rem;letter-spacing:.01em;
+  cursor:pointer;padding:.3rem 0}
 #phone details #betHelp{margin-top:.5rem}
 #phone label{display:flex;align-items:center;justify-content:space-between;gap:.8rem;
   padding:.55rem 0;border-bottom:1px solid var(--line);font-size:1rem}
-#phone input[type=text],#phone input[type=password]{width:12rem !important;font-size:16px !important}
+#phone input[type=text],#phone input[type=password]{width:12rem !important;font-size:16px !important;
+  background:var(--turf) !important;color:var(--chalk) !important;border:1px solid var(--line) !important;
+  border-radius:6px !important;padding:.45em .6em !important;font-family:inherit !important}
+#phone input::placeholder,#phone textarea::placeholder{color:var(--sideline);opacity:1}
+#phone textarea{border-radius:6px}
+#phone input:focus,#phone textarea:focus{outline:2px solid var(--flag);outline-offset:1px}
+/* the "i" beside a setting, as on the TV's panel */
+#phone .tipb{flex:none;width:1.5rem;height:1.5rem;padding:0;border-radius:50%;
+  border:1px solid var(--sideline);color:var(--sideline);font-size:.8rem;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;line-height:1}
 #phone textarea{font-size:16px !important;min-height:7rem}
 #phone #sBetAdd{font-size:1.05rem;padding:.55em 1.3em !important}
 #phone .note{color:var(--sideline);font-size:.9rem;line-height:1.45;margin-top:.5rem}
@@ -553,8 +562,7 @@ body.phone>*:not(#phone){display:none !important}
 #phone #betList .bl{font-size:1rem;padding:.5rem 0}
 #phone #betList button{font-size:1.1rem;padding:.2rem .4rem}
 #betHelp>div{display:flex;flex-wrap:wrap;gap:.3rem .5rem;align-items:baseline;padding:.15rem 0}
-#betHelp b{color:var(--chalk);font-weight:600;width:7em;flex:none;font-size:.78rem;
-  letter-spacing:.07em;text-transform:uppercase}
+#betHelp b{color:var(--chalk);font-weight:700;width:7em;flex:none;font-size:.9rem}
 #betHelp code{font-family:inherit;background:var(--turf);border:1px solid var(--line);
   border-radius:2px;padding:.1em .45em;color:var(--chalk);opacity:.85}
 #betList .bl{display:flex;justify-content:space-between;align-items:center;gap:.6rem;
@@ -603,18 +611,18 @@ body.phone>*:not(#phone){display:none !important}
 #ptabs button:hover{color:var(--chalk)}
 #ptabs button.on{color:var(--chalk);border-bottom-color:var(--flag)}
 .ptab{display:none} .ptab.on{display:block}
-#panel h4{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--flag);
-  font-weight:700;margin:1.3rem 0 .45rem;opacity:.9}
+#panel h4{font-size:1.05rem;letter-spacing:.01em;color:var(--chalk);
+  font-weight:700;margin:1.5rem 0 .3rem}
 .ptab>h4:first-child{margin-top:.4rem}
 #sClose{background:var(--flag);color:#0A1410;font-weight:700;font-size:1.15rem;
-  padding:.45em 1.4em;border-radius:2px;letter-spacing:.02em}
+  padding:.45em 1.4em;border-radius:6px;letter-spacing:.01em}
 #sClose:hover{background:#ffc63d}
 #scrim{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.45);display:none}
 #scrim.on{display:block}
 #panel label{display:flex;align-items:center;justify-content:space-between;gap:1rem;
   padding:.5rem 0;font-size:1.15rem;font-weight:500;border-bottom:1px solid var(--line);cursor:pointer}
 #panel select,#panel input[type=number]{background:var(--turf);color:var(--chalk);border:1px solid var(--line);
-  padding:.25em .5em;font:inherit;font-size:1rem;width:6.5rem;border-radius:2px}
+  padding:.25em .5em;font:inherit;font-size:1rem;width:6.5rem;border-radius:6px}
 #panel input[type=checkbox]{width:1.3rem;height:1.3rem;accent-color:var(--flag)}
 #panel .note{color:var(--sideline);font-size:1rem;line-height:1.45;margin-top:1.2rem}
 /* the "i" beside each setting, and the note it opens */
@@ -646,7 +654,7 @@ body.phone>*:not(#phone){display:none !important}
 #panel kbd{background:var(--turf);border:1px solid var(--line);padding:.05em .4em;
   border-radius:2px;font-family:inherit;font-weight:600}
 #log{margin-top:1.2rem}
-#log h3{font-size:.95rem;letter-spacing:.14em;color:var(--sideline);font-weight:600;margin-bottom:.5rem}
+#log h3{font-size:1rem;letter-spacing:.01em;color:var(--sideline);font-weight:700;margin-bottom:.5rem}
 #log div{font-size:1rem;padding:.35rem 0;border-bottom:1px solid var(--line);color:var(--sideline);line-height:1.3}
 #log div b{color:var(--chalk);font-weight:600}
 #empty{color:var(--sideline);text-align:center;padding:3rem 1rem;font-size:1.4rem;line-height:1.5}
@@ -659,7 +667,7 @@ body.recapping #live{display:none}
 body.recapping .strip .items{font-size:calc(.8 * var(--su))}
 #empty.recap h2{grid-column:1/-1;margin:0;font-size:1.5em;letter-spacing:.04em}
 #empty.recap h2 small{font-size:.5em;color:var(--sideline);font-weight:500;letter-spacing:.06em;margin-left:1em}
-#empty.recap h3{margin:0 0 .4em;font-size:.72em;letter-spacing:.16em;color:var(--sideline)}
+#empty.recap h3{margin:0 0 .4em;font-size:.8em;letter-spacing:.01em;color:var(--sideline)}
 #empty.recap .big{font-size:1.5em;font-weight:700;line-height:1.2}
 #empty.recap .big .w{color:var(--live)} #empty.recap .big .l{color:#FF7A6E}
 #empty.recap .sub{color:var(--sideline);margin-top:.2em}
@@ -704,7 +712,7 @@ body.lobbying #bets .items{max-height:calc(3.1 * var(--su))}
 body.lobbying{--suh:calc(.52 * var(--su))}
 
 #empty.lobby .cdbox{align-self:center;min-width:0}
-#empty.lobby .cdlbl{font-size:.7em;letter-spacing:.2em;color:var(--sideline);font-weight:700}
+#empty.lobby .cdlbl{font-size:.8em;letter-spacing:.01em;color:var(--sideline);font-weight:700}
 #empty.lobby .cd{display:block;font-size:5em;font-weight:800;line-height:.95;color:var(--flag);
   font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap}
 #empty.lobby .cd.soon{color:var(--live)}
@@ -724,8 +732,8 @@ body.lobbying{--suh:calc(.52 * var(--su))}
 #empty.lobby .qr svg{display:block;width:100%;height:auto;box-sizing:border-box;
   background:#fff;padding:.35em;border-radius:8px}
 #empty.lobby .qr .code{margin-top:.15em;font-size:1.3em;font-weight:800;letter-spacing:.14em;color:var(--flag);white-space:nowrap}
-#empty.lobby .qr .cap{color:var(--sideline);font-size:.62em;line-height:1.3;margin-top:.15em;white-space:normal}
-#empty.lobby h3{margin:0 0 .35em;font-size:.7em;letter-spacing:.16em;color:var(--sideline);font-weight:700}
+#empty.lobby .qr .cap{color:var(--sideline);font-size:.78em;line-height:1.3;margin-top:.15em;white-space:normal}
+#empty.lobby h3{margin:0 0 .35em;font-size:.8em;letter-spacing:.01em;color:var(--sideline);font-weight:700}
 
 /* The stage keeps every panel in the DOM and shows one at a time, so rotating
    costs nothing and the fit below measures the tallest of them once. */
@@ -739,7 +747,7 @@ body.lobbying{--suh:calc(.52 * var(--su))}
   opacity:0;visibility:hidden;transition:opacity .4s ease}
 #empty.lobby .pbody{min-width:0;min-height:0}
 #empty.lobby .pane.on{opacity:1;visibility:visible}
-#empty.lobby .ptitle{font-size:.7em;letter-spacing:.16em;color:var(--sideline);
+#empty.lobby .ptitle{font-size:.8em;letter-spacing:.01em;color:var(--sideline);
   font-weight:700;margin-bottom:.45em}
 /* The stage can be steered by hand: swipe on a tablet, click and drag on a
    laptop, or hit a dot. pan-y keeps a vertical scroll working while claiming the
@@ -857,7 +865,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 #empty.lobby .wins li{display:flex;align-items:baseline;gap:.35em}
 #empty.lobby .wins li .gm{margin-left:auto;padding-left:.7em}
 /* the game each player is in, as a heading over his group */
-#empty.lobby .wins .gg{font-size:.66em;letter-spacing:.08em;color:var(--sideline);
+#empty.lobby .wins .gg{font-size:.7em;letter-spacing:.02em;color:var(--sideline);
   font-weight:700;margin:.4em 0 .1em;white-space:nowrap}
 #empty.lobby .wins .gg:first-of-type{margin-top:.1em}
 #empty.lobby .wins .gg i{font-style:normal;opacity:.7;margin-left:.5em;font-weight:500}
@@ -911,9 +919,9 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 /* A bet landing while the lobby is up takes the stage for a few seconds, so the
    room sees it go on the board rather than wondering whether it stuck. */
 #empty.lobby .newbet{grid-area:1/1;z-index:2;align-self:center;
-  background:linear-gradient(90deg,rgba(255,176,0,.22),rgba(255,176,0,.03));
+  background:#2A2410;
   border-left:.3em solid var(--flag);padding:.7em 1em;border-radius:6px}
-#empty.lobby .newbet .t{font-size:.7em;letter-spacing:.2em;color:var(--flag);font-weight:800}
+#empty.lobby .newbet .t{font-size:.8em;letter-spacing:.01em;color:var(--flag);font-weight:700}
 #empty.lobby .newbet .w{font-size:1.45em;font-weight:700;line-height:1.25;white-space:normal}
 #empty.lobby .newbet .who{color:var(--flag);font-weight:800}
 </style>
@@ -952,10 +960,10 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 <main>
   <div id="live"></div>
   <div id="empty" hidden></div>
-  <section class="strip" id="alsolive" hidden><h2>ALSO LIVE <span class="sum">double-click the game to go back to all of them</span></h2><div class="items"></div></section>
-  <section class="strip" id="upcoming" hidden><h2>KICKING OFF LATER</h2><div class="items"></div></section>
-  <section class="strip" id="finals" hidden><h2>FINAL</h2><div class="items"></div></section>
-  <section class="strip" id="bets" hidden><h2>MY BETS</h2><div class="items"></div></section>
+  <section class="strip" id="alsolive" hidden><h2>Also live <span class="sum">double-click the game to go back to all of them</span></h2><div class="items"></div></section>
+  <section class="strip" id="upcoming" hidden><h2>Kicking off later</h2><div class="items"></div></section>
+  <section class="strip" id="finals" hidden><h2>Final</h2><div class="items"></div></section>
+  <section class="strip" id="bets" hidden><h2>My bets</h2><div class="items"></div></section>
   <div id="qrpin" hidden></div>
   <div id="toast" hidden></div>
 </main>
@@ -1204,7 +1212,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <p class="note" id="cfgNote">Moves your whole setup to another laptop in one step: Sleeper account, look, alerts, lights and bets. Recordings have their own save above. The relay token stays out of the file unless you tick it &mdash; if you do, keep that file private.</p>
   <h4>Diagnostics</h4>
   <div id="diag"><div id="diagItems" style="font-size:1rem;color:var(--sideline);line-height:1.5"></div></div>
-  <div id="log"><h3>RECENT ALERTS</h3><div id="logItems"></div></div>
+  <div id="log"><h3>Recent alerts</h3><div id="logItems"></div></div>
   <p class="note">
     <kbd>S</kbd> settings &nbsp; <kbd>F</kbd> fullscreen &nbsp; <kbd>R</kbd> refresh now<br>
     Close this panel with <b>Done</b> above, by clicking the dimmed board, or with <kbd>Esc</kbd>.<br>
@@ -1223,7 +1231,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-10-11a';
+var BUILD = 'build 2026-11-04a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -2435,7 +2443,38 @@ function dayRows(list, cell){
 function render(){
   inRender = true;
   try { renderBoard(); } finally { inRender = false; }
+  trimStrips();
 }
+
+/* The kicking-off and finals strips are capped in height, and a cap that lands
+   partway down a line used to slice that line through the middle (the countdown
+   screen showed the top half of "THU 11/5 8:20 PM KC at DEN"). After each render,
+   every game that would cross the bottom edge is hidden along with all after it,
+   and a day left with nothing showing goes too, so the strip ends on a whole line. */
+function trimStrip(items){
+  if (!items) return;
+  var sp = items.querySelectorAll('.dgames>span'), days = items.querySelectorAll('.day'), i;
+  for (i = 0; i < sp.length; i++) sp[i].style.display = '';
+  for (i = 0; i < days.length; i++) days[i].style.display = '';
+  if (!items.offsetHeight || items.scrollHeight <= items.clientHeight + 1) return;
+  var lim = items.getBoundingClientRect().bottom + 1, cut = false;
+  for (i = 0; i < sp.length; i++){
+    if (cut || sp[i].getBoundingClientRect().bottom > lim){ cut = true; sp[i].style.display = 'none'; }
+  }
+  for (i = 0; i < days.length; i++){
+    var shown = false, g = days[i].querySelectorAll('.dgames>span');
+    for (var j = 0; j < g.length; j++) if (g[j].style.display !== 'none'){ shown = true; break; }
+    if (!shown) days[i].style.display = 'none';
+  }
+}
+function trimStrips(){
+  try {
+    trimStrip(document.querySelector('#upcoming .items'));
+    trimStrip(document.querySelector('#finals .items'));
+  } catch (e) {}
+}
+window.addEventListener('resize', function(){ setTimeout(trimStrips, 50); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(trimStrips);
 function renderBoard(){
   suUnit();                 // every screen has a header and strips, cards or not
   var games = window.__games || [];
@@ -2640,7 +2679,7 @@ function recapCardHTML(){
   var cr = cardRecord();
   if (cr){
     var ss = CARDSUM && CARDSUM.season && CARDSUM.season.picks ? CARDSUM.season : null;
-    out.push('<section><h3>THE CARD</h3><div class="big"><span class="w">' + cr.w + ' won</span> \u00b7 <span class="l">' + cr.l + ' lost</span>' +
+    out.push('<section><h3>The card</h3><div class="big"><span class="w">' + cr.w + ' won</span> \u00b7 <span class="l">' + cr.l + ' lost</span>' +
       (cr.p ? ' \u00b7 ' + cr.p + ' push' : '') + '</div>' +
       '<div class="sub"><b style="color:' + (cr.u > 0 ? 'var(--live)' : cr.u < 0 ? '#FF7A6E' : 'inherit') + '">' + fmtUnits(cr.u) + '</b> today' +
         (cr.open ? ' \u00b7 ' + cr.open + ' still to play' : '') +
@@ -2659,7 +2698,7 @@ function recapHTML(soon, done){
   if (!today.length) return '';
   var out = [], next = soon.length ? ' \u00b7 next: ' + dayWord(soon[0].date) + ' ' + kickoff(soon[0].date) : '';
   var more = soon.length && isToday(soon[0].date);
-  out.push('<h2>' + (more ? 'SO FAR TODAY' : 'THAT\'S A WRAP') + '<small>' + today.length + ' game' + (today.length === 1 ? '' : 's') + ' final' + esc(next) + '</small></h2>');
+  out.push('<h2>' + (more ? 'So far today' : 'That\'s a wrap') + '<small>' + today.length + ' game' + (today.length === 1 ? '' : 's') + ' final' + esc(next) + '</small></h2>');
 
   var m = FAN.match;
   if (FAN.ready && m && m.me){
@@ -2669,7 +2708,7 @@ function recapHTML(soon, done){
       .map(function(e){ return {e:e, v:fanPts(e)}; })
       .filter(function(x){ return x.v !== null; })
       .sort(function(a, b){ return b.v - a.v; }).slice(0, 3);
-    out.push('<section><h3>FANTASY</h3><div class="big"><span class="' + (ahead ? 'w' : 'l') + '">' + fmtPts(m.me.pts) + '</span>' +
+    out.push('<section><h3>Fantasy</h3><div class="big"><span class="' + (ahead ? 'w' : 'l') + '">' + fmtPts(m.me.pts) + '</span>' +
       (m.opp ? ' \u2013 ' + fmtPts(m.opp.pts) : '') + '</div>' +
       '<div class="sub">' + esc(m.me.name) + (m.opp ? ' vs ' + esc(m.opp.name) : '') + '</div>' +
       '<div class="sub">' + (left ? (ahead ? 'Ahead' : 'Behind') + ' with ' + left + ' player' + (left === 1 ? '' : 's') + ' still to play' +
@@ -2702,7 +2741,7 @@ function recapHTML(soon, done){
       return '<li>' + esc(n) + '<span class="g">' + p.w + '\u2013' + p.l + '</span>' +
         (cfg.betMoney && p.net ? '<span class="p" style="color:' + (p.net > 0 ? 'var(--live)' : '#FF7A6E') + '">' + (p.net > 0 ? '+' : '') + money(p.net) + '</span>' : '') + '</li>';
     }).join('') + '</ul>' : '';
-    out.push('<section><h3>BETS</h3><div class="big"><span class="w">' + won + ' won</span> \u00b7 <span class="l">' + lost + ' lost</span></div>' +
+    out.push('<section><h3>Bets</h3><div class="big"><span class="w">' + won + ' won</span> \u00b7 <span class="l">' + lost + ' lost</span></div>' +
       (open ? '<div class="sub">' + open + ' still open</div>' : '') + per +
       (cfg.betMoney && net ? '<div class="sub">Net <b style="color:' + (net > 0 ? 'var(--live)' : '#FF7A6E') + '">' + (net > 0 ? '+' : '') + money(net) + '</b></div>' : '') +
       '</section>');
@@ -2715,7 +2754,7 @@ function recapHTML(soon, done){
   // your players' moments first, then the rest, newest first
   plays = plays.filter(function(p){ return p.m; }).reverse().concat(plays.filter(function(p){ return !p.m; }).reverse()).slice(0, 7);
   if (plays.length){
-    out.push('<section><h3>PLAYS OF THE DAY</h3><ul>' + plays.map(function(p){
+    out.push('<section><h3>Plays of the day</h3><ul>' + plays.map(function(p){
       return '<li><b>' + esc(p.k.split(' \u2014 ')[0]) + '</b>' + (p.m ? '\u2605 ' : '') + esc(p.w || p.b) + '<span class="g">' + esc(p.g) + '</span></li>';
     }).join('') + '</ul></section>');
   }
@@ -2817,7 +2856,7 @@ var LOB = {page:0, at:0, hold:0, bet:null, betB:null, betAt:0};
 function lobbyHTML(wins){
   if (!wins.length) return '';
   var w0 = wins[0], first = w0.games[0];
-  var head = '<div class="cdbox"><div class="cdlbl">KICKOFF IN</div>' +
+  var head = '<div class="cdbox"><div class="cdlbl">Kickoff in</div>' +
     '<span class="cd" data-kick="' + w0.at + '">···</span>' +
     '<span class="cdsub"><b>' + esc(first.away.abbr) + ' at ' + esc(first.home.abbr) + '</b> · ' +
     esc(winWhen(w0)) + (first.net ? ' · ' + esc(first.net) : '') + '</span>' + outWarnHTML() + '</div>';
@@ -2829,7 +2868,7 @@ function lobbyHTML(wins){
     qr += svg + '<div class="code">' + esc(GUEST.code) + '</div>' +
       '<div class="cap">Scan to add a bet. Put your name in once and it goes up with your name on it.</div>';
   } else {
-    qr += '<h3>FRIENDS’ BETS</h3><div class="cap">Settings → Bets → “Let friends add bets” puts a code here for people to scan.</div>';
+    qr += '<h3>Friends’ bets</h3><div class="cap">Settings → Bets → “Let friends add bets” puts a code here for people to scan.</div>';
   }
   qr += '</div>';
 
@@ -2854,12 +2893,12 @@ function lobbyPanes(wins){
   var out = [];
   var add = function(on, title, html){ if (html && on !== false) out.push({title:title, html:html}); };
   add(cfg.lobSlate,  slateTitle(wins),      paneSlate(wins));
-  add(cfg.lobWhen,   'WHO’S ON WHEN',      paneWhen(wins));
-  add(cfg.lobSlip,   'ON THE BOARD',        paneSlip());
-  add(cfg.lobCard,   'TODAY’S CARD',        paneCard());
-  add(cfg.lobWho,    'WHO’S UP',            paneWho());
-  add(cfg.lobH2H,    'MY MATCHUP',          paneH2H());
-  add(cfg.lobLeague, 'REST OF THE LEAGUE',  paneLeague());
+  add(cfg.lobWhen,   'Who’s on when',      paneWhen(wins));
+  add(cfg.lobSlip,   'On the board',        paneSlip());
+  add(cfg.lobCard,   'Today’s card',        paneCard());
+  add(cfg.lobWho,    'Who’s up',            paneWho());
+  add(cfg.lobH2H,    'My matchup',          paneH2H());
+  add(cfg.lobLeague, 'Rest of the league',  paneLeague());
   return out;
 }
 
@@ -2867,9 +2906,9 @@ function lobbyPanes(wins){
    Wednesday and counting down to it. */
 function slateTitle(wins){
   var w = wins[0];
-  if (!w || w.today) return 'TODAY’S SLATE';
-  if (spansDays(wins)) return 'COMING UP';
-  return (w.day === 'tomorrow' ? 'TOMORROW' : w.day.toUpperCase()) + '’S SLATE';
+  if (!w || w.today) return 'Today’s slate';
+  if (spansDays(wins)) return 'Coming up';
+  return capDay(w.day === 'tomorrow' ? 'tomorrow' : w.day) + '’s slate';
 }
 function paneSlate(wins){
   var bg = BETS.length ? betGameIds() : Object.create(null);
@@ -3509,7 +3548,7 @@ function primeSide(g, W, H){
   });
 
   var drive = d.drive && d.drive.desc ? '<i>' + esc((d.drive.team ? d.drive.team + ' \u00b7 ' : '') + d.drive.desc) + '</i>' : '';
-  out.push('<section class="plays"><h3>PLAY BY PLAY' + drive + '</h3>' +
+  out.push('<section class="plays"><h3>Play by play' + drive + '</h3>' +
     (log.length ? log.slice(0, 8).map(function(p, i){
       return '<div class="pl' + (p.big ? ' big' : '') + (i === 0 ? ' new' : i > 4 ? ' old' : '') + '">' +
         '<span class="when">' + esc(p.when) + '</span><span class="txt">' + esc(p.text) + '</span></div>';
@@ -3525,7 +3564,7 @@ function primeSide(g, W, H){
       return '<tr><td class="n">' + esc(ts[A][r[0]] || '-') + '</td><td class="k">' + r[1] +
              '</td><td class="n">' + esc(ts[Hh][r[0]] || '-') + '</td></tr>';
     }).join('');
-    if (body) out.push('<section><h3>TEAM STATS</h3><table>' +
+    if (body) out.push('<section><h3>Team stats</h3><table>' +
       '<tr><th>' + esc(A) + '</th><th></th><th>' + esc(Hh) + '</th></tr>' + body + '</table></section>');
   }
 
@@ -3540,7 +3579,7 @@ function primeSide(g, W, H){
     // yours in violet, your opponent's in red — the same as on the cards
     var tot = '<i><span class="me">\u2605 ' + nMe + ' \u00b7 ' + fmtPts(me) + '</span>' +
       (nThem ? '  <span class="them">vs ' + nThem + ' \u00b7 ' + fmtPts(them) + '</span>' : '') + '</i>';
-    out.push('<section><h3>FANTASY' + tot + '</h3><div class="who">' + mine.map(function(e){
+    out.push('<section><h3>Fantasy' + tot + '</h3><div class="who">' + mine.map(function(e){
       var v = fanPts(e);
       return '<span class="' + (e.side === 'opp' ? 'opp' : '') + (e.starter ? '' : ' bench') + '">' +
         (e.num ? '<em>#' + esc(e.num) + '</em> ' : '') + esc(shortName(e.name)) +
@@ -3604,7 +3643,7 @@ function pickSpot(live){
 }
 function lastPlayRow(g){
   if (!g.lastPlay) return '<div class="lp"></div>';
-  return '<div class="lp"><b>LAST PLAY</b>' + esc(g.lastPlay) + '</div>';
+  return '<div class="lp"><b>Last play</b>' + esc(g.lastPlay) + '</div>';
 }
 
 /* Cards move around when they are ranked by drama, which makes a score you were
@@ -6652,21 +6691,25 @@ function betSide(leg, g){
   return '';
 }
 
-/* The chip's colours are drawn after layout, in real pixels, so the outline can
-   follow the coloured half exactly: the same diagonal, the same rounded corners.
-   The chip records its two colours and which half is "his"; skinChips() does
-   the drawing once it knows each chip's size. */
+/* The chip's colours are drawn after layout, in real pixels. A bet on one side
+   (the team backed, or the player's team on a prop) is one flat fill in that
+   team's colour, at the same luminance as its half of the card. It used to wear
+   both colours split on the cards' diagonal, with the seam running straight
+   through the words; one colour reads cleanly and still matches its card. A
+   total belongs to both teams, so it sits on the plain surface with the two
+   colours stacked in a bar down its left edge. */
 function betSkin(leg, ls){
   var g = (ls && ls.g) || (leg.team ? gameFor(leg.team) : null);
   if (!g && isPlayerLeg(leg)) g = gameForLeg(leg);
   if (!g || !cfg.tint || !g.away.color) return null;
   return {attrs: ' data-ca="' + tint(g.away.color, g.away.alt, 0.19) +
                  '" data-cb="' + tint(g.home.color, g.home.alt, 0.19) +
+                 '" data-ba="' + tint(g.away.color, g.away.alt, 0.42) +
+                 '" data-bb="' + tint(g.home.color, g.home.alt, 0.42) +
                  '" data-side="' + betSide(leg, g) + '"'};
 }
 
 var SKIN_N = 0;
-var SEAM_TAN = Math.tan(17 * Math.PI / 180);   // the cards' seam leans 17 degrees
 function skinChips(root){
   var chips = root.querySelectorAll('.bet.tinted');
   for (var i = 0; i < chips.length; i++){
@@ -6674,31 +6717,21 @@ function skinChips(root){
     var w = c.offsetWidth, h = c.offsetHeight;
     if (!w || !h) continue;
     var r = Math.min(h / 2, parseFloat(getComputedStyle(c).borderTopLeftRadius) || 0);
-    // the seam: same angle on every chip, centred, whatever the chip's width
-    var dx = h * SEAM_TAN, xt = w / 2 + dx / 2, xb = w / 2 - dx / 2;
-    var L = '0,0 ' + xt + ',0 ' + xb + ',' + h + ' 0,' + h;
-    var R = xt + ',0 ' + w + ',0 ' + w + ',' + h + ' ' + xb + ',' + h;
     var side = c.getAttribute('data-side');
-    var half = side === 'away' ? L : (side === 'home' ? R : '');
     var id = 'sk' + (++SKIN_N);
     var rect = '<rect x="0" y="0" width="' + w + '" height="' + h + '" rx="' + r + '" ry="' + r + '"';
-    var sw = 2.5;                                            // visible outline width, px
+    var body;
+    if (side === 'away' || side === 'home'){
+      body = rect + ' fill="' + c.getAttribute(side === 'away' ? 'data-ca' : 'data-cb') + '"/>';
+    } else {
+      var bw = Math.max(5, Math.round(h * 0.2));          // the bar, px
+      body = rect + ' fill="#1C2B23"/>' +
+        '<rect x="0" y="0" width="' + bw + '" height="' + (h / 2) + '" fill="' + c.getAttribute('data-ba') + '"/>' +
+        '<rect x="0" y="' + (h / 2) + '" width="' + bw + '" height="' + (h / 2) + '" fill="' + c.getAttribute('data-bb') + '"/>';
+    }
     var svg = '<svg class="skin" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
-      '<defs><clipPath id="' + id + 'r">' + rect + '/></clipPath>' +
-      (half ? '<clipPath id="' + id + 'h"><polygon points="' + half + '"/></clipPath>' : '') + '</defs>' +
-      '<g clip-path="url(#' + id + 'r)">' +
-        '<polygon points="' + L + '" fill="' + c.getAttribute('data-ca') + '"/>' +
-        '<polygon points="' + R + '" fill="' + c.getAttribute('data-cb') + '"/>' +
-        '<line x1="' + xt + '" y1="0" x2="' + xb + '" y2="' + h + '" stroke="rgba(255,255,255,.16)" stroke-width="1.2"/>' +
-        /* The outline is each boundary stroked at double width and clipped to the
-           coloured half, so exactly the inner half of the stroke shows: it sits
-           on the edge of the colour everywhere — rounded corners, straight sides
-           and the diagonal alike. */
-        (half ? '<g clip-path="url(#' + id + 'h)">' +
-          rect + ' fill="none" stroke="#fff" stroke-width="' + (sw * 2) + '"/>' +
-          '<polygon points="' + half + '" fill="none" stroke="#fff" stroke-width="' + (sw * 2) + '" stroke-linejoin="miter"/>' +
-          '</g>' : '') +
-      '</g></svg>';
+      '<defs><clipPath id="' + id + 'r">' + rect + '/></clipPath></defs>' +
+      '<g clip-path="url(#' + id + 'r)">' + body + '</g></svg>';
     var old = c.querySelector('svg.skin');
     if (old) old.remove();
     c.insertAdjacentHTML('afterbegin', svg);
@@ -6733,7 +6766,7 @@ function betChip(b){
   if (b.parlay){
     /* A parlay is drawn as a box around its own legs, each showing where it
        stands, with the parlay's overall state in the box's corner. */
-    var head = '<span class="phead">' + b.legs.length + '-LEG ' + s.hit + '/' + s.n +
+    var head = '<span class="phead">' + b.legs.length + '-leg ' + s.hit + '/' + s.n +
       (cfg.betMoney && b.stake ? ' \u00b7 ' + money(b.stake) +
         (b.odds ? ' \u2192 ' + money(b.stake * decimalOdds(b.odds)) : '') : '') + '</span>';
     var gcls = 'pbox s-' + s.state + (s.state === 'live' ? (s.good ? ' good' : ' bad') : '');
@@ -6859,7 +6892,7 @@ function paintBets(){
       return '<b>' + esc(p.name) + '</b>' + standScore(p, sd.money);
     }).join(' \u00b7 ') + '</span>';
   }
-  el.querySelector('h2').innerHTML = 'MY BETS <span class="sum">' + sum + '</span>' + lb;
+  el.querySelector('h2').innerHTML = 'My bets <span class="sum">' + sum + '</span>' + lb;
   el.hidden = false;
   /* The counts and the money above are worked out from every bet; only the
      chips of bets settled more than five minutes ago leave the rows. */

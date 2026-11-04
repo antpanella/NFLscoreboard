@@ -9,7 +9,7 @@
 <style>
 :root{
   --pitch:#0A1410; --turf:#122019; --turf-hi:#182C22; --line:#24382C;
-  --chalk:#F2F5F0; --sideline:#7C9184; --flag:#FFB000; --red:#E03A34;
+  --chalk:#F2F5F0; --sideline:#8FA396; --flag:#FFB000; --red:#E03A34;
   --live:#4ADE80; --hot:#22D3EE;
 }
 *{box-sizing:border-box}
@@ -17,13 +17,13 @@ body{margin:0;background:var(--pitch);color:var(--chalk);font:16px/1.45 Barlow,s
 main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
 h1,h2,.num{font-family:'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.02em}
 h1{font-size:34px;margin:0;line-height:1.05}
-h2{font-size:20px;text-transform:uppercase;color:var(--sideline);margin:28px 0 10px;font-weight:600}
+h2{font-size:22px;color:var(--chalk);margin:32px 0 10px;font-weight:700}
 .sub{color:var(--sideline);font-size:14px;margin-top:4px}
 .headline{font-size:18px;margin:14px 0 0}
 .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .stat{background:var(--turf);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:92px}
 .stat b{display:block;font:600 24px 'Barlow Condensed',sans-serif}
-.stat span{font-size:12px;color:var(--sideline);text-transform:uppercase;letter-spacing:.06em}
+.stat span{font-size:13px;color:var(--sideline)}
 .game{background:var(--turf);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
 .ghead{display:flex;justify-content:space-between;align-items:baseline;padding:10px 14px;border-bottom:1px solid var(--line)}
 .ghead .t{font:600 22px 'Barlow Condensed',sans-serif}
@@ -111,9 +111,9 @@ function render(card, ledger){
   var singles = card.picks.filter(function(p){ return p.kind !== 'parlay'; });
   var parlays = card.picks.filter(function(p){ return p.kind === 'parlay'; });
   var nscr = card.picks.filter(function(p){ return p.scratched; }).length;
-  var s = '<div class="stat"><b>' + (card.picks.length - nscr) + '</b><span>plays' + (nscr ? ' · ' + nscr + ' scratched' : '') + '</span></div>'
-        + '<div class="stat"><b>' + card.total_units + 'u</b><span>total stake</span></div>'
-        + '<div class="stat"><b>' + card.games.length + '</b><span>games</span></div>';
+  var s = '<div class="stat"><b>' + (card.picks.length - nscr) + '</b><span>Plays' + (nscr ? ' · ' + nscr + ' scratched' : '') + '</span></div>'
+        + '<div class="stat"><b>' + card.total_units + 'u</b><span>Total stake</span></div>'
+        + '<div class="stat"><b>' + card.games.length + '</b><span>Games</span></div>';
   document.getElementById('stats').innerHTML = s;
 
   var h = '';
