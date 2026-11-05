@@ -1,0 +1,40 @@
+{
+ "date": "2026-11-05",
+ "generated_at": "2026-11-05T23:56:31Z",
+ "headline": "No plays for Thursday night. DraftKings is priced tight to Pinnacle on JAX @ BAL; nothing clears the bar.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "c75744790b7acf6260c78ba5e739c0e5",
+   "game": "JAX @ BAL",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "commence": "2026-11-06T01:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 104,
+   "picks": [],
+   "note": "No play: lines tight. Best edges were Chris Rodriguez Jr. anytime TD +225 (+4.8%, bar 5.0%), Zay Flowers under 52.5 rec yds (+3.9% adjusted, bar 4.5%) and Jakobi Meyers under 3.5 receptions (+2.7%, bar 3.0%)."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Chris Rodriguez Jr. anytime TD +225",
+   "why": "+4.8% at Pinnacle's number, just under the 5.0% TD bar"
+  },
+  {
+   "label": "Zay Flowers under 52.5 rec yds -110",
+   "why": "+3.9% on an adjusted price (moved from 48.5), under the 4.5% bar"
+  },
+  {
+   "label": "Jakobi Meyers under 3.5 receptions -137",
+   "why": "+2.7%, under the 3.0% count-prop bar"
+  }
+ ],
+ "notes": [
+  "schedule.json was last refreshed 2026-11-04T23:28Z (about 24 h before this run); the schedule Action may be stuck, though today's odds pull worked.",
+  "Single game, no qualifying legs, so no parlay."
+ ],
+ "credits_left": 406
+}
