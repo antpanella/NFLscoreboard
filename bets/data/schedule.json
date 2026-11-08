@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T21:20:07Z",
+ "updated": "2026-11-08T21:25:09Z",
  "events": [
   {
    "id": "e571bab6736f9338130a78a4f75c3231",
@@ -75,9 +75,9 @@
   },
   {
    "id": "ac9d38a18d5c92814233a31aa9a48d78",
-   "commence": "2026-11-08T21:25:00Z",
+   "commence": "2026-11-08T21:27:00Z",
    "et_date": "2026-11-08",
-   "kickoff_et": "Sun 4:25 PM ET",
+   "kickoff_et": "Sun 4:27 PM ET",
    "home": "San Francisco 49ers",
    "away": "Las Vegas Raiders",
    "game": "LV @ SF"
