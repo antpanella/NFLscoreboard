@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T14:39:04Z",
+ "updated": "2026-11-08T14:49:06Z",
  "events": [
   {
    "id": "dc56d980f527ffeef89940133b211b13",
@@ -146,15 +146,6 @@
    "game": "NE @ DET"
   },
   {
-   "id": "3c71d515b726f1096aabb435badb83fd",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "Kansas City Chiefs",
-   "game": "KC @ ATL"
-  },
-  {
    "id": "1057d50949844ddf483da9c8c20354be",
    "commence": "2026-11-15T18:00:00Z",
    "et_date": "2026-11-15",
@@ -225,15 +216,6 @@
    "home": "Dallas Cowboys",
    "away": "San Francisco 49ers",
    "game": "SF @ DAL"
-  },
-  {
-   "id": "48e497c230e6c9afcb3b600091d28e17",
-   "commence": "2026-11-16T01:20:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 8:20 PM ET",
-   "home": "Cincinnati Bengals",
-   "away": "Pittsburgh Steelers",
-   "game": "PIT @ CIN"
   },
   {
    "id": "35e3bdff558b5d1506251e814986f164",
