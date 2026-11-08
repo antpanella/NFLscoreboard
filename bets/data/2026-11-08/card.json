@@ -1,0 +1,221 @@
+{
+ "date": "2026-11-08",
+ "generated_at": "2026-11-08T13:15:16Z",
+ "headline": "Thin board: one play cleared the bar and held up to vetting. Every other edge was below its threshold.",
+ "total_units": 1,
+ "games": [
+  {
+   "event_id": "dc56d980f527ffeef89940133b211b13",
+   "game": "CIN @ ATL",
+   "kickoff_et": "Sun 9:30 AM ET",
+   "commence": "2026-11-08T14:30:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 48,
+   "picks": [],
+   "note": "No play. Best was Chase Brown under 23.5 rec yds (+4.3%, adjusted), short of 4.5%; Gesicki over 27.5 (+2.5% pinnacle) short of 3%."
+  },
+  {
+   "event_id": "014282b888c741b7d70c857c09f40aa7",
+   "game": "DEN @ CAR",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 42,
+   "picks": [],
+   "note": "No play. Jonah Coleman under 25.5 rec yds +3.2% adjusted, with Pinnacle and consensus disagreeing; nowhere near the bar."
+  },
+  {
+   "event_id": "e571bab6736f9338130a78a4f75c3231",
+   "game": "CLE @ NO",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 31,
+   "picks": [],
+   "note": "No play. Lines tight, nothing at or above fair worth noting."
+  },
+  {
+   "event_id": "415fc42e72888c63e82f7bce24c65391",
+   "game": "DAL @ IND",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 37,
+   "picks": [],
+   "note": "No play. Lines tight (IND +5.5 +0.6%, Taylor over 63.5 +0.4%)."
+  },
+  {
+   "event_id": "44d8c37868b700e90f816db7c5df5cdd",
+   "game": "DET @ MIA",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 34,
+   "picks": [
+    "6289c85f"
+   ],
+   "note": "Gibbs under 34.5 rec yds. Chris Bell under 24.5 (+4.0%, books disagree) cut."
+  },
+  {
+   "event_id": "e354e6a04b1cb9c96e549b863debb92e",
+   "game": "NYJ @ KC",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 42,
+   "picks": [],
+   "note": "No play. Breece Hall over 37.5 rush (+3.5%, books disagree) and NYJ +9.5 (+2.1% adjusted) both short of threshold."
+  },
+  {
+   "event_id": "89de07377e0aa8ffaa2ae6a7dc0855cc",
+   "game": "LAR @ WSH",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 39,
+   "picks": [],
+   "note": "No play. WSH +4.5 +1.9% at Pinnacle's number, just under 2.0%."
+  },
+  {
+   "event_id": "fe93e6ab1e553c0169936a0a983c324f",
+   "game": "NYG @ PHI",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-08T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 42,
+   "picks": [],
+   "note": "No play. Nabers anytime TD +3.7% at Pinnacle, below the 5% TD bar."
+  },
+  {
+   "event_id": "39aeac43cea7b12558b91cdab1255a10",
+   "game": "HOU @ LAC",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "commence": "2026-11-08T21:05:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 44,
+   "picks": [],
+   "note": "No play. Tre Harris over 29.5 (+4.3%, books disagree) and Schultz under 36.5 (+3.7%) short of threshold."
+  },
+  {
+   "event_id": "240e23b02b1e3fef655d04a286b5a623",
+   "game": "ARI @ SEA",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "commence": "2026-11-08T21:25:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 41,
+   "picks": [],
+   "note": "No play. Kupp over 24.5 +2.0% adjusted; lines tight."
+  },
+  {
+   "event_id": "2922c573ec3df8466c4a34975e446898",
+   "game": "GB @ NE",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "commence": "2026-11-08T21:25:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 42,
+   "picks": [],
+   "note": "No play. Lines tight."
+  },
+  {
+   "event_id": "ac9d38a18d5c92814233a31aa9a48d78",
+   "game": "LV @ SF",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "commence": "2026-11-08T21:25:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 46,
+   "picks": [],
+   "note": "No play. McCaffrey under 41.5 rec yds +4.1% adjusted, short of 4.5%."
+  },
+  {
+   "event_id": "9760d8f19f84bfee300a74ceb656c95d",
+   "game": "TB @ CHI",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "commence": "2026-11-09T01:20:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 77,
+   "picks": [],
+   "note": "No play. Lines tight, count props included."
+  }
+ ],
+ "picks": [
+  {
+   "id": "6289c85f",
+   "event_id": "44d8c37868b700e90f816db7c5df5cdd",
+   "game": "DET @ MIA",
+   "home": "Miami Dolphins",
+   "away": "Detroit Lions",
+   "commence": "2026-11-08T18:00:00Z",
+   "market": "player_reception_yds",
+   "subject": "Jahmyr Gibbs",
+   "side": "Under",
+   "point": 34.5,
+   "label": "Jahmyr Gibbs under 34.5 rec yds",
+   "dk_price": -111,
+   "fair_prob": 0.572,
+   "fair_price": -134,
+   "ev": 0.0873,
+   "source": "pinnacle-adjusted",
+   "dk_updated": "2026-11-08T13:13:14Z",
+   "from_point": 30.5,
+   "pin_vig": 0.0694,
+   "pin_updated": "2026-11-08T13:13:36Z",
+   "kind": "single",
+   "units": 1,
+   "reason": "DK hangs 34.5 while Pinnacle (30.5, over juiced), FanDuel 30.5, BetRivers 31.5, BetOnline 32.5 and MGM 33.5 all sit lower; St. Brown (rib) is expected to play, so Gibbs' target share shouldn't jump. Bovada also has 34.5, so the true edge is likely below the model's 8.7%.",
+   "date": "2026-11-08",
+   "recorded_at": "2026-11-08T13:15:16Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Tre Harris over 29.5 rec yds",
+   "why": "+4.3% adjusted but Pinnacle and consensus disagree, so the bar is 6.5%"
+  },
+  {
+   "label": "Chase Brown under 23.5 rec yds",
+   "why": "+4.3% adjusted, below the 4.5% bar"
+  },
+  {
+   "label": "Christian McCaffrey under 41.5 rec yds",
+   "why": "+4.1% adjusted, below the 4.5% bar"
+  },
+  {
+   "label": "Malik Nabers anytime TD +205",
+   "why": "+3.7% at Pinnacle, below the 5% TD bar"
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 2026-11-06 07:14Z (over 2 days old), so the schedule Action may be stuck. Today's slate matched the odds pull.",
+  "No parlay: only one play qualified.",
+  "Gibbs play is a 1 PM game; the late check will re-check inactives (out ~11:30 AM ET)."
+ ],
+ "credits_left": 346
+}
