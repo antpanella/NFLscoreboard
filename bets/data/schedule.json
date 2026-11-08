@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-06T07:14:09Z",
+ "updated": "2026-11-08T13:13:40Z",
  "events": [
   {
    "id": "dc56d980f527ffeef89940133b211b13",
@@ -83,15 +83,6 @@
    "game": "HOU @ LAC"
   },
   {
-   "id": "ac9d38a18d5c92814233a31aa9a48d78",
-   "commence": "2026-11-08T21:05:00Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "San Francisco 49ers",
-   "away": "Las Vegas Raiders",
-   "game": "LV @ SF"
-  },
-  {
    "id": "240e23b02b1e3fef655d04a286b5a623",
    "commence": "2026-11-08T21:25:00Z",
    "et_date": "2026-11-08",
@@ -108,6 +99,15 @@
    "home": "New England Patriots",
    "away": "Green Bay Packers",
    "game": "GB @ NE"
+  },
+  {
+   "id": "ac9d38a18d5c92814233a31aa9a48d78",
+   "commence": "2026-11-08T21:25:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "San Francisco 49ers",
+   "away": "Las Vegas Raiders",
+   "game": "LV @ SF"
   },
   {
    "id": "9760d8f19f84bfee300a74ceb656c95d",
