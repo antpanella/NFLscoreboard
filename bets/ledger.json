@@ -1673,7 +1673,13 @@
   "reason": "DK hangs 34.5 while Pinnacle (30.5, over juiced), FanDuel 30.5, BetRivers 31.5, BetOnline 32.5 and MGM 33.5 all sit lower; St. Brown (rib) is expected to play, so Gibbs' target share shouldn't jump. Bovada also has 34.5, so the true edge is likely below the model's 8.7%.",
   "date": "2026-11-08",
   "recorded_at": "2026-11-08T13:15:16Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.901,
+  "result_note": "0 rec yds",
+  "close_fair_prob": 0.5524,
+  "close_fair_price": -123,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.0501,
+  "graded_at": "2026-11-08T21:15:05Z"
  }
 ]
