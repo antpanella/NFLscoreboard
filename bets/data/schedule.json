@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T17:54:28Z",
+ "updated": "2026-11-08T17:59:29Z",
  "events": [
   {
    "id": "e571bab6736f9338130a78a4f75c3231",
@@ -9,15 +9,6 @@
    "home": "New Orleans Saints",
    "away": "Cleveland Browns",
    "game": "CLE @ NO"
-  },
-  {
-   "id": "44d8c37868b700e90f816db7c5df5cdd",
-   "commence": "2026-11-08T18:00:00Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Miami Dolphins",
-   "away": "Detroit Lions",
-   "game": "DET @ MIA"
   },
   {
    "id": "014282b888c741b7d70c857c09f40aa7",
@@ -36,6 +27,15 @@
    "home": "Indianapolis Colts",
    "away": "Dallas Cowboys",
    "game": "DAL @ IND"
+  },
+  {
+   "id": "44d8c37868b700e90f816db7c5df5cdd",
+   "commence": "2026-11-08T18:05:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Miami Dolphins",
+   "away": "Detroit Lions",
+   "game": "DET @ MIA"
   },
   {
    "id": "e354e6a04b1cb9c96e549b863debb92e",
