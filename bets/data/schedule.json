@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T21:10:03Z",
+ "updated": "2026-11-08T21:20:07Z",
  "events": [
   {
    "id": "e571bab6736f9338130a78a4f75c3231",
@@ -9,15 +9,6 @@
    "home": "New Orleans Saints",
    "away": "Cleveland Browns",
    "game": "CLE @ NO"
-  },
-  {
-   "id": "e354e6a04b1cb9c96e549b863debb92e",
-   "commence": "2026-11-08T18:02:51Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Kansas City Chiefs",
-   "away": "New York Jets",
-   "game": "NYJ @ KC"
   },
   {
    "id": "fe93e6ab1e553c0169936a0a983c324f",
