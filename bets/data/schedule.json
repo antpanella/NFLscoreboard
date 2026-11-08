@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T21:30:10Z",
+ "updated": "2026-11-08T21:35:12Z",
  "events": [
   {
    "id": "e571bab6736f9338130a78a4f75c3231",
@@ -9,15 +9,6 @@
    "home": "New Orleans Saints",
    "away": "Cleveland Browns",
    "game": "CLE @ NO"
-  },
-  {
-   "id": "fe93e6ab1e553c0169936a0a983c324f",
-   "commence": "2026-11-08T18:02:51Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "New York Giants",
-   "game": "NYG @ PHI"
   },
   {
    "id": "415fc42e72888c63e82f7bce24c65391",
