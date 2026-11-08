@@ -217,5 +217,15 @@
   "No parlay: only one play qualified.",
   "Gibbs play is a 1 PM game; the late check will re-check inactives (out ~11:30 AM ET)."
  ],
- "credits_left": 346
+ "credits_left": 346,
+ "late_checks": [
+  {
+   "at": "2026-11-08T16:41:48Z",
+   "games": [
+    "DET @ MIA"
+   ],
+   "scratched": [],
+   "note": "St. Brown (ribs) active as expected; no news against the Gibbs rec-yds under. Play stands."
+  }
+ ]
 }
