@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T17:49:26Z",
+ "updated": "2026-11-08T17:54:28Z",
  "events": [
   {
    "id": "e571bab6736f9338130a78a4f75c3231",
@@ -20,15 +20,6 @@
    "game": "DET @ MIA"
   },
   {
-   "id": "e354e6a04b1cb9c96e549b863debb92e",
-   "commence": "2026-11-08T18:00:00Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Kansas City Chiefs",
-   "away": "New York Jets",
-   "game": "NYJ @ KC"
-  },
-  {
    "id": "014282b888c741b7d70c857c09f40aa7",
    "commence": "2026-11-08T18:05:00Z",
    "et_date": "2026-11-08",
@@ -45,6 +36,15 @@
    "home": "Indianapolis Colts",
    "away": "Dallas Cowboys",
    "game": "DAL @ IND"
+  },
+  {
+   "id": "e354e6a04b1cb9c96e549b863debb92e",
+   "commence": "2026-11-08T18:05:00Z",
+   "et_date": "2026-11-08",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Kansas City Chiefs",
+   "away": "New York Jets",
+   "game": "NYJ @ KC"
   },
   {
    "id": "89de07377e0aa8ffaa2ae6a7dc0855cc",
