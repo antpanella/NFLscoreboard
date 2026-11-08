@@ -1,24 +1,6 @@
 {
- "updated": "2026-11-08T21:35:12Z",
+ "updated": "2026-11-08T21:50:15Z",
  "events": [
-  {
-   "id": "e571bab6736f9338130a78a4f75c3231",
-   "commence": "2026-11-08T18:02:45Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "New Orleans Saints",
-   "away": "Cleveland Browns",
-   "game": "CLE @ NO"
-  },
-  {
-   "id": "415fc42e72888c63e82f7bce24c65391",
-   "commence": "2026-11-08T18:03:06Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 1:03 PM ET",
-   "home": "Indianapolis Colts",
-   "away": "Dallas Cowboys",
-   "game": "DAL @ IND"
-  },
   {
    "id": "39aeac43cea7b12558b91cdab1255a10",
    "commence": "2026-11-08T21:05:49Z",
