@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-09T00:30:34Z",
+ "updated": "2026-11-09T00:40:45Z",
  "events": [
   {
    "id": "39aeac43cea7b12558b91cdab1255a10",
@@ -18,15 +18,6 @@
    "home": "New England Patriots",
    "away": "Green Bay Packers",
    "game": "GB @ NE"
-  },
-  {
-   "id": "240e23b02b1e3fef655d04a286b5a623",
-   "commence": "2026-11-08T21:25:42Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Seattle Seahawks",
-   "away": "Arizona Cardinals",
-   "game": "ARI @ SEA"
   },
   {
    "id": "9760d8f19f84bfee300a74ceb656c95d",
