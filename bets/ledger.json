@@ -1681,5 +1681,33 @@
   "close_source": "pinnacle-adjusted",
   "clv": 0.0501,
   "graded_at": "2026-11-08T21:15:05Z"
+ },
+ {
+  "id": "11342dc6",
+  "event_id": "17ad7eff2f7875e20a8109abe40470e3",
+  "game": "BUF @ MIN",
+  "home": "Minnesota Vikings",
+  "away": "Buffalo Bills",
+  "commence": "2026-11-10T01:15:00Z",
+  "market": "player_anytime_td",
+  "subject": "Khalil Shakir",
+  "side": "Yes",
+  "point": null,
+  "label": "Khalil Shakir anytime TD",
+  "dk_price": 360,
+  "fair_prob": 0.2289,
+  "fair_price": 337,
+  "ev": 0.0531,
+  "source": "pinnacle",
+  "dk_updated": "2026-11-09T23:56:10Z",
+  "pin_vig": 0.0475,
+  "pin_updated": "2026-11-09T23:55:17Z",
+  "kind": "single",
+  "units": 0.5,
+  "reason": "DK +360 vs Pinnacle fair +337 at the same moment; Shakir is active with no designation (full practice, personal matter only) and Palmer's absence keeps his role intact; indoor game.",
+  "date": "2026-11-09",
+  "recorded_at": "2026-11-09T23:57:22Z",
+  "result": null,
+  "pl": null
  }
 ]

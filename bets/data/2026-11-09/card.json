@@ -1,0 +1,67 @@
+{
+ "date": "2026-11-09",
+ "generated_at": "2026-11-09T23:57:22Z",
+ "headline": "Single-game Monday: one small play. Only Khalil Shakir's anytime TD clears the bar at an exact Pinnacle number; everything else in BUF @ MIN is priced tight.",
+ "total_units": 0.5,
+ "games": [
+  {
+   "event_id": "17ad7eff2f7875e20a8109abe40470e3",
+   "game": "BUF @ MIN",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-11-10T01:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 97,
+   "picks": [
+    "11342dc6"
+   ],
+   "note": "One play (Shakir ATD, 0.5u under the TD cap). Wentz starts for Murray (out); his props and the Mason under came close but did not clear. Single game, so no parlay is possible."
+  }
+ ],
+ "picks": [
+  {
+   "id": "11342dc6",
+   "event_id": "17ad7eff2f7875e20a8109abe40470e3",
+   "game": "BUF @ MIN",
+   "home": "Minnesota Vikings",
+   "away": "Buffalo Bills",
+   "commence": "2026-11-10T01:15:00Z",
+   "market": "player_anytime_td",
+   "subject": "Khalil Shakir",
+   "side": "Yes",
+   "point": null,
+   "label": "Khalil Shakir anytime TD",
+   "dk_price": 360,
+   "fair_prob": 0.2289,
+   "fair_price": 337,
+   "ev": 0.0531,
+   "source": "pinnacle",
+   "dk_updated": "2026-11-09T23:56:10Z",
+   "pin_vig": 0.0475,
+   "pin_updated": "2026-11-09T23:55:17Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "DK +360 vs Pinnacle fair +337 at the same moment; Shakir is active with no designation (full practice, personal matter only) and Palmer's absence keeps his role intact; indoor game.",
+   "date": "2026-11-09",
+   "recorded_at": "2026-11-09T23:57:22Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Jordan Mason under 48.5 rush yds",
+   "why": "+4.4% pinnacle-adjusted, just short of the 4.5% bar"
+  },
+  {
+   "label": "Carson Wentz under 1.5 pass TDs",
+   "why": "+3.1% but Pinnacle and consensus disagree by >4 pts, so the bar rises to 5.0%"
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 2026-11-09 04:56Z (~19h before this run); the Action may be stuck, but today's odds pull ran fine.",
+  "Single-game day: no parlay is possible (legs must come from different games)."
+ ],
+ "credits_left": 333
+}
