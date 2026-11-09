@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08T22:50:23Z",
+ "updated": "2026-11-09T00:30:34Z",
  "events": [
   {
    "id": "39aeac43cea7b12558b91cdab1255a10",
@@ -18,15 +18,6 @@
    "home": "New England Patriots",
    "away": "Green Bay Packers",
    "game": "GB @ NE"
-  },
-  {
-   "id": "ac9d38a18d5c92814233a31aa9a48d78",
-   "commence": "2026-11-08T21:25:35Z",
-   "et_date": "2026-11-08",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "San Francisco 49ers",
-   "away": "Las Vegas Raiders",
-   "game": "LV @ SF"
   },
   {
    "id": "240e23b02b1e3fef655d04a286b5a623",
