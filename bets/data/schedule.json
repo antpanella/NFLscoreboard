@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10T04:42:12Z",
+ "updated": "2026-11-10T04:47:13Z",
  "events": [
   {
    "id": "74d39e19225caf211ad2c8eb4110179f",
@@ -54,6 +54,15 @@
    "home": "Cleveland Browns",
    "away": "Houston Texans",
    "game": "HOU @ CLE"
+  },
+  {
+   "id": "5d8d85473b87f772a979ecf294acab94",
+   "commence": "2026-11-15T18:00:00Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Green Bay Packers",
+   "away": "Minnesota Vikings",
+   "game": "MIN @ GB"
   },
   {
    "id": "b5700b4d938fd94429f60d4622cc9c0a",
