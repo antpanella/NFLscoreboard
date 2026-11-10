@@ -1707,7 +1707,14 @@
   "reason": "DK +360 vs Pinnacle fair +337 at the same moment; Shakir is active with no designation (full practice, personal matter only) and Palmer's absence keeps his role intact; indoor game.",
   "date": "2026-11-09",
   "recorded_at": "2026-11-09T23:57:22Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.2289,
+  "close_fair_price": 337,
+  "close_source": "pinnacle",
+  "clv": 0.0531,
+  "close_dk_price": 300,
+  "graded_at": "2026-11-10T04:32:09Z"
  }
 ]
