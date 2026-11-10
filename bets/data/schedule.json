@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10T01:21:49Z",
+ "updated": "2026-11-10T01:31:54Z",
  "events": [
   {
    "id": "17ad7eff2f7875e20a8109abe40470e3",
@@ -38,15 +38,6 @@
    "game": "KC @ ATL"
   },
   {
-   "id": "1057d50949844ddf483da9c8c20354be",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "New York Jets",
-   "away": "Buffalo Bills",
-   "game": "BUF @ NYJ"
-  },
-  {
    "id": "e5aa20e1364dd639f042af1c2281bbe2",
    "commence": "2026-11-15T18:00:00Z",
    "et_date": "2026-11-15",
@@ -63,15 +54,6 @@
    "home": "Cleveland Browns",
    "away": "Houston Texans",
    "game": "HOU @ CLE"
-  },
-  {
-   "id": "5d8d85473b87f772a979ecf294acab94",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Green Bay Packers",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ GB"
   },
   {
    "id": "b5700b4d938fd94429f60d4622cc9c0a",
