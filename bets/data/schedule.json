@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T17:47:44Z",
+ "updated": "2026-11-15T17:52:47Z",
  "events": [
   {
    "id": "be0e03cc42fbc9b6962467b22c7bf9dd",
@@ -18,15 +18,6 @@
    "home": "Indianapolis Colts",
    "away": "Miami Dolphins",
    "game": "MIA @ IND"
-  },
-  {
-   "id": "28800df7e768ecec14f116454d560f9b",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Tennessee Titans",
-   "away": "Jacksonville Jaguars",
-   "game": "JAX @ TEN"
   },
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
@@ -63,6 +54,15 @@
    "home": "Green Bay Packers",
    "away": "Minnesota Vikings",
    "game": "MIN @ GB"
+  },
+  {
+   "id": "28800df7e768ecec14f116454d560f9b",
+   "commence": "2026-11-15T18:05:00Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Tennessee Titans",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ TEN"
   },
   {
    "id": "6c932a965110f3f89ec4a5f1a6ac256e",
