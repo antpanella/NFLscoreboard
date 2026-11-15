@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T14:37:26Z",
+ "updated": "2026-11-15T14:52:29Z",
  "events": [
   {
    "id": "b8c10fdf1e0ac4e13deee7f7c0af0b0b",
@@ -171,15 +171,6 @@
    "home": "Dallas Cowboys",
    "away": "Tennessee Titans",
    "game": "TEN @ DAL"
-  },
-  {
-   "id": "41e2dd69bddd65d7e823d9ed61cc2afc",
-   "commence": "2026-11-22T18:00:00Z",
-   "et_date": "2026-11-22",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Detroit Lions",
-   "away": "Tampa Bay Buccaneers",
-   "game": "TB @ DET"
   },
   {
    "id": "cbe45bafcc2615fc1d96cbc12840377a",
