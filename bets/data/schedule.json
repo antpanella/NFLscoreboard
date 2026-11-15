@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T22:58:54Z",
+ "updated": "2026-11-15T23:03:58Z",
  "events": [
   {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
@@ -144,6 +144,15 @@
    "home": "New York Giants",
    "away": "Jacksonville Jaguars",
    "game": "JAX @ NYG"
+  },
+  {
+   "id": "60e1d27b083a335b722c2c852ea85612",
+   "commence": "2026-11-23T01:20:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "home": "San Francisco 49ers",
+   "away": "Minnesota Vikings",
+   "game": "MIN @ SF"
   },
   {
    "id": "3a60ed1d20004aa4d4772b2c1a2272e7",
