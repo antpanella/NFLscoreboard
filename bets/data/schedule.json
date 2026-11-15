@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T22:43:44Z",
+ "updated": "2026-11-15T22:48:50Z",
  "events": [
   {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
@@ -45,6 +45,51 @@
    "home": "Baltimore Ravens",
    "away": "Los Angeles Chargers",
    "game": "LAC @ BAL"
+  },
+  {
+   "id": "66f9e83cf025d58acee12bce18661fb3",
+   "commence": "2026-11-20T01:15:00Z",
+   "et_date": "2026-11-19",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Houston Texans",
+   "away": "Indianapolis Colts",
+   "game": "IND @ HOU"
+  },
+  {
+   "id": "4527f57f5bc32742d8194af1ccf7da7e",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Carolina Panthers",
+   "away": "Baltimore Ravens",
+   "game": "BAL @ CAR"
+  },
+  {
+   "id": "4c5b1c0843a260278e95eb93e7787576",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Buffalo Bills",
+   "away": "Miami Dolphins",
+   "game": "MIA @ BUF"
+  },
+  {
+   "id": "3ea90704fb576633bd1e2fa5aafd9ea3",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Chicago Bears",
+   "away": "New Orleans Saints",
+   "game": "NO @ CHI"
+  },
+  {
+   "id": "5e63079b678f8c13419adc169fff02d3",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Dallas Cowboys",
+   "away": "Tennessee Titans",
+   "game": "TEN @ DAL"
   },
   {
    "id": "8ba112fabf4e87639338a5f437c5abfe",
