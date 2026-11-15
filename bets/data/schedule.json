@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T21:33:34Z",
+ "updated": "2026-11-15T22:43:44Z",
  "events": [
   {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
@@ -45,6 +45,15 @@
    "home": "Baltimore Ravens",
    "away": "Los Angeles Chargers",
    "game": "LAC @ BAL"
+  },
+  {
+   "id": "8ba112fabf4e87639338a5f437c5abfe",
+   "commence": "2026-11-22T21:25:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "New York Giants",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ NYG"
   },
   {
    "id": "3a60ed1d20004aa4d4772b2c1a2272e7",
