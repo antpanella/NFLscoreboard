@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T22:53:52Z",
+ "updated": "2026-11-15T22:58:54Z",
  "events": [
   {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
@@ -54,6 +54,15 @@
    "home": "Houston Texans",
    "away": "Indianapolis Colts",
    "game": "IND @ HOU"
+  },
+  {
+   "id": "403a88701352da05b0710a9e883b803e",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Kansas City Chiefs",
+   "away": "Arizona Cardinals",
+   "game": "ARI @ KC"
   },
   {
    "id": "4527f57f5bc32742d8194af1ccf7da7e",
