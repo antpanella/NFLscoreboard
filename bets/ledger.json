@@ -1779,8 +1779,15 @@
   "reason": "Pinnacle and six other books agree on about 17.5% for Tennessee; DK's +525 is the outlier on a dog with Cam Ward starting and no new Titans injuries beyond those already priced in. Held at 1u, not 2u, because the line has moved 8 points since open.",
   "date": "2026-11-15",
   "recorded_at": "2026-11-15T13:13:42Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -1,
+  "result_note": "JAX 40 - TEN 23",
+  "close_fair_prob": 0.1908,
+  "close_fair_price": 424,
+  "close_source": "pinnacle",
+  "clv": 0.1927,
+  "close_dk_price": 470,
+  "graded_at": "2026-11-15T21:18:28Z"
  },
  {
   "id": "7c275e75",
@@ -1843,7 +1850,12 @@
     "from_point": 25.5,
     "pin_vig": 0.0565,
     "pin_updated": "2026-11-15T13:11:22Z",
-    "result": null
+    "result": "win",
+    "result_note": "6 rec yds",
+    "close_fair_prob": 0.5677,
+    "close_fair_price": -131,
+    "close_source": "pinnacle-adjusted",
+    "clv": 0.07
    },
    {
     "id": "03cc6c0b",
@@ -1867,7 +1879,13 @@
     "pin_updated": "2026-11-15T13:11:53Z",
     "consensus_prob": 0.1713,
     "consensus_books": 6,
-    "result": null
+    "result": "loss",
+    "result_note": "JAX 40 - TEN 23",
+    "close_fair_prob": 0.1908,
+    "close_fair_price": 424,
+    "close_source": "pinnacle",
+    "clv": 0.1927,
+    "close_dk_price": 470
    }
   ],
   "dk_price": 1078,
@@ -1879,7 +1897,8 @@
   "reason": "Two standalone plays from different games; about +1078 at DK against +903 fair (EV about 17%).",
   "date": "2026-11-15",
   "recorded_at": "2026-11-15T13:13:42Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "graded_at": "2026-11-15T21:18:28Z"
  }
 ]
