@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T18:17:53Z",
+ "updated": "2026-11-15T21:03:22Z",
  "events": [
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
@@ -84,9 +84,9 @@
   },
   {
    "id": "7627192fd89b05120ab6c712aa23fd81",
-   "commence": "2026-11-15T21:25:00Z",
+   "commence": "2026-11-15T21:28:00Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 4:25 PM ET",
+   "kickoff_et": "Sun 4:28 PM ET",
    "home": "Dallas Cowboys",
    "away": "San Francisco 49ers",
    "game": "SF @ DAL"
