@@ -1,24 +1,6 @@
 {
- "updated": "2026-11-15T17:52:47Z",
+ "updated": "2026-11-15T17:57:48Z",
  "events": [
-  {
-   "id": "be0e03cc42fbc9b6962467b22c7bf9dd",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Cleveland Browns",
-   "away": "Houston Texans",
-   "game": "HOU @ CLE"
-  },
-  {
-   "id": "b5700b4d938fd94429f60d4622cc9c0a",
-   "commence": "2026-11-15T18:00:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Indianapolis Colts",
-   "away": "Miami Dolphins",
-   "game": "MIA @ IND"
-  },
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
    "commence": "2026-11-15T18:05:00Z",
@@ -47,6 +29,15 @@
    "game": "CAR @ NO"
   },
   {
+   "id": "be0e03cc42fbc9b6962467b22c7bf9dd",
+   "commence": "2026-11-15T18:05:00Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Cleveland Browns",
+   "away": "Houston Texans",
+   "game": "HOU @ CLE"
+  },
+  {
    "id": "5d8d85473b87f772a979ecf294acab94",
    "commence": "2026-11-15T18:05:00Z",
    "et_date": "2026-11-15",
@@ -54,6 +45,15 @@
    "home": "Green Bay Packers",
    "away": "Minnesota Vikings",
    "game": "MIN @ GB"
+  },
+  {
+   "id": "b5700b4d938fd94429f60d4622cc9c0a",
+   "commence": "2026-11-15T18:05:00Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 1:05 PM ET",
+   "home": "Indianapolis Colts",
+   "away": "Miami Dolphins",
+   "game": "MIA @ IND"
   },
   {
    "id": "28800df7e768ecec14f116454d560f9b",
