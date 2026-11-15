@@ -1,68 +1,68 @@
 {
- "updated": "2026-11-15T17:57:48Z",
+ "updated": "2026-11-15T18:07:50Z",
  "events": [
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
-   "commence": "2026-11-15T18:05:00Z",
+   "commence": "2026-11-15T18:02:21Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
+   "kickoff_et": "Sun 1:02 PM ET",
    "home": "Atlanta Falcons",
    "away": "Kansas City Chiefs",
    "game": "KC @ ATL"
   },
   {
-   "id": "1057d50949844ddf483da9c8c20354be",
-   "commence": "2026-11-15T18:05:00Z",
+   "id": "5d8d85473b87f772a979ecf294acab94",
+   "commence": "2026-11-15T18:02:43Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
-   "home": "New York Jets",
-   "away": "Buffalo Bills",
-   "game": "BUF @ NYJ"
+   "kickoff_et": "Sun 1:02 PM ET",
+   "home": "Green Bay Packers",
+   "away": "Minnesota Vikings",
+   "game": "MIN @ GB"
+  },
+  {
+   "id": "28800df7e768ecec14f116454d560f9b",
+   "commence": "2026-11-15T18:02:45Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 1:02 PM ET",
+   "home": "Tennessee Titans",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ TEN"
   },
   {
    "id": "e5aa20e1364dd639f042af1c2281bbe2",
-   "commence": "2026-11-15T18:05:00Z",
+   "commence": "2026-11-15T18:02:49Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
+   "kickoff_et": "Sun 1:02 PM ET",
    "home": "New Orleans Saints",
    "away": "Carolina Panthers",
    "game": "CAR @ NO"
   },
   {
    "id": "be0e03cc42fbc9b6962467b22c7bf9dd",
-   "commence": "2026-11-15T18:05:00Z",
+   "commence": "2026-11-15T18:02:50Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
+   "kickoff_et": "Sun 1:02 PM ET",
    "home": "Cleveland Browns",
    "away": "Houston Texans",
    "game": "HOU @ CLE"
   },
   {
-   "id": "5d8d85473b87f772a979ecf294acab94",
-   "commence": "2026-11-15T18:05:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
-   "home": "Green Bay Packers",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ GB"
-  },
-  {
    "id": "b5700b4d938fd94429f60d4622cc9c0a",
-   "commence": "2026-11-15T18:05:00Z",
+   "commence": "2026-11-15T18:03:01Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
+   "kickoff_et": "Sun 1:03 PM ET",
    "home": "Indianapolis Colts",
    "away": "Miami Dolphins",
    "game": "MIA @ IND"
   },
   {
-   "id": "28800df7e768ecec14f116454d560f9b",
-   "commence": "2026-11-15T18:05:00Z",
+   "id": "1057d50949844ddf483da9c8c20354be",
+   "commence": "2026-11-15T18:03:31Z",
    "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:05 PM ET",
-   "home": "Tennessee Titans",
-   "away": "Jacksonville Jaguars",
-   "game": "JAX @ TEN"
+   "kickoff_et": "Sun 1:03 PM ET",
+   "home": "New York Jets",
+   "away": "Buffalo Bills",
+   "game": "BUF @ NYJ"
   },
   {
    "id": "6c932a965110f3f89ec4a5f1a6ac256e",
