@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T21:08:24Z",
+ "updated": "2026-11-15T21:13:26Z",
  "events": [
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
@@ -9,15 +9,6 @@
    "home": "Atlanta Falcons",
    "away": "Kansas City Chiefs",
    "game": "KC @ ATL"
-  },
-  {
-   "id": "5d8d85473b87f772a979ecf294acab94",
-   "commence": "2026-11-15T18:02:43Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 1:02 PM ET",
-   "home": "Green Bay Packers",
-   "away": "Minnesota Vikings",
-   "game": "MIN @ GB"
   },
   {
    "id": "28800df7e768ecec14f116454d560f9b",
