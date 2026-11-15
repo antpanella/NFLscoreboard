@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T22:48:50Z",
+ "updated": "2026-11-15T22:53:52Z",
  "events": [
   {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
@@ -90,6 +90,42 @@
    "home": "Dallas Cowboys",
    "away": "Tennessee Titans",
    "game": "TEN @ DAL"
+  },
+  {
+   "id": "41e2dd69bddd65d7e823d9ed61cc2afc",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Detroit Lions",
+   "away": "Tampa Bay Buccaneers",
+   "game": "TB @ DET"
+  },
+  {
+   "id": "cbe45bafcc2615fc1d96cbc12840377a",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Philadelphia Eagles",
+   "away": "Pittsburgh Steelers",
+   "game": "PIT @ PHI"
+  },
+  {
+   "id": "4b20b742b6168aaca4f25d87f11b1526",
+   "commence": "2026-11-22T21:05:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "home": "Los Angeles Chargers",
+   "away": "New York Jets",
+   "game": "NYJ @ LAC"
+  },
+  {
+   "id": "1940706a79cbcbafacdcbf231069716b",
+   "commence": "2026-11-22T21:25:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Denver Broncos",
+   "away": "Las Vegas Raiders",
+   "game": "LV @ DEN"
   },
   {
    "id": "8ba112fabf4e87639338a5f437c5abfe",
