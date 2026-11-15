@@ -1743,8 +1743,14 @@
   "reason": "Hunter Henry is cleared to play a normal role, which shrinks Raridon's share; Pinnacle (updated after DraftKings) sits at 25.5, so DK's 28.5 is the stale number.",
   "date": "2026-11-15",
   "recorded_at": "2026-11-15T13:13:42Z",
-  "result": null,
-  "pl": null
+  "result": "win",
+  "pl": 0.885,
+  "result_note": "6 rec yds",
+  "close_fair_prob": 0.5677,
+  "close_fair_price": -131,
+  "close_source": "pinnacle-adjusted",
+  "clv": 0.07,
+  "graded_at": "2026-11-15T17:47:44Z"
  },
  {
   "id": "03cc6c0b",
@@ -1801,8 +1807,15 @@
   "reason": "TreVeyon Henderson is out ill and Stevenson is questionable, so the Patriots have a thin backfield near the goal line; Pinnacle (updated more recently) has Maye at 26.6% and DK hasn't followed. TD cap: 0.5u.",
   "date": "2026-11-15",
   "recorded_at": "2026-11-15T13:13:42Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.2658,
+  "close_fair_price": 276,
+  "close_source": "pinnacle",
+  "clv": 0.1431,
+  "close_dk_price": 320,
+  "graded_at": "2026-11-15T17:47:44Z"
  },
  {
   "id": "p9a31fa3",
