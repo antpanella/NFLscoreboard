@@ -322,5 +322,15 @@
   "schedule.json was last updated 2026-11-13 07:11Z (over 2 hours old). The 15-minute schedule Action may be stuck; today's games matched the odds pull, so the card is unaffected.",
   "Odds credits left after this pull: 276."
  ],
- "credits_left": 276
+ "credits_left": 276,
+ "late_checks": [
+  {
+   "at": "2026-11-15T16:50:14Z",
+   "games": [
+    "JAX @ TEN"
+   ],
+   "scratched": [],
+   "note": "TEN ML holds: Cam Ward active; Titans inactives (WR Tate, RB Singleton, LBs Barton and Hill) were known before the card; 53F, no weather issue. Re-price run's result was lost to a push conflict (3 credits spent), so judged on news; DK now shows TEN +500, toward fair."
+  }
+ ]
 }
