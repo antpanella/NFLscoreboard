@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T21:03:22Z",
+ "updated": "2026-11-15T21:08:24Z",
  "events": [
   {
    "id": "3c71d515b726f1096aabb435badb83fd",
@@ -65,22 +65,22 @@
    "game": "BUF @ NYJ"
   },
   {
-   "id": "6c932a965110f3f89ec4a5f1a6ac256e",
-   "commence": "2026-11-15T21:05:00Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Los Angeles Rams",
-   "game": "LAR @ ARI"
-  },
-  {
    "id": "6079a5cbabf99b265a17edfc92a1da60",
-   "commence": "2026-11-15T21:05:00Z",
+   "commence": "2026-11-15T21:05:16Z",
    "et_date": "2026-11-15",
    "kickoff_et": "Sun 4:05 PM ET",
    "home": "Las Vegas Raiders",
    "away": "Seattle Seahawks",
    "game": "SEA @ LV"
+  },
+  {
+   "id": "6c932a965110f3f89ec4a5f1a6ac256e",
+   "commence": "2026-11-15T21:05:45Z",
+   "et_date": "2026-11-15",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "home": "Arizona Cardinals",
+   "away": "Los Angeles Rams",
+   "game": "LAR @ ARI"
   },
   {
    "id": "7627192fd89b05120ab6c712aa23fd81",
