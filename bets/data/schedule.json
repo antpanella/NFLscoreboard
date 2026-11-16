@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-16T01:24:33Z",
+ "updated": "2026-11-16T01:39:36Z",
  "events": [
   {
    "id": "48e497c230e6c9afcb3b600091d28e17",
@@ -83,15 +83,6 @@
    "game": "TB @ DET"
   },
   {
-   "id": "cbe45bafcc2615fc1d96cbc12840377a",
-   "commence": "2026-11-22T18:00:00Z",
-   "et_date": "2026-11-22",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Philadelphia Eagles",
-   "away": "Pittsburgh Steelers",
-   "game": "PIT @ PHI"
-  },
-  {
    "id": "4b20b742b6168aaca4f25d87f11b1526",
    "commence": "2026-11-22T21:05:00Z",
    "et_date": "2026-11-22",
@@ -126,15 +117,6 @@
    "home": "San Francisco 49ers",
    "away": "Minnesota Vikings",
    "game": "MIN @ SF"
-  },
-  {
-   "id": "3a60ed1d20004aa4d4772b2c1a2272e7",
-   "commence": "2026-11-24T01:15:00Z",
-   "et_date": "2026-11-23",
-   "kickoff_et": "Mon 8:15 PM ET",
-   "home": "Washington Commanders",
-   "away": "Cincinnati Bengals",
-   "game": "CIN @ WSH"
   }
  ]
 }
