@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-16T01:39:36Z",
+ "updated": "2026-11-16T04:40:01Z",
  "events": [
-  {
-   "id": "48e497c230e6c9afcb3b600091d28e17",
-   "commence": "2026-11-16T01:22:32Z",
-   "et_date": "2026-11-15",
-   "kickoff_et": "Sun 8:22 PM ET",
-   "home": "Cincinnati Bengals",
-   "away": "Pittsburgh Steelers",
-   "game": "PIT @ CIN"
-  },
   {
    "id": "35e3bdff558b5d1506251e814986f164",
    "commence": "2026-11-17T01:15:00Z",
@@ -81,6 +72,15 @@
    "home": "Detroit Lions",
    "away": "Tampa Bay Buccaneers",
    "game": "TB @ DET"
+  },
+  {
+   "id": "cbe45bafcc2615fc1d96cbc12840377a",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Philadelphia Eagles",
+   "away": "Pittsburgh Steelers",
+   "game": "PIT @ PHI"
   },
   {
    "id": "4b20b742b6168aaca4f25d87f11b1526",
