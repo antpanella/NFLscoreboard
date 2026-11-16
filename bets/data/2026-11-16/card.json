@@ -1,0 +1,32 @@
+{
+ "date": "2026-11-16",
+ "generated_at": "2026-11-16T23:56:48Z",
+ "headline": "No plays for Monday night. DraftKings is priced at or near Pinnacle's fair line on everything in LAC @ BAL; nothing clears the thresholds.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "35e3bdff558b5d1506251e814986f164",
+   "game": "LAC @ BAL",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-11-17T01:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 114,
+   "picks": [],
+   "note": "Lines tight. Best edge was Ja'Kobi Lane anytime TD +475 at +4.5% vs Pinnacle, under the 5.0% TD bar; next best +1.1%."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Ja'Kobi Lane anytime TD +475",
+   "why": "+4.5% at Pinnacle's exact number, below the 5.0% anytime-TD threshold"
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 2026-11-16 04:45Z (about 19 h before this pull); the scheduled Action may be lagging, odds pull itself ran fine.",
+  "No parlay: single-game day and no qualifying legs."
+ ],
+ "credits_left": 256
+}
