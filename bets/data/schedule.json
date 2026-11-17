@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-17T04:07:20Z",
+ "updated": "2026-11-17T13:30:20Z",
  "events": [
-  {
-   "id": "35e3bdff558b5d1506251e814986f164",
-   "commence": "2026-11-17T01:16:19Z",
-   "et_date": "2026-11-16",
-   "kickoff_et": "Mon 8:16 PM ET",
-   "home": "Baltimore Ravens",
-   "away": "Los Angeles Chargers",
-   "game": "LAC @ BAL"
-  },
   {
    "id": "66f9e83cf025d58acee12bce18661fb3",
    "commence": "2026-11-20T01:15:00Z",
@@ -27,6 +18,15 @@
    "home": "Kansas City Chiefs",
    "away": "Arizona Cardinals",
    "game": "ARI @ KC"
+  },
+  {
+   "id": "4527f57f5bc32742d8194af1ccf7da7e",
+   "commence": "2026-11-22T18:00:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Carolina Panthers",
+   "away": "Baltimore Ravens",
+   "game": "BAL @ CAR"
   },
   {
    "id": "4c5b1c0843a260278e95eb93e7787576",
@@ -72,6 +72,15 @@
    "home": "Philadelphia Eagles",
    "away": "Pittsburgh Steelers",
    "game": "PIT @ PHI"
+  },
+  {
+   "id": "4b20b742b6168aaca4f25d87f11b1526",
+   "commence": "2026-11-22T21:05:00Z",
+   "et_date": "2026-11-22",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "home": "Los Angeles Chargers",
+   "away": "New York Jets",
+   "game": "NYJ @ LAC"
   },
   {
    "id": "1940706a79cbcbafacdcbf231069716b",
