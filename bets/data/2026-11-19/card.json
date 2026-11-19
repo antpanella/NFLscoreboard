@@ -1,0 +1,126 @@
+{
+ "date": "2026-11-19",
+ "generated_at": "2026-11-19T23:58:28Z",
+ "headline": "One game tonight (IND @ HOU) and three small edges at Pinnacle's price: two anytime-TD longshots at the 0.5u cap and a Treadwell receiving under. 1.5u total.",
+ "total_units": 1.5,
+ "games": [
+  {
+   "event_id": "66f9e83cf025d58acee12bce18661fb3",
+   "game": "IND @ HOU",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "commence": "2026-11-20T01:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 101,
+   "picks": [
+    "8c736823",
+    "a269a94e",
+    "db5a8298"
+   ],
+   "note": "Three plays at 0.5u each. Colts are without both starting tackles and both outside corners; Texans -12.5. No parlay: single-game slate."
+  }
+ ],
+ "picks": [
+  {
+   "id": "8c736823",
+   "event_id": "66f9e83cf025d58acee12bce18661fb3",
+   "game": "IND @ HOU",
+   "home": "Houston Texans",
+   "away": "Indianapolis Colts",
+   "commence": "2026-11-20T01:15:00Z",
+   "market": "player_reception_yds",
+   "subject": "Laquon Treadwell",
+   "side": "Under",
+   "point": 27.5,
+   "label": "Laquon Treadwell under 27.5 rec yds",
+   "dk_price": -114,
+   "fair_prob": 0.5768,
+   "fair_price": -136,
+   "ev": 0.0828,
+   "source": "pinnacle-adjusted",
+   "dk_updated": "2026-11-19T23:55:34Z",
+   "from_point": 24.5,
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-11-19T23:54:54Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "Pinnacle hangs 24.5 with Pierce and Mallory already ruled out, so DK's 27.5 is the outlier; 0.5u because Pittman's status (limited Wednesday) leaves Treadwell's role uncertain.",
+   "date": "2026-11-19",
+   "recorded_at": "2026-11-19T23:58:28Z",
+   "result": null,
+   "pl": null
+  },
+  {
+   "id": "a269a94e",
+   "event_id": "66f9e83cf025d58acee12bce18661fb3",
+   "game": "IND @ HOU",
+   "home": "Houston Texans",
+   "away": "Indianapolis Colts",
+   "commence": "2026-11-20T01:15:00Z",
+   "market": "player_anytime_td",
+   "subject": "Daniel Jones",
+   "side": "Yes",
+   "point": null,
+   "label": "Daniel Jones anytime TD",
+   "dk_price": 850,
+   "fair_prob": 0.1183,
+   "fair_price": 745,
+   "ev": 0.1237,
+   "source": "pinnacle",
+   "dk_updated": "2026-11-19T23:55:34Z",
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-11-19T23:54:54Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "Jones is confirmed starting with no injury tag, and DK's +850 is 1.3 points of probability short of Pinnacle's exact-number +745; both books updated within a minute of each other, no news against it.",
+   "date": "2026-11-19",
+   "recorded_at": "2026-11-19T23:58:28Z",
+   "result": null,
+   "pl": null
+  },
+  {
+   "id": "db5a8298",
+   "event_id": "66f9e83cf025d58acee12bce18661fb3",
+   "game": "IND @ HOU",
+   "home": "Houston Texans",
+   "away": "Indianapolis Colts",
+   "commence": "2026-11-20T01:15:00Z",
+   "market": "player_anytime_td",
+   "subject": "Kayshon Boutte",
+   "side": "Yes",
+   "point": null,
+   "label": "Kayshon Boutte anytime TD",
+   "dk_price": 360,
+   "fair_prob": 0.241,
+   "fair_price": 315,
+   "ev": 0.1088,
+   "source": "pinnacle",
+   "dk_updated": "2026-11-19T23:55:34Z",
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-11-19T23:54:54Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "Boutte is active and moves up the depth chart with Marvin Harrison Jr. out; DK +360 against Pinnacle's exact +315 at a 4.8% hold.",
+   "date": "2026-11-19",
+   "recorded_at": "2026-11-19T23:58:28Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Ashton Dulin anytime TD +1100",
+   "why": "2.0% EV, below the 5% TD bar"
+  },
+  {
+   "label": "Kayshon Boutte over 26.5 rec yds -109",
+   "why": "0.6% EV, and the consensus books disagree with Pinnacle"
+  }
+ ],
+ "notes": [
+  "schedule.json was last refreshed 2026-11-18 20:50 UTC (over a day old); the kickoff watcher may not be running. The odds pull itself was fresh (23:56 UTC).",
+  "Texans' official inactive list wasn't published by the time this card was built; Michael Pittman Jr.'s status (limited Wednesday) is unconfirmed. Check both before placing the Treadwell under."
+ ],
+ "credits_left": 244
+}
