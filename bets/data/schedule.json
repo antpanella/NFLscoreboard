@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20T01:16:44Z",
+ "updated": "2026-11-20T01:36:48Z",
  "events": [
   {
    "id": "66f9e83cf025d58acee12bce18661fb3",
@@ -173,15 +173,6 @@
    "game": "ATL @ MIN"
   },
   {
-   "id": "60d0c074801985c1062795362a24200e",
-   "commence": "2026-11-29T18:00:00Z",
-   "et_date": "2026-11-29",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Houston Texans",
-   "away": "Baltimore Ravens",
-   "game": "BAL @ HOU"
-  },
-  {
    "id": "f7d3ae7a8fe2438cef7d7d7bc67e31db",
    "commence": "2026-11-29T18:00:00Z",
    "et_date": "2026-11-29",
@@ -189,15 +180,6 @@
    "home": "Cincinnati Bengals",
    "away": "New Orleans Saints",
    "game": "NO @ CIN"
-  },
-  {
-   "id": "e9da808e36e1b7475698a57465ad4519",
-   "commence": "2026-11-29T18:00:00Z",
-   "et_date": "2026-11-29",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Indianapolis Colts",
-   "away": "New York Giants",
-   "game": "NYG @ IND"
   },
   {
    "id": "81a8fee5b649a3ad5ad59e9528f2f376",
