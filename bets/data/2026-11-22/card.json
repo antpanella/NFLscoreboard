@@ -1,0 +1,161 @@
+{
+ "date": "2026-11-22",
+ "generated_at": "2026-11-22T16:42:43Z",
+ "headline": "No plays today. One edge cleared the bar (Kenyon Sadiq under 25.5 rec yds), and I cut it because two Jets receivers are out. Every other gap was too thin, or it was a stretched Pinnacle price the consensus doesn't back.",
+ "total_units": 0,
+ "games": [
+  {
+   "event_id": "403a88701352da05b0710a9e883b803e",
+   "game": "ARI @ KC",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 38,
+   "picks": [],
+   "note": "Lines tight. Trey McBride anytime TD +340 was +4.7%, under the 5% TD bar."
+  },
+  {
+   "event_id": "4527f57f5bc32742d8194af1ccf7da7e",
+   "game": "BAL @ CAR",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 48,
+   "picks": [],
+   "note": "Lines tight. Bryce Young under 240.5 pass yds (+3.8%, adjusted 8 yds from 232.5) and Mark Andrews TD (+3.8%) were both under their bars."
+  },
+  {
+   "event_id": "4c5b1c0843a260278e95eb93e7787576",
+   "game": "MIA @ BUF",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 43,
+   "picks": [],
+   "note": "Malik Washington under 33.5 rec yds was +6.1%, but it's a 4-yd stretch from Pinnacle's 29.5 and the consensus has it at 50%, so the bar was 6.5%."
+  },
+  {
+   "event_id": "3ea90704fb576633bd1e2fa5aafd9ea3",
+   "game": "NO @ CHI",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 45,
+   "picks": [],
+   "note": "Lines tight. D'Andre Swift under 65.5 rush yds was the best edge at +2.4%."
+  },
+  {
+   "event_id": "5e63079b678f8c13419adc169fff02d3",
+   "game": "TEN @ DAL",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 43,
+   "picks": [],
+   "note": "Lines tight. Nothing above +1.1%."
+  },
+  {
+   "event_id": "41e2dd69bddd65d7e823d9ed61cc2afc",
+   "game": "TB @ DET",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 44,
+   "picks": [],
+   "note": "Lines tight. Baker Mayfield under 214.5 pass yds was +2.9% (adjusted), under the bar."
+  },
+  {
+   "event_id": "cbe45bafcc2615fc1d96cbc12840377a",
+   "game": "PIT @ PHI",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "commence": "2026-11-22T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 46,
+   "picks": [],
+   "note": "Lines tight. Joe Milton under 35.5 rush yds was +3.9% (adjusted), under the bar."
+  },
+  {
+   "event_id": "4b20b742b6168aaca4f25d87f11b1526",
+   "game": "NYJ @ LAC",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "commence": "2026-11-22T21:05:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 49,
+   "picks": [],
+   "note": "Kenyon Sadiq under 25.5 rec yds (+5.1%) was cut. WRs Omar Cooper Jr. and Isaiah Williams are both out, which pushes targets toward him, and the price is a 3-yd stretch from Pinnacle's 22.5."
+  },
+  {
+   "event_id": "1940706a79cbcbafacdcbf231069716b",
+   "game": "LV @ DEN",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "commence": "2026-11-22T21:25:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 40,
+   "picks": [],
+   "note": "Jonah Coleman under 23.5 rec yds was +5.8%, but it's a stretch from 21.5 and the consensus has it at 50%, so the bar was 6.5%."
+  },
+  {
+   "event_id": "8ba112fabf4e87639338a5f437c5abfe",
+   "game": "JAX @ NYG",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "commence": "2026-11-22T21:25:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 45,
+   "picks": [],
+   "note": "Lines tight. Malik Nabers under 68.5 rec yds was the best edge at +1.9%."
+  },
+  {
+   "event_id": "60e1d27b083a335b722c2c852ea85612",
+   "game": "MIN @ SF",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "commence": "2026-11-23T01:20:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 92,
+   "picks": [],
+   "note": "Mike Evans anytime TD was +4.3%, under the 5% bar. Keenan Allen under 26.5 (+3.7%) was flagged for Pinnacle and the consensus disagreeing."
+  }
+ ],
+ "picks": [],
+ "passed": [
+  {
+   "label": "Kenyon Sadiq under 25.5 rec yds (-110, +5.1%)",
+   "why": "Omar Cooper Jr. and Isaiah Williams are out, so more targets for Sadiq is the role change against an under. The price is a 3-yd adjustment off Pinnacle's 22.5, and his injury designation is unclear."
+  },
+  {
+   "label": "Malik Washington under 33.5 rec yds (-111, +6.1%)",
+   "why": "Below the 6.5% bar for an adjusted price where Pinnacle and the consensus disagree."
+  },
+  {
+   "label": "Jonah Coleman under 23.5 rec yds (-112, +5.8%)",
+   "why": "Below the 6.5% bar for an adjusted price where Pinnacle and the consensus disagree."
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 2026-11-20 04:22Z (more than 2 hours old), so the scheduled Action may be stuck. Today's odds pull worked normally.",
+  "Odds credits left after this pull: 190.",
+  "No parlays: there were no standalone plays to build legs from."
+ ],
+ "credits_left": 190
+}
