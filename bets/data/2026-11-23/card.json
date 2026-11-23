@@ -1,0 +1,72 @@
+{
+ "date": "2026-11-23",
+ "generated_at": "2026-11-23T23:58:21Z",
+ "headline": "Single-game Monday (CIN @ WSH): one small play. Lines are mostly tight against Pinnacle; the one big edge (a Van Jefferson TD) didn't survive vetting.",
+ "total_units": 0.5,
+ "games": [
+  {
+   "event_id": "3a60ed1d20004aa4d4772b2c1a2272e7",
+   "game": "CIN @ WSH",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "commence": "2026-11-24T01:15:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 112,
+   "picks": [
+    "141e83b0"
+   ],
+   "note": "One play (Antonio Williams under). Forecast is about 56F with 9 mph wind and little rain, so weather doesn't matter. No parlay: single-game day, and same-game parlays aren't priced."
+  }
+ ],
+ "picks": [
+  {
+   "id": "141e83b0",
+   "event_id": "3a60ed1d20004aa4d4772b2c1a2272e7",
+   "game": "CIN @ WSH",
+   "home": "Washington Commanders",
+   "away": "Cincinnati Bengals",
+   "commence": "2026-11-24T01:15:00Z",
+   "market": "player_reception_yds",
+   "subject": "Antonio Williams",
+   "side": "Under",
+   "point": 39.5,
+   "label": "Antonio Williams under 39.5 rec yds",
+   "dk_price": -115,
+   "fair_prob": 0.5645,
+   "fair_price": -130,
+   "ev": 0.0554,
+   "source": "pinnacle-adjusted",
+   "dk_updated": "2026-11-23T23:55:18Z",
+   "from_point": 35.5,
+   "pin_vig": 0.0475,
+   "pin_updated": "2026-11-23T23:55:15Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "DraftKings hangs 39.5 while Pinnacle sits at 35.5 at similar juice; Williams' bigger role with Washington's receiver injuries is already in Pinnacle's number, and he isn't on the injury report. Half unit because the edge comes from moving Pinnacle's line 4 yards.",
+   "date": "2026-11-23",
+   "recorded_at": "2026-11-23T23:58:21Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Van Jefferson anytime TD +1100",
+   "why": "12.2% edge on a +1100 longshot. Both books updated the same minute and I couldn't find why DraftKings is off. Reports conflict on whether McLaurin and Dyami Brown are out, and that decides his role."
+  },
+  {
+   "label": "Joe Burrow under 309.5 pass yds",
+   "why": "4.2% on a Pinnacle-adjusted line (9 yards from 300.5), below the 4.5% bar."
+  },
+  {
+   "label": "Ja'Marr Chase under 8.5 receptions",
+   "why": "2.99% at Pinnacle's exact number, just under the 3.0% bar, and the consensus (53.6%) is cooler. With Iosivas doubtful, Chase's volume goes up."
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 11:11Z (more than 12 h before the pull), so the schedule Action may be stuck; the odds pull itself was fresh at 23:56Z.",
+  "Card built about 80 minutes before kickoff, after inactives."
+ ],
+ "credits_left": 178
+}
