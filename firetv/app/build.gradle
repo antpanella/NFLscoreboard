@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application'
+}
+
+def run = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
+
+android {
+    namespace 'com.antpanella.sundayboard'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.antpanella.sundayboard'
+        minSdk 22          // Fire OS 5 and later
+        targetSdk 35
+        versionCode run
+        versionName "1.0.${run}"
+    }
+
+    // A fixed key, so a new build installs over the old one and keeps the
+    // Board's saved settings. It only signs this personal sideloaded app.
+    signingConfigs {
+        release {
+            storeFile file('../sundayboard.p12')
+            storeType 'pkcs12'
+            storePassword 'sundayboard'
+            keyAlias 'sundayboard'
+            keyPassword 'sundayboard'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    buildFeatures { buildConfig true }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

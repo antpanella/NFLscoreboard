@@ -1,0 +1,51 @@
+name: Fire TV app
+run-name: fire tv app ${{ github.sha }}
+
+# Builds the Sunday Board Fire TV app (firetv/) whenever it changes and puts the
+# APK on the "firetv" release, so the Fire TV's Downloader app can always fetch
+#   https://github.com/antpanella/NFLscoreboard/releases/download/firetv/SundayBoard.apk
+# The app only wraps the published Board, so Board changes never need a rebuild.
+
+on:
+  push:
+    paths:
+      - 'firetv/**'
+      - '.github/workflows/firetv.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: firetv
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build the APK
+        working-directory: firetv
+        run: gradle --no-daemon assembleRelease
+      - name: Publish to the firetv release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp firetv/app/build/outputs/apk/release/app-release.apk SundayBoard.apk
+          ls -la SundayBoard.apk
+          notes="Sunday Board for Fire TV, build ${{ github.run_number }} ($(date -u +%Y-%m-%d)). Install with the Downloader app from https://github.com/antpanella/NFLscoreboard/releases/download/firetv/SundayBoard.apk"
+          if gh release view firetv >/dev/null 2>&1; then
+            gh release upload firetv SundayBoard.apk --clobber
+            gh release edit firetv --notes "$notes"
+          else
+            gh release create firetv SundayBoard.apk --title "Sunday Board for Fire TV" --notes "$notes" --latest=false
+          fi
