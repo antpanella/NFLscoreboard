@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -84,7 +85,7 @@ public class MainActivity extends Activity {
         immersive();
         if (state != null) web.restoreState(state);
         else web.loadUrl(BOARD);
-        Toast.makeText(this, "Menu ≡ Settings   ⏪ ⏩ Delay −/+5 s   ⏯ Refresh", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Menu ≡ Settings · arrows + OK pick a game · ⏪ ⏩ delay · ⏯ refresh", Toast.LENGTH_LONG).show();
     }
 
     private void showOffline() {
@@ -109,7 +110,19 @@ public class MainActivity extends Activity {
     public boolean dispatchKeyEvent(KeyEvent e) {
         int k = e.getKeyCode();
         boolean down = e.getAction() == KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0;
+        boolean press = e.getAction() == KeyEvent.ACTION_DOWN;     // arrows may repeat while held
         switch (k) {
+            // Every remote key goes to the page script, so the web view never moves
+            // its own focus or scrolls behind the cursor's back.
+            case KeyEvent.KEYCODE_DPAD_UP:    if (press) js("window.__tv ? __tv.nav('up') : 'none'");    return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:  if (press) js("window.__tv ? __tv.nav('down') : 'none'");  return true;
+            case KeyEvent.KEYCODE_DPAD_LEFT:  if (press) js("window.__tv ? __tv.nav('left') : 'none'");  return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT: if (press) js("window.__tv ? __tv.nav('right') : 'none'"); return true;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                if (down) ok();
+                return true;
             case KeyEvent.KEYCODE_MENU:
                 if (down) js("window.__tv ? __tv.menu() : 'none'");
                 return true;
@@ -132,9 +145,26 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Back closes Settings or un-pins a game first; on the plain board, twice to leave. */
+    /** OK: the page says "text" when it focused a text box, and then the keyboard opens. */
+    private void ok() {
+        js("window.__tv ? __tv.ok() : 'none'", new ValueCallback<String>() {
+            @Override public void onReceiveValue(String v) {
+                if (v == null || !v.contains("text")) return;
+                web.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) imm.showSoftInput(web, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+    }
+
+    /** Back closes a picker, Settings or a spotlight first; on the plain board, twice to leave. */
     private void back() {
         if (offline) { finish(); return; }
+        String url = web.getUrl();
+        if (url != null && !url.equals(BOARD) && !url.startsWith(BOARD + "#") && !url.startsWith(BOARD + "index.html") && web.canGoBack()) {
+            web.goBack();                       // e.g. the picks page, opened from Settings
+            return;
+        }
         js("window.__tv ? __tv.back() : 'none'", new ValueCallback<String>() {
             @Override public void onReceiveValue(String v) {
                 if (v != null && v.contains("handled")) return;
