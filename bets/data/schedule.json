@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T01:21:55Z",
+ "updated": "2026-11-24T01:31:58Z",
  "events": [
   {
    "id": "3a60ed1d20004aa4d4772b2c1a2272e7",
@@ -74,15 +74,6 @@
    "game": "BAL @ HOU"
   },
   {
-   "id": "f7d3ae7a8fe2438cef7d7d7bc67e31db",
-   "commence": "2026-11-29T18:00:00Z",
-   "et_date": "2026-11-29",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Cincinnati Bengals",
-   "away": "New Orleans Saints",
-   "game": "NO @ CIN"
-  },
-  {
    "id": "e9da808e36e1b7475698a57465ad4519",
    "commence": "2026-11-29T18:00:00Z",
    "et_date": "2026-11-29",
@@ -117,15 +108,6 @@
    "home": "Los Angeles Chargers",
    "away": "New England Patriots",
    "game": "NE @ LAC"
-  },
-  {
-   "id": "69a1dbe9de3d3212c3a7a55be5d204ab",
-   "commence": "2026-11-29T21:25:00Z",
-   "et_date": "2026-11-29",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Washington Commanders",
-   "game": "WSH @ ARI"
   },
   {
    "id": "d68dced0b26726890b9c79bd19a5ffe5",
