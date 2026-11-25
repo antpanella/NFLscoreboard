@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T04:47:26Z",
+ "updated": "2026-11-25T02:34:58Z",
  "events": [
   {
    "id": "5b612899d6dcdf998107f2c6c6e49a58",
@@ -144,6 +144,132 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Carolina Panthers",
    "game": "CAR @ TB"
+  },
+  {
+   "id": "06e52a676b516186989e3b181a37c8a7",
+   "commence": "2026-12-04T01:15:00Z",
+   "et_date": "2026-12-03",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Los Angeles Rams",
+   "away": "Kansas City Chiefs",
+   "game": "KC @ LAR"
+  },
+  {
+   "id": "c94419ba8fb818fc36a5b21b526aab75",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Atlanta Falcons",
+   "away": "Detroit Lions",
+   "game": "DET @ ATL"
+  },
+  {
+   "id": "0236f9aa68d65ea03bd1ca025b749c20",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Chicago Bears",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ CHI"
+  },
+  {
+   "id": "b447fab53534af892f98a74eae26c1c6",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Cleveland Browns",
+   "away": "Cincinnati Bengals",
+   "game": "CIN @ CLE"
+  },
+  {
+   "id": "9a55467e1cd6310ae2af20d8154612e1",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Denver Broncos",
+   "away": "Miami Dolphins",
+   "game": "MIA @ DEN"
+  },
+  {
+   "id": "1ccb61b811b7aae4270df22a67e6459f",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New Orleans Saints",
+   "away": "Green Bay Packers",
+   "game": "GB @ NO"
+  },
+  {
+   "id": "f8a92363386bd337975650879086cca6",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Los Angeles Chargers",
+   "game": "LAC @ TB"
+  },
+  {
+   "id": "a5495c3360b3bb13da76ba23a675c9ef",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New York Giants",
+   "away": "San Francisco 49ers",
+   "game": "SF @ NYG"
+  },
+  {
+   "id": "ae3429e95ee704c7fd001cade20072d0",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Tennessee Titans",
+   "away": "Washington Commanders",
+   "game": "WSH @ TEN"
+  },
+  {
+   "id": "f4897f48a5351881280f7598bd826408",
+   "commence": "2026-12-06T21:05:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 4:05 PM ET",
+   "home": "Arizona Cardinals",
+   "away": "Philadelphia Eagles",
+   "game": "PHI @ ARI"
+  },
+  {
+   "id": "4116dbff75ab7957b69c2152f204b74d",
+   "commence": "2026-12-06T21:25:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "New England Patriots",
+   "away": "Buffalo Bills",
+   "game": "BUF @ NE"
+  },
+  {
+   "id": "c186c605febd6370b292469c9151cfb3",
+   "commence": "2026-12-06T21:25:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 4:25 PM ET",
+   "home": "Minnesota Vikings",
+   "away": "Carolina Panthers",
+   "game": "CAR @ MIN"
+  },
+  {
+   "id": "26bf8e165d2d273ed0772a355f07ab16",
+   "commence": "2026-12-07T01:20:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 8:20 PM ET",
+   "home": "Pittsburgh Steelers",
+   "away": "Houston Texans",
+   "game": "HOU @ PIT"
+  },
+  {
+   "id": "0db4646c964ecdff19957373fe707546",
+   "commence": "2026-12-08T01:15:00Z",
+   "et_date": "2026-12-07",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "home": "Seattle Seahawks",
+   "away": "Dallas Cowboys",
+   "game": "DAL @ SEA"
   }
  ]
 }
