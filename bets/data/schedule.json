@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T21:47:16Z",
+ "updated": "2026-11-26T22:26:20Z",
  "events": [
   {
    "id": "ffaa06af56a7137d4b078c5c46c0b730",
@@ -191,15 +191,6 @@
    "game": "WSH @ TEN"
   },
   {
-   "id": "f4897f48a5351881280f7598bd826408",
-   "commence": "2026-12-06T21:05:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 4:05 PM ET",
-   "home": "Arizona Cardinals",
-   "away": "Philadelphia Eagles",
-   "game": "PHI @ ARI"
-  },
-  {
    "id": "4116dbff75ab7957b69c2152f204b74d",
    "commence": "2026-12-06T21:25:00Z",
    "et_date": "2026-12-06",
@@ -225,15 +216,6 @@
    "home": "Pittsburgh Steelers",
    "away": "Houston Texans",
    "game": "HOU @ PIT"
-  },
-  {
-   "id": "0db4646c964ecdff19957373fe707546",
-   "commence": "2026-12-08T01:15:00Z",
-   "et_date": "2026-12-07",
-   "kickoff_et": "Mon 8:15 PM ET",
-   "home": "Seattle Seahawks",
-   "away": "Dallas Cowboys",
-   "game": "DAL @ SEA"
   }
  ]
 }
