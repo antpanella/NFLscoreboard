@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-26T03:44:20Z",
+ "updated": "2026-11-26T13:14:57Z",
  "events": [
-  {
-   "id": "5b612899d6dcdf998107f2c6c6e49a58",
-   "commence": "2026-11-26T01:15:28Z",
-   "et_date": "2026-11-25",
-   "kickoff_et": "Wed 8:15 PM ET",
-   "home": "Los Angeles Rams",
-   "away": "Green Bay Packers",
-   "game": "GB @ LAR"
-  },
   {
    "id": "9b825e6518156008da499be041975fdd",
    "commence": "2026-11-26T18:00:00Z",
@@ -146,6 +137,15 @@
    "game": "CAR @ TB"
   },
   {
+   "id": "06e52a676b516186989e3b181a37c8a7",
+   "commence": "2026-12-04T01:15:00Z",
+   "et_date": "2026-12-03",
+   "kickoff_et": "Thu 8:15 PM ET",
+   "home": "Los Angeles Rams",
+   "away": "Kansas City Chiefs",
+   "game": "KC @ LAR"
+  },
+  {
    "id": "c94419ba8fb818fc36a5b21b526aab75",
    "commence": "2026-12-06T18:00:00Z",
    "et_date": "2026-12-06",
@@ -180,6 +180,15 @@
    "home": "Denver Broncos",
    "away": "Miami Dolphins",
    "game": "MIA @ DEN"
+  },
+  {
+   "id": "1ccb61b811b7aae4270df22a67e6459f",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "New Orleans Saints",
+   "away": "Green Bay Packers",
+   "game": "GB @ NO"
   },
   {
    "id": "f8a92363386bd337975650879086cca6",
