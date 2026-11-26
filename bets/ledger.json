@@ -2067,7 +2067,14 @@
   "reason": "DK +800 vs Pinnacle fair +738 at the exact market, both updated together; Thomas is off the Bears' Thanksgiving injury report (he was questionable with an ankle in Week 11), adds return-TD equity, and the game is indoors at Ford Field.",
   "date": "2026-11-26",
   "recorded_at": "2026-11-26T16:42:34Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1193,
+  "close_fair_price": 738,
+  "close_source": "pinnacle",
+  "clv": 0.0739,
+  "close_dk_price": 700,
+  "graded_at": "2026-11-26T21:37:13Z"
  }
 ]
