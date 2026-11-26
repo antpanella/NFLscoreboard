@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T18:06:43Z",
+ "updated": "2026-11-26T18:16:45Z",
  "events": [
   {
    "id": "9b825e6518156008da499be041975fdd",
@@ -144,24 +144,6 @@
    "home": "Los Angeles Rams",
    "away": "Kansas City Chiefs",
    "game": "KC @ LAR"
-  },
-  {
-   "id": "c94419ba8fb818fc36a5b21b526aab75",
-   "commence": "2026-12-06T18:00:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Atlanta Falcons",
-   "away": "Detroit Lions",
-   "game": "DET @ ATL"
-  },
-  {
-   "id": "0236f9aa68d65ea03bd1ca025b749c20",
-   "commence": "2026-12-06T18:00:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Chicago Bears",
-   "away": "Jacksonville Jaguars",
-   "game": "JAX @ CHI"
   },
   {
    "id": "b447fab53534af892f98a74eae26c1c6",
