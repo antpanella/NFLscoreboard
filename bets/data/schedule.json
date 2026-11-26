@@ -1,20 +1,11 @@
 {
- "updated": "2026-11-26T21:32:10Z",
+ "updated": "2026-11-26T21:47:16Z",
  "events": [
   {
-   "id": "9b825e6518156008da499be041975fdd",
-   "commence": "2026-11-26T18:02:55Z",
-   "et_date": "2026-11-26",
-   "kickoff_et": "Thu 1:02 PM ET",
-   "home": "Detroit Lions",
-   "away": "Chicago Bears",
-   "game": "CHI @ DET"
-  },
-  {
    "id": "ffaa06af56a7137d4b078c5c46c0b730",
-   "commence": "2026-11-26T21:45:00Z",
+   "commence": "2026-11-26T21:46:34Z",
    "et_date": "2026-11-26",
-   "kickoff_et": "Thu 4:45 PM ET",
+   "kickoff_et": "Thu 4:46 PM ET",
    "home": "Dallas Cowboys",
    "away": "Philadelphia Eagles",
    "game": "PHI @ DAL"
