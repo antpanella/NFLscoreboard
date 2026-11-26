@@ -1,0 +1,99 @@
+{
+ "date": "2026-11-26",
+ "generated_at": "2026-11-26T16:42:34Z",
+ "headline": "Thin Thanksgiving: one half-unit touchdown play in the indoor opener. The big Chiefs-Bills TD edges were cut for a wet, windy Buffalo night, an injury tag, and a limited role.",
+ "total_units": 0.5,
+ "games": [
+  {
+   "event_id": "9b825e6518156008da499be041975fdd",
+   "game": "CHI @ DET",
+   "kickoff_et": "Thu 1:00 PM ET",
+   "commence": "2026-11-26T18:00:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 55,
+   "picks": [
+    "f532442b"
+   ],
+   "note": "Zavion Thomas anytime TD is the only play; no yardage or game-line edge cleared the bar."
+  },
+  {
+   "event_id": "ffaa06af56a7137d4b078c5c46c0b730",
+   "game": "PHI @ DAL",
+   "kickoff_et": "Thu 4:30 PM ET",
+   "commence": "2026-11-26T21:30:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 54,
+   "picks": [],
+   "note": "No play: lines tight. The best edge, DeVonta Smith under 68.5 rec yds at +0.8%, is far below the bar."
+  },
+  {
+   "event_id": "f36f518585aec40e8cb40e071c0844aa",
+   "game": "KC @ BUF",
+   "kickoff_et": "Thu 8:20 PM ET",
+   "commence": "2026-11-27T01:20:00Z",
+   "draftkings": true,
+   "pinnacle": true,
+   "props_pulled": true,
+   "selections": 104,
+   "picks": [],
+   "note": "No play: four TD props cleared the bar, but the forecast is about 19 mph wind and a 75% chance of rain, which works against pass-catcher scores. Josh Downs under 36.5 at +3.5% (adjusted) falls short of 4.5%."
+  }
+ ],
+ "picks": [
+  {
+   "id": "f532442b",
+   "event_id": "9b825e6518156008da499be041975fdd",
+   "game": "CHI @ DET",
+   "home": "Detroit Lions",
+   "away": "Chicago Bears",
+   "commence": "2026-11-26T18:00:00Z",
+   "market": "player_anytime_td",
+   "subject": "Zavion Thomas",
+   "side": "Yes",
+   "point": null,
+   "label": "Zavion Thomas anytime TD",
+   "dk_price": 800,
+   "fair_prob": 0.1193,
+   "fair_price": 738,
+   "ev": 0.0739,
+   "source": "pinnacle",
+   "dk_updated": "2026-11-26T16:40:36Z",
+   "pin_vig": 0.0476,
+   "pin_updated": "2026-11-26T16:40:34Z",
+   "kind": "single",
+   "units": 0.5,
+   "reason": "DK +800 vs Pinnacle fair +738 at the exact market, both updated together; Thomas is off the Bears' Thanksgiving injury report (he was questionable with an ankle in Week 11), adds return-TD equity, and the game is indoors at Ford Field.",
+   "date": "2026-11-26",
+   "recorded_at": "2026-11-26T16:42:34Z",
+   "result": null,
+   "pl": null
+  }
+ ],
+ "passed": [
+  {
+   "label": "Cyrus Allen anytime TD +900 (EV +33%)",
+   "why": "Edge too big to trust for a rookie WR whose snaps are limited. Rain and 19 mph wind in Buffalo also count against a receiver TD."
+  },
+  {
+   "label": "Noah Gray anytime TD +850 (EV +33%)",
+   "why": "Questionable with a rib injury on the Chiefs' final report, plus wet, windy weather."
+  },
+  {
+   "label": "Travis Kelce anytime TD +245 (EV +9.4%)",
+   "why": "Forecast of 19 mph wind and 75% rain in Orchard Park argues against the passing game."
+  },
+  {
+   "label": "Dawson Knox anytime TD +600 (EV +9.3%)",
+   "why": "Same weather; Kincaid is questionable and could take back the TE red-zone role."
+  }
+ ],
+ "notes": [
+  "schedule.json was last updated 13:14Z, more than 3 hours before this card was built, so the kickoff watcher may not have been running. The odds pull itself was fresh (16:41Z, 157 credits left).",
+  "No parlay: the only play is a TD prop, and TD props can't be parlay legs."
+ ],
+ "credits_left": 157
+}

@@ -2041,5 +2041,33 @@
   "close_source": "pinnacle-adjusted",
   "clv": 0.0554,
   "graded_at": "2026-11-24T04:32:20Z"
+ },
+ {
+  "id": "f532442b",
+  "event_id": "9b825e6518156008da499be041975fdd",
+  "game": "CHI @ DET",
+  "home": "Detroit Lions",
+  "away": "Chicago Bears",
+  "commence": "2026-11-26T18:00:00Z",
+  "market": "player_anytime_td",
+  "subject": "Zavion Thomas",
+  "side": "Yes",
+  "point": null,
+  "label": "Zavion Thomas anytime TD",
+  "dk_price": 800,
+  "fair_prob": 0.1193,
+  "fair_price": 738,
+  "ev": 0.0739,
+  "source": "pinnacle",
+  "dk_updated": "2026-11-26T16:40:36Z",
+  "pin_vig": 0.0476,
+  "pin_updated": "2026-11-26T16:40:34Z",
+  "kind": "single",
+  "units": 0.5,
+  "reason": "DK +800 vs Pinnacle fair +738 at the exact market, both updated together; Thomas is off the Bears' Thanksgiving injury report (he was questionable with an ankle in Week 11), adds return-TD equity, and the game is indoors at Ford Field.",
+  "date": "2026-11-26",
+  "recorded_at": "2026-11-26T16:42:34Z",
+  "result": null,
+  "pl": null
  }
 ]
