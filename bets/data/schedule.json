@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T21:22:08Z",
+ "updated": "2026-11-26T21:32:10Z",
  "events": [
   {
    "id": "9b825e6518156008da499be041975fdd",
@@ -12,9 +12,9 @@
   },
   {
    "id": "ffaa06af56a7137d4b078c5c46c0b730",
-   "commence": "2026-11-26T21:35:00Z",
+   "commence": "2026-11-26T21:45:00Z",
    "et_date": "2026-11-26",
-   "kickoff_et": "Thu 4:35 PM ET",
+   "kickoff_et": "Thu 4:45 PM ET",
    "home": "Dallas Cowboys",
    "away": "Philadelphia Eagles",
    "game": "PHI @ DAL"
