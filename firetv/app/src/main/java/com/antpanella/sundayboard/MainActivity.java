@@ -1,6 +1,12 @@
 package com.antpanella.sundayboard;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.text.InputType;
+import android.widget.EditText;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,7 +15,6 @@ import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -145,16 +150,53 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** OK: the page says "text" when it focused a text box, and then the keyboard opens. */
+    /** OK: on a text box the page answers "edit:{...}" and the app asks for the text itself. */
     private void ok() {
         js("window.__tv ? __tv.ok() : 'none'", new ValueCallback<String>() {
             @Override public void onReceiveValue(String v) {
-                if (v == null || !v.contains("text")) return;
-                web.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                if (imm != null) imm.showSoftInput(web, InputMethodManager.SHOW_IMPLICIT);
+                String s = unquote(v);
+                if (s.startsWith("edit:")) {
+                    try { askText(new JSONObject(s.substring(5))); } catch (Exception ignored) { }
+                }
             }
         });
+    }
+
+    /** evaluateJavascript hands back a JSON value; a string comes quoted and escaped. */
+    private static String unquote(String v) {
+        if (v == null) return "";
+        try { return new JSONArray("[" + v + "]").optString(0, ""); } catch (Exception e) { return v; }
+    }
+
+    /**
+     * Typing straight into a web page doesn't bring up the Fire TV keyboard, so a
+     * text box opens as an ordinary Android dialog: its text field uses the
+     * system keyboard (and the Fire TV phone app's keyboard, which can paste).
+     */
+    private void askText(final JSONObject f) {
+        final EditText input = new EditText(this);
+        input.setText(f.optString("value", ""));
+        input.setSelection(input.getText().length());
+        boolean secret = f.optBoolean("secret"), multi = f.optBoolean("multi");
+        int type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+        if (secret) type |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+        if (multi) { type |= InputType.TYPE_TEXT_FLAG_MULTI_LINE; input.setMinLines(3); }
+        input.setInputType(type);
+        input.setSingleLine(!multi);
+        AlertDialog d = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle(f.optString("title", "Type"))
+            .setView(input)
+            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface di, int w) {
+                    js("window.__tv ? __tv.setText(" + JSONObject.quote(f.optString("id")) + ", "
+                        + JSONObject.quote(input.getText().toString()) + ") : 'none'");
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .create();
+        d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        d.show();
+        input.requestFocus();
     }
 
     /** Back closes a picker, Settings or a spotlight first; on the plain board, twice to leave. */

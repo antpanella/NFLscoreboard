@@ -501,7 +501,7 @@ body.tint .fantasy .fp b{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 #betHelp{font-size:.88rem;line-height:1.5;color:var(--sideline);margin-bottom:.5rem}
 #phoneQR,.qrbox{display:flex;justify-content:center;margin:.6rem 0 .2rem}
 .qrbox svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
-#remoteQR svg{box-shadow:0 0 0 3px #FFB020}
+#remoteQR svg,#pairQR svg{box-shadow:0 0 0 3px #FFB020}
 #phoneQR svg{border-radius:6px;box-shadow:0 0 0 3px var(--line)}
 #phoneQR.secret svg{box-shadow:0 0 0 3px #FFB020}
 #qrNote{text-align:center}
@@ -1130,6 +1130,11 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <div id="betList"></div>
   <div class="tvonly">
   <div class="tvqr">
+  <h4>Set up from your phone</h4>
+  <label><button id="sPairMake" style="border:1px solid var(--line);background:var(--turf);padding:.3em 1em;border-radius:2px;font-weight:600">Copy my setup from my phone</button>
+    <button id="sPairOff" hidden style="color:var(--sideline);font-size:1rem">Cancel</button></label>
+  <div id="pairQR" class="qrbox"></div>
+  <p class="note" id="pairNote" style="margin-top:.3rem">For a new TV or laptop. Scan the code with the phone you add bets on: it sends this board your relay and token, encrypted, and the board restarts with your settings, bets and Sleeper account.</p>
   <h4>Your phone</h4>
   <label>Let my phone run the board and add my bets <input type="checkbox" id="sCfgSync"></label>
   <div id="remoteQR" class="qrbox"></div>
@@ -1231,7 +1236,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-11-04a';
+var BUILD = 'build 2026-11-26a';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -8610,7 +8615,7 @@ document.getElementById('sTest').addEventListener('click', function(){
   var el = document.getElementById(id); if (el) el.textContent = BUILD;
 });
 setInterval(function(){ if (cfg.fanBar) paintFanBar(); }, 30000);  // keep the ages honest
-if (cfg.sleeperUser && cfg.sleeperId) sleeperConnect();
+if (cfg.sleeperUser) sleeperConnect();          // a board set up from the phone has the name but not yet the id
 /* ---- the little "i" beside each setting ----
    Every control gets a button that explains, in one line, what the setting
    actually does — hover on a laptop, tap on a tablet. The text lives here rather
@@ -8760,9 +8765,131 @@ document.addEventListener('pointerover', function(e){
 addTips();
 paintFlags();
 paintLog();
-if (/^#remote/.test(location.hash)) remoteMode();
+if (/^#pair/.test(location.hash)) pairMode();
+else if (/^#remote/.test(location.hash)) remoteMode();
 else if (/^#bets/.test(location.hash)) phoneMode();
 else { startSync(); if (cfg.cfgSync) startRemote(false); }
+
+/* ---- copy a setup from the phone to a new board ----
+   A new board (the Fire TV app, another laptop) starts empty: no relay, no
+   token, so it can't reach your settings or bets. It shows a code; the phone
+   you add bets on scans it and sends the relay address and token back. They
+   travel through ntfy.sh, a free public message service, encrypted with
+   AES-GCM under a key that is only in the code on the screen, so ntfy only
+   ever carries ciphertext on a random one-off topic. The board then restarts
+   with "Let my phone run the board" on, and its first look at the relay pulls
+   the settings and bets already there instead of sending its own defaults. */
+var PAIR = {topic:'', key:'', since:0, timer:null, until:0};
+var NTFY = 'https://ntfy.sh/';
+function pairHex(n){
+  var a = new Uint8Array(n); crypto.getRandomValues(a);
+  return [].map.call(a, function(x){ return ('0' + x.toString(16)).slice(-2); }).join('');
+}
+function pairKey(hex, use){
+  var b = new Uint8Array(hex.length / 2);
+  for (var i = 0; i < b.length; i++) b[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return crypto.subtle.importKey('raw', b, {name:'AES-GCM'}, false, [use]);
+}
+function pairB64(bytes){ var s = ''; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+function pairUnB64(t){ var s = atob(t), b = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; }
+function pairNote(t){ var el = document.getElementById('pairNote'); if (el) el.textContent = t; }
+function pairStop(msg){
+  clearInterval(PAIR.timer); PAIR.timer = null; PAIR.topic = '';
+  var q = document.getElementById('pairQR'); if (q) q.innerHTML = '';
+  document.getElementById('sPairOff').hidden = true;
+  if (msg) pairNote(msg);
+}
+function pairStart(){
+  if (!window.crypto || !crypto.subtle){ pairNote('This browser can\u2019t do the encryption this needs.'); return; }
+  pairStop();
+  PAIR.topic = 'sundayboard-' + pairHex(12);
+  PAIR.key = pairHex(16);
+  PAIR.since = Math.floor(Date.now() / 1000) - 5;
+  PAIR.until = Date.now() + 10 * 60000;
+  var url = location.origin + location.pathname + '#pair&p=' + PAIR.topic + '&k=' + PAIR.key;
+  try { document.getElementById('pairQR').innerHTML = QR.svg(url, 200); } catch(e){ pairNote(e.message); return; }
+  document.getElementById('sPairOff').hidden = false;
+  pairNote('Scan this with your phone\u2019s camera and tap Send. Waiting for 10 minutes.');
+  PAIR.timer = setInterval(pairPoll, 2500);
+}
+function pairPoll(){
+  if (!PAIR.topic) return;
+  if (Date.now() > PAIR.until){ pairStop('The code ran out. Press the button for a new one.'); return; }
+  var topic = PAIR.topic, key = PAIR.key;
+  fetch(NTFY + topic + '/json?poll=1&since=' + PAIR.since, {cache:'no-store'})
+    .then(function(r){ return r.text(); })
+    .then(function(txt){
+      var msgs = txt.split('\n').map(function(l){ try { return JSON.parse(l); } catch(e){ return null; } })
+        .filter(function(m){ return m && m.event === 'message' && m.message; });
+      if (!msgs.length || topic !== PAIR.topic) return;
+      var raw = pairUnB64(msgs[msgs.length - 1].message.trim());
+      return pairKey(key, 'decrypt').then(function(k){
+        return crypto.subtle.decrypt({name:'AES-GCM', iv:raw.slice(0, 12)}, k, raw.slice(12));
+      }).then(function(plain){ pairApply(JSON.parse(new TextDecoder().decode(plain))); });
+    })
+    .catch(function(e){ if (PAIR.topic) pairNote('Waiting for your phone\u2026 (' + (e && e.name === 'OperationError' ? 'a message didn\u2019t unlock' : 'can\u2019t reach ntfy.sh yet') + ')'); });
+}
+function pairApply(p){
+  if (!p || !/^https:\/\//.test(p.r || '') || !p.t){ pairNote('The phone sent something incomplete. Try again.'); return; }
+  pairStop('Got it from ' + (p.n || 'your phone') + '. Restarting with your setup\u2026');
+  cfg.goveeUrl = String(p.r).trim(); cfg.goveeKey = String(p.t).trim();
+  cfg.cfgSync = true; cfg.betSync = true;
+  if (p.n) cfg.myName = String(p.n).slice(0, 16);
+  if (p.s && !cfg.sleeperUser) cfg.sleeperUser = String(p.s).trim();
+  save();
+  try { sessionStorage.setItem('sundayBoardAuto', '1'); } catch(e){}
+  setTimeout(function(){ location.reload(); }, 1200);
+}
+document.getElementById('sPairMake').addEventListener('click', pairStart);
+document.getElementById('sPairOff').addEventListener('click', function(){ pairStop('Cancelled.'); });
+
+/* The phone end: opened from the code, it sends this phone's relay and token. */
+function pairMode(){
+  var args = {};
+  location.hash.replace(/^#pair&?/, '').split('&').forEach(function(kv){
+    var i = kv.indexOf('='); if (i > 0) args[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1));
+  });
+  try { history.replaceState(null, '', location.pathname + '#pair'); } catch(e){}
+  document.body.classList.add('phone');
+  var wrap = document.createElement('div');
+  wrap.id = 'phone';
+  function esc(t){ return String(t || '').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  wrap.innerHTML = '<h1>SUNDAY<em>BOARD</em> <span>set up a board</span></h1>' +
+    (args.p && args.k ? '' : '<p class="note">This link is missing its code. Scan the code on the TV again.</p>') +
+    '<h4>Send your setup</h4>' +
+    '<p class="note">These are filled in from this phone. Check them and tap Send; the board restarts with your settings, bets and Sleeper account.</p>' +
+    '<label>Relay URL <input type="text" id="pUrl" autocomplete="off" value="' + esc(cfg.goveeUrl) + '"></label>' +
+    '<label>Access token <input type="password" id="pKey" autocomplete="off" value="' + esc(cfg.goveeKey) + '"></label>' +
+    '<label>Your name <input type="text" id="pName" maxlength="16" value="' + esc(cfg.myName) + '"></label>' +
+    '<label>Sleeper username <input type="text" id="pUser" autocomplete="off" value="' + esc(cfg.sleeperUser) + '"></label>' +
+    '<div class="rrow"><button id="pSend">Send to the board</button></div>' +
+    '<p class="note" id="pNote"></p>';
+  document.body.appendChild(wrap);
+  var note = document.getElementById('pNote');
+  if (!cfg.goveeKey) note.textContent = 'This phone doesn\u2019t have your token saved. Paste it from the Lights tab of a board that has it, or from your Cloudflare Worker.';
+  document.getElementById('pSend').addEventListener('click', function(){
+    var p = {r: document.getElementById('pUrl').value.trim().replace(/\/+$/, ''),
+             t: document.getElementById('pKey').value.trim(),
+             n: document.getElementById('pName').value.trim().slice(0, 16),
+             s: document.getElementById('pUser').value.trim()};
+    if (!/^https:\/\//.test(p.r) || !p.t){ note.textContent = 'The relay URL (https://\u2026) and the token are both needed.'; return; }
+    if (!args.p || !args.k){ note.textContent = 'Scan the code on the TV again: this link has no code.'; return; }
+    if (!window.crypto || !crypto.subtle){ note.textContent = 'This browser can\u2019t do the encryption this needs.'; return; }
+    // this phone keeps what was typed, for its own bets page next time
+    cfg.goveeUrl = p.r; cfg.goveeKey = p.t; if (p.n) cfg.myName = p.n; save();
+    note.textContent = 'Sending\u2026';
+    var iv = new Uint8Array(12); crypto.getRandomValues(iv);
+    pairKey(args.k, 'encrypt').then(function(k){
+      return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, k, new TextEncoder().encode(JSON.stringify(p)));
+    }).then(function(ct){
+      var all = new Uint8Array(12 + ct.byteLength); all.set(iv, 0); all.set(new Uint8Array(ct), 12);
+      return fetch(NTFY + args.p, {method:'POST', body: pairB64(all)});
+    }).then(function(r){
+      if (!r.ok) throw new Error('ntfy.sh said ' + r.status);
+      note.textContent = 'Sent. The board restarts with your setup in a few seconds.';
+    }).catch(function(e){ note.textContent = 'Couldn\u2019t send: ' + (e && e.message || e) + '. Try again.'; });
+  });
+}
 
 /* ---- the phone page ----
    The same file, opened with #bets on the end: no board, just the bet box, the
@@ -9009,7 +9136,7 @@ document.getElementById('start').addEventListener('click', function(){ boot(fals
 (function(){
   var auto = false;
   try { auto = sessionStorage.getItem('sundayBoardAuto') === '1'; sessionStorage.removeItem('sundayBoardAuto'); } catch(e){}
-  if (auto && !/^#(bets|remote)/.test(location.hash)) setTimeout(function(){ boot(false); }, 300);
+  if (auto && !/^#(bets|remote|pair)/.test(location.hash)) setTimeout(function(){ boot(false); }, 300);
 })();
 document.getElementById('demo').addEventListener('click', function(){ boot(true); });
 if (/[?&]demo/i.test(location.search)) document.getElementById('demo').textContent = 'Run a demo Sunday (from the link you opened)';

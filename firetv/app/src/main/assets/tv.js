@@ -260,9 +260,18 @@
     if (el.tagName === 'SELECT'){ openPicker(el); return 'ok'; }
     if (isNum(el)){ startNum(el); return 'ok'; }
     if (isText(el)){
-      if (document.activeElement === el){ el.blur(); return 'ok'; }   // Done on the keyboard
-      el.focus();
-      return 'text';                                                   // the app opens the keyboard
+      // The app asks for the text in its own box with the Fire TV keyboard (typing
+      // straight into the page doesn't bring the keyboard up), then sends it back.
+      var lab = el.closest && el.closest('label'), title = '';
+      if (lab){
+        var c = lab.cloneNode(true);
+        [].forEach.call(c.querySelectorAll('select, button, input, textarea'), function(x){ x.remove(); });
+        title = (c.textContent || '').replace(/\s+/g, ' ').trim();
+      }
+      if (!title && el.id === 'sBetText') title = 'Bets, one per line';
+      if (!el.id) el.id = 'tvf' + Math.random().toString(36).slice(2, 8);
+      return 'edit:' + JSON.stringify({id: el.id, value: el.value || '', title: title || 'Type',
+        secret: (el.type || '').toLowerCase() === 'password', multi: el.tagName === 'TEXTAREA'});
     }
     if (t === 'checkbox' || t === 'radio'){ el.click(); return 'ok'; }
     el.click();
@@ -326,6 +335,16 @@
 
   /* ---------------- what the app calls ---------------- */
   window.__tv = {
+    setText: function(id, value){
+      var el = $(id); if (!el) return 'none';
+      el.value = value;
+      fire(el, 'input'); fire(el, 'change');
+      // the button that uses what was typed is the obvious next step
+      var next = {sBetText: 'sBetAdd', sUser: 'sConnect'}[el.id];
+      if (el.id === 'sUser' && $('sConnect')){ $('sConnect').click(); toast('Connecting to Sleeper'); }
+      else if (next && $(next)){ setCur($(next)); toast('Now press OK on ' + $(next).textContent.trim()); }
+      return 'ok';
+    },
     nav: function(dir){
       if (!BOARD){ window.scrollBy(0, (dir === 'down' ? 1 : dir === 'up' ? -1 : 0) * innerHeight * 0.4); return 'ok'; }
       if (pick){
@@ -386,6 +405,23 @@
 
   // straight past the start screen: this is a TV, there is nobody to click it
   var start = $('start');
-  if (start && !/^#(bets|remote)/.test(location.hash)) start.click();
+  if (start && !/^#(bets|remote|pair)/.test(location.hash)) start.click();
+
+  /* First run: the app starts with an empty board (no relay, no token), so open
+     Settings on the code that copies the setup from the phone. */
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('sundayBoard') || '{}') || {}; } catch(e){}
+  if (BOARD && !saved.goveeKey && $('sPairMake')){
+    setTimeout(function(){
+      if (!panelOpen()){ var g = $('gear'); if (g) g.click(); }
+      var bt = document.querySelector('#ptabs button[data-tab="bets"]'); if (bt) bt.click();
+      setTimeout(function(){
+        $('sPairMake').click();
+        setCur($('sPairMake'));
+        var q = $('pairQR'); if (q && q.scrollIntoView) q.scrollIntoView({block: 'center'});
+        toast('Scan the code with your phone to bring your setup over', 5000);
+      }, 300);
+    }, 1500);
+  }
   return 'ok';
 })();
