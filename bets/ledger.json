@@ -2076,5 +2076,33 @@
   "clv": 0.0739,
   "close_dk_price": 700,
   "graded_at": "2026-11-26T21:37:13Z"
+ },
+ {
+  "id": "5fdf47aa",
+  "event_id": "44a3bcf5bd002583ddef2207a92dd977",
+  "game": "DEN @ PIT",
+  "home": "Pittsburgh Steelers",
+  "away": "Denver Broncos",
+  "commence": "2026-11-27T20:00:00Z",
+  "market": "player_anytime_td",
+  "subject": "Evan Engram",
+  "side": "Yes",
+  "point": null,
+  "label": "Evan Engram anytime TD",
+  "dk_price": 550,
+  "fair_prob": 0.1669,
+  "fair_price": 499,
+  "ev": 0.085,
+  "source": "pinnacle",
+  "dk_updated": "2026-11-27T16:41:16Z",
+  "pin_vig": 0.0566,
+  "pin_updated": "2026-11-27T16:40:31Z",
+  "kind": "single",
+  "units": 0.5,
+  "reason": "DraftKings +550 against Pinnacle's exact-market fair +499 (both updated within a minute); Engram is off the injury report and Denver's other TE Caleb Lohner is out, so his short-area red-zone role holds even in the wind.",
+  "date": "2026-11-27",
+  "recorded_at": "2026-11-27T16:43:31Z",
+  "result": null,
+  "pl": null
  }
 ]
