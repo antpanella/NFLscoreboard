@@ -68,5 +68,15 @@
   "Official inactives come out at 1:30 PM ET; a later run re-checks Engram's status.",
   "Odds API credits left: 148."
  ],
- "credits_left": 148
+ "credits_left": 148,
+ "late_checks": [
+  {
+   "at": "2026-11-27T19:59:32Z",
+   "games": [
+    "DEN @ PIT"
+   ],
+   "scratched": [],
+   "note": "Inactives out: Engram active (Denver's inactives are Bentley, Casey, Ehlinger, Humphrey, Rapp, Ortega; Lohner already out), so his TE role grows; weather was priced in at card time. Play stands."
+  }
+ ]
 }
