@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T01:17:46Z",
+ "updated": "2026-11-27T01:22:48Z",
  "events": [
   {
    "id": "ffaa06af56a7137d4b078c5c46c0b730",
@@ -12,9 +12,9 @@
   },
   {
    "id": "f36f518585aec40e8cb40e071c0844aa",
-   "commence": "2026-11-27T01:25:00Z",
+   "commence": "2026-11-27T01:30:00Z",
    "et_date": "2026-11-26",
-   "kickoff_et": "Thu 8:25 PM ET",
+   "kickoff_et": "Thu 8:30 PM ET",
    "home": "Buffalo Bills",
    "away": "Kansas City Chiefs",
    "game": "KC @ BUF"
