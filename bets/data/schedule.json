@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T01:47:53Z",
+ "updated": "2026-11-27T02:42:59Z",
  "events": [
   {
    "id": "f36f518585aec40e8cb40e071c0844aa",
@@ -119,15 +119,6 @@
    "game": "CAR @ TB"
   },
   {
-   "id": "06e52a676b516186989e3b181a37c8a7",
-   "commence": "2026-12-04T01:15:00Z",
-   "et_date": "2026-12-03",
-   "kickoff_et": "Thu 8:15 PM ET",
-   "home": "Los Angeles Rams",
-   "away": "Kansas City Chiefs",
-   "game": "KC @ LAR"
-  },
-  {
    "id": "b447fab53534af892f98a74eae26c1c6",
    "commence": "2026-12-06T18:00:00Z",
    "et_date": "2026-12-06",
@@ -180,15 +171,6 @@
    "home": "Tennessee Titans",
    "away": "Washington Commanders",
    "game": "WSH @ TEN"
-  },
-  {
-   "id": "4116dbff75ab7957b69c2152f204b74d",
-   "commence": "2026-12-06T21:25:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 4:25 PM ET",
-   "home": "New England Patriots",
-   "away": "Buffalo Bills",
-   "game": "BUF @ NE"
   },
   {
    "id": "c186c605febd6370b292469c9151cfb3",
