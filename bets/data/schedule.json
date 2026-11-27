@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T04:43:23Z",
+ "updated": "2026-11-27T05:13:28Z",
  "events": [
   {
    "id": "44a3bcf5bd002583ddef2207a92dd977",
@@ -108,6 +108,24 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Carolina Panthers",
    "game": "CAR @ TB"
+  },
+  {
+   "id": "c94419ba8fb818fc36a5b21b526aab75",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Atlanta Falcons",
+   "away": "Detroit Lions",
+   "game": "DET @ ATL"
+  },
+  {
+   "id": "0236f9aa68d65ea03bd1ca025b749c20",
+   "commence": "2026-12-06T18:00:00Z",
+   "et_date": "2026-12-06",
+   "kickoff_et": "Sun 1:00 PM ET",
+   "home": "Chicago Bears",
+   "away": "Jacksonville Jaguars",
+   "game": "JAX @ CHI"
   },
   {
    "id": "b447fab53534af892f98a74eae26c1c6",
