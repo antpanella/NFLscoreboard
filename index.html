@@ -1240,7 +1240,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-11-26b';
+var BUILD = 'build 2026-11-26c';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1577,11 +1577,12 @@ function noteRawScores(data){
 function syncToTV(){
   if (DEMO || REPLAY){ toast('Sync works on the live feed, not on a demo or a replay.'); return; }
   var now = Date.now(), last = null;
+  var key = /SundayBoardFireTV/.test(navigator.userAgent) ? 'Play' : 'T';   // the Fire TV remote's Play button
   for (var i = SCOREAT.length - 1; i >= 0; i--){
     if (now - SCOREAT[i].at < 180000){ last = SCOREAT[i]; break; }
   }
   if (!last){
-    toast('Nothing has scored in the last three minutes. Press T the moment a score lands on your TV.');
+    toast('Nothing has scored in the last three minutes. Press ' + key + ' the moment a score lands on your TV.');
     return;
   }
   var d = Math.round((now - last.at) / 1000);
@@ -1595,7 +1596,7 @@ function syncToTV(){
   if (box) box.value = String(cfg.delay);
   save(); drain(); paintStatus();
   toast('Holding ' + cfg.delay + 's behind your TV \u2014 measured off ' + last.what +
-        (near ? '. Another game scored at almost the same moment, so press T again on a clearer one.' : '.'));
+        (near ? '. Another game scored at almost the same moment, so press ' + key + ' again on a clearer one.' : '.'));
 }
 /* A line along the foot of the screen for a few seconds. Not the alert rail:
    this is an answer to something the room just did, and it should neither chime

@@ -9,7 +9,9 @@
      Settings   arrows move the cursor (left/right on the tab row switches tab);
                 OK ticks a box, presses a button, opens a list picker for a
                 dropdown, an adjuster for a number, or the keyboard for text.
-                Moving onto an "i" shows its explanation. */
+                Moving onto an "i" shows its explanation.
+     Play/Pause   syncs the delay to the TV (press it as a score appears).
+     ⏪ / ⏩        delay −/+5 s. */
 (function(){
   if (window.__tv) return 'ok';
 
@@ -379,10 +381,13 @@
     },
     key: function(k){
       if (!BOARD) return 'ok';
+      // Play/Pause (sent as 'r') syncs the delay: press it the moment a score
+      // lands on the TV and the board measures the gap (the board's own T key,
+      // which answers with its own note at the foot of the screen).
+      if (k === 'r'){ press('t'); return 'ok'; }
       press(k);
       var d = $('sDelay');
       if ((k === '[' || k === ']') && d) toast('Delay ' + d.value + ' s');
-      else if (k === 'r') toast('Refreshing');
       return 'ok';
     },
     back: function(){

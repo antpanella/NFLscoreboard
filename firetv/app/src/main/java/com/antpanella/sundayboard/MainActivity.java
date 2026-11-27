@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
         immersive();
         if (state != null) web.restoreState(state);
         else web.loadUrl(BOARD);
-        Toast.makeText(this, "Menu ≡ Settings · arrows + OK pick a game · ⏪ ⏩ delay · ⏯ refresh", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Menu ≡ Settings · arrows + OK pick a game · ⏪ ⏩ delay · ⏯ sync to your TV", Toast.LENGTH_LONG).show();
     }
 
     private void showOffline() {
