@@ -233,6 +233,12 @@ body.noyb .yb{display:none}
 .pside .pl:first-of-type{border-top:0}
 .pside .pl .when{color:var(--sideline);flex:none;min-width:4.6em;font-variant-numeric:tabular-nums}
 .pside .pl .txt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.pside .pl.new .txt{-webkit-line-clamp:3}
+/* A play too long for its lines scrolls up through the rest and back, on one
+   clock for the whole board, so a redraw picks the motion up where it was. */
+.pside .pl .txt.roll{display:block;-webkit-line-clamp:unset;height:calc(var(--lines) * 1.25em)}
+.pside .pl .txt.roll > span{display:block;animation:plroll var(--period) ease-in-out infinite;animation-delay:var(--phase)}
+@keyframes plroll{0%,30%{transform:translateY(0)}44%,84%{transform:translateY(calc(-1 * var(--roll)))}94%,100%{transform:translateY(0)}}
 .pside .pl.new .txt{color:#fff;font-weight:600}
 .pside .pl.big .txt{color:var(--flag);font-weight:700}
 .pside .pl.old{opacity:.55}
@@ -1241,7 +1247,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-11-26d';
+var BUILD = 'build 2026-11-26e';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -5352,6 +5358,28 @@ function fitSide(box){
   }
   var pl = el.querySelectorAll('.pl');
   for (var k = pl.length - 1; k > 0 && el.scrollHeight > el.clientHeight + 1; k--) pl[k].remove();
+  rollPlays(el);
+}
+/* Plays cut off at their last line scroll the rest into view instead: hold,
+   glide up to the end, hold, glide back. The period grows with the hidden
+   part, and the phase comes from the wall clock so redraws don't restart it. */
+function rollPlays(el){
+  var txts = el.querySelectorAll('.pl .txt');
+  for (var i = 0; i < txts.length; i++){
+    var t = txts[i];
+    if (t.scrollHeight <= t.clientHeight + 2) continue;
+    var lh = parseFloat(getComputedStyle(t).lineHeight) || t.clientHeight / 2;
+    var lines = Math.max(1, Math.round(t.clientHeight / lh));
+    t.innerHTML = '<span>' + t.innerHTML + '</span>';
+    t.classList.add('roll');
+    t.style.setProperty('--lines', String(lines));
+    var inner = t.firstChild, over = inner.offsetHeight - t.clientHeight;
+    if (over <= 2){ t.classList.remove('roll'); t.innerHTML = inner.innerHTML; continue; }
+    var period = Math.round(9000 + (over / lh) * 2500);
+    t.style.setProperty('--roll', over.toFixed(1) + 'px');
+    t.style.setProperty('--period', period + 'ms');
+    t.style.setProperty('--phase', '-' + (Date.now() % period) + 'ms');
+  }
 }
 
 /* The loop above has to stop at whichever card fills up first — usually one
