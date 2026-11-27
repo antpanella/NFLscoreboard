@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T05:18:31Z",
+ "updated": "2026-11-27T05:23:33Z",
  "events": [
   {
    "id": "44a3bcf5bd002583ddef2207a92dd977",
@@ -225,6 +225,15 @@
    "home": "Pittsburgh Steelers",
    "away": "Houston Texans",
    "game": "HOU @ PIT"
+  },
+  {
+   "id": "0db4646c964ecdff19957373fe707546",
+   "commence": "2026-12-08T01:15:00Z",
+   "et_date": "2026-12-07",
+   "kickoff_et": "Mon 8:15 PM ET",
+   "home": "Seattle Seahawks",
+   "away": "Dallas Cowboys",
+   "game": "DAL @ SEA"
   }
  ]
 }
