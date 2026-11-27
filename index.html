@@ -241,6 +241,10 @@ body.noyb .yb{display:none}
 .pside td.n{text-align:right;font-weight:700;width:5.5em}
 .pside td.k{color:var(--sideline);padding-left:1em}
 .pside th{text-align:right;font-weight:700;font-size:calc(.8 * var(--pu));padding-bottom:.2em}
+/* Team stats: three even columns, each one centred (away · stat · home) */
+.pside table.ts{table-layout:fixed}
+.pside table.ts td.n,.pside table.ts th{text-align:center;width:28%}
+.pside table.ts td.k{text-align:center;padding:0 .4em;width:44%}
 .pside .fp2 td.n{color:#fff}
 .pside .who{display:flex;flex-wrap:wrap;gap:.25em 1.1em}
 .pside .who span{white-space:nowrap}
@@ -1236,7 +1240,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-11-26a';
+var BUILD = 'build 2026-11-26b';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1303,7 +1307,7 @@ var showing = false, shownAt = 0, alertTimer = null;
 var lastGood = 0;
 var fails = 0;
 var timer = null;
-var WD = {tried:0, beat:Date.now(), kicks:0, born:Date.now(), checked:0};
+var WD = {tried:0, beat:Date.now(), kicks:0, born:Date.now(), checked:0, newBuild:''};
 var audio = null;
 var wake = null;
 var logLines = [];
@@ -3569,7 +3573,7 @@ function primeSide(g, W, H){
       return '<tr><td class="n">' + esc(ts[A][r[0]] || '-') + '</td><td class="k">' + r[1] +
              '</td><td class="n">' + esc(ts[Hh][r[0]] || '-') + '</td></tr>';
     }).join('');
-    if (body) out.push('<section><h3>Team stats</h3><table>' +
+    if (body) out.push('<section><h3>Team stats</h3><table class="ts">' +
       '<tr><th>' + esc(A) + '</th><th></th><th>' + esc(Hh) + '</th></tr>' + body + '</table></section>');
   }
 
@@ -8310,8 +8314,8 @@ function keepAwake(){
    A board nobody touches for six hours meets things a tested page doesn't: the
    laptop dozes and wakes with timers stale, the wake lock is dropped whenever the
    window loses focus, and GitHub Pages quietly serves a newer copy. Every 20s
-   this checks the poll loop is still turning, takes the wake lock back, and —
-   only when no game is on — looks for a new build. */
+   this checks the poll loop is still turning, takes the wake lock back, and
+   every 10 minutes looks for a new build, taken at the next quiet moment. */
 function watchdog(){
   var now = Date.now(), slept = now - WD.beat > 60000;
   WD.beat = now;
@@ -8322,21 +8326,51 @@ function watchdog(){
     flog('restart', {slept:slept, gap:Math.round((now - WD.tried) / 1000)});
     WD.kicks++; fails = 0; clearTimeout(timer); poll();
   }
-  var anyLive = (window.__games || []).some(function(g){ return g.state === 'in'; });
-  if (cfg.autoUpdate !== false && !anyLive && /^https?:/.test(location.protocol) &&
-      now - WD.checked > 30 * 60000 && now - WD.born > 10 * 60000 &&
-      !document.getElementById('panel').classList.contains('open')){
-    WD.checked = now;
-    fetch(location.href.split('#')[0], {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; })
-      .then(function(t){
-        var m = /var BUILD = '([^']+)'/.exec(t || '');
-        if (m && m[1] !== BUILD){
-          // come straight back up on the new build: nobody is there to press Start
-          try { sessionStorage.setItem('sundayBoardAuto', '1'); } catch(e){}
-          location.reload();
-        }
-      }).catch(function(){});
+  /* A new build is looked for every 10 minutes and taken at the first quiet
+     moment: no game on, or every game on at a break (halftime, end of a
+     quarter), and Settings closed. A reload holds
+     scores back for the delay like any start, so it never runs ahead of the
+     stream. */
+  var live = (window.__games || []).filter(function(g){ return g.state === 'in'; });
+  var quiet = live.every(function(g){ return /halftime|end of/i.test(g.detail || ''); }) &&
+    !document.getElementById('panel').classList.contains('open');
+  if (WD.newBuild && quiet && now - WD.born > 10 * 60000){
+    flog('update', {from:BUILD, to:WD.newBuild, live:live.length});
+    // come straight back up on the new build: nobody is there to press Start
+    try { sessionStorage.setItem('sundayBoardAuto', '1'); } catch(e){}
+    location.reload();
+    return;
   }
+  if (cfg.autoUpdate !== false && !WD.newBuild && /^https?:/.test(location.protocol) && now - WD.checked > 10 * 60000){
+    WD.checked = now;
+    newBuild().then(function(b){ if (b) WD.newBuild = b; });
+  }
+}
+/* The build number in the published page, if it differs from this one. */
+function newBuild(){
+  return fetch(location.href.split('#')[0].split('?')[0] + '?b=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.ok ? r.text() : ''; })
+    .then(function(t){ var m = /var BUILD = '([^']+)'/.exec(t || ''); return m && m[1] !== BUILD ? m[1] : ''; })
+    .catch(function(){ return ''; });
+}
+/* The phone pages (bets, remote, set-up) have no watchdog: they look on the same
+   10-minute rhythm and whenever the phone comes back to them, and reload only
+   while nobody is typing. Everything they hold is saved, so nothing is lost. */
+function phoneUpdates(){
+  if (cfg.autoUpdate === false || !/^https?:/.test(location.protocol)) return;
+  var last = 0;
+  function look(){
+    if (Date.now() - last < 60000 || document.visibilityState !== 'visible') return;
+    last = Date.now();
+    newBuild().then(function(b){
+      if (!b) return;
+      var a = document.activeElement;
+      if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;   // try again next time
+      location.reload();
+    });
+  }
+  setInterval(look, 10 * 60000);
+  document.addEventListener('visibilitychange', look);
 }
 document.addEventListener('fullscreenchange', function(){ if (!wake) keepAwake(); });
 
@@ -8768,6 +8802,7 @@ paintLog();
 if (/^#pair/.test(location.hash)) pairMode();
 else if (/^#remote/.test(location.hash)) remoteMode();
 else if (/^#bets/.test(location.hash)) phoneMode();
+if (/^#(pair|remote|bets)/.test(location.hash)) phoneUpdates();
 else { startSync(); if (cfg.cfgSync) startRemote(false); }
 
 /* ---- copy a setup from the phone to a new board ----

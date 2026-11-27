@@ -72,7 +72,14 @@ public class MainActivity extends Activity {
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {
             @Override public void onPageFinished(WebView view, String url) {
-                if (url != null && url.startsWith(BOARD)) view.evaluateJavascript(tvJs, null);
+                if (url == null || !url.startsWith(BOARD)) return;
+                // The remote handling is loaded fresh from the published site, so a
+                // change to it reaches the TV like any Board change; the copy built
+                // into the app is the fallback when that can't be fetched.
+                view.evaluateJavascript("(function(){if(window.__tv)return;var s=document.createElement('script');"
+                    + "s.src='" + BOARD + "firetv/app/src/main/assets/tv.js?v='+Date.now();"
+                    + "s.onerror=function(){if(!window.__tv){" + tvJs.replace("</script", "<\\/script") + "}};"
+                    + "document.head.appendChild(s);})()", null);
             }
             @Override public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError err) {
                 if (Build.VERSION.SDK_INT >= 21 && req.isForMainFrame()) showOffline();
