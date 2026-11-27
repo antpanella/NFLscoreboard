@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T23:07:55Z",
+ "updated": "2026-11-27T23:17:58Z",
  "events": [
   {
    "id": "6a05021bdb6bab24b9bb381ffff10f0c",
@@ -153,15 +153,6 @@
    "home": "Tampa Bay Buccaneers",
    "away": "Los Angeles Chargers",
    "game": "LAC @ TB"
-  },
-  {
-   "id": "a5495c3360b3bb13da76ba23a675c9ef",
-   "commence": "2026-12-06T18:00:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "New York Giants",
-   "away": "San Francisco 49ers",
-   "game": "SF @ NYG"
   },
   {
    "id": "ae3429e95ee704c7fd001cade20072d0",

@@ -2102,7 +2102,14 @@
   "reason": "DraftKings +550 against Pinnacle's exact-market fair +499 (both updated within a minute); Engram is off the injury report and Denver's other TE Caleb Lohner is out, so his short-area red-zone role holds even in the wind.",
   "date": "2026-11-27",
   "recorded_at": "2026-11-27T16:43:31Z",
-  "result": null,
-  "pl": null
+  "result": "loss",
+  "pl": -0.5,
+  "result_note": "0 TD",
+  "close_fair_prob": 0.1669,
+  "close_fair_price": 499,
+  "close_source": "pinnacle",
+  "clv": 0.085,
+  "close_dk_price": 650,
+  "graded_at": "2026-11-27T23:17:58Z"
  }
 ]
