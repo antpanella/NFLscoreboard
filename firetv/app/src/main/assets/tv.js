@@ -408,6 +408,24 @@
     }
   };
 
+  /* Opening the app always lands on the newest build. The web view and GitHub's
+     CDN can each hand back a copy up to ten minutes old, so the published page
+     is checked past both caches, and if its build differs the board reloads at
+     a fresh address (once per build, so a slow CDN can't loop it). */
+  if (BOARD){
+    var have = (($('buildS') || {}).textContent || '').trim();
+    fetch(location.pathname + '?b=' + Date.now(), {cache: 'no-store'})
+      .then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(t){
+        var m = /var BUILD = '([^']+)'/.exec(t || '');
+        if (!m || !have || m[1] === have) return;
+        var tried = ''; try { tried = sessionStorage.getItem('tvUpd') || ''; } catch(e){}
+        if (tried === m[1]) return;
+        try { sessionStorage.setItem('tvUpd', m[1]); sessionStorage.setItem('sundayBoardAuto', '1'); } catch(e){}
+        location.replace(location.pathname + '?v=' + encodeURIComponent(m[1].replace(/^build /, '')) + location.hash);
+      }).catch(function(){});
+  }
+
   // straight past the start screen: this is a TV, there is nobody to click it
   var start = $('start');
   if (start && !/^#(bets|remote|pair)/.test(location.hash)) start.click();
