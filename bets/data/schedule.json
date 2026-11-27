@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T20:07:20Z",
+ "updated": "2026-11-27T20:57:27Z",
  "events": [
   {
    "id": "44a3bcf5bd002583ddef2207a92dd977",
@@ -146,15 +146,6 @@
    "game": "CIN @ CLE"
   },
   {
-   "id": "9a55467e1cd6310ae2af20d8154612e1",
-   "commence": "2026-12-06T18:00:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 1:00 PM ET",
-   "home": "Denver Broncos",
-   "away": "Miami Dolphins",
-   "game": "MIA @ DEN"
-  },
-  {
    "id": "1ccb61b811b7aae4270df22a67e6459f",
    "commence": "2026-12-06T18:00:00Z",
    "et_date": "2026-12-06",
@@ -216,15 +207,6 @@
    "home": "Minnesota Vikings",
    "away": "Carolina Panthers",
    "game": "CAR @ MIN"
-  },
-  {
-   "id": "26bf8e165d2d273ed0772a355f07ab16",
-   "commence": "2026-12-07T01:20:00Z",
-   "et_date": "2026-12-06",
-   "kickoff_et": "Sun 8:20 PM ET",
-   "home": "Pittsburgh Steelers",
-   "away": "Houston Texans",
-   "game": "HOU @ PIT"
   },
   {
    "id": "0db4646c964ecdff19957373fe707546",
