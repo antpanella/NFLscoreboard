@@ -1036,9 +1036,10 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
   <label>Down &amp; distance, live line, win % <input type="checkbox" id="sDeep"></label>
   <label>Delay behind TV <input type="number" id="sDelay" min="0" max="180" step="5"> sec</label>
   <label>Match it to your TV <button id="sSyncTV">Sync now</button></label>
-  <p id="tvSyncNote" class="note" style="margin-top:.3rem">Press <b>T</b> — or this button — as a score
-    appears on your television. The board knows when that score reached it, so the gap between the two is
-    the delay. <b>[</b> and <b>]</b> still nudge it five seconds either way.</p>
+  <p id="tvSyncNote" class="note" style="margin-top:.3rem">Press <b>T</b> (Play on the Fire TV remote) — or this
+    button — the moment a play ends on your television. The board knows when that play reached it, so the gap
+    between the two is the delay. With several games on, spotlight the one you're watching first.
+    <b>[</b> and <b>]</b> still nudge it five seconds either way.</p>
 </section>
 <section class="ptab" data-tab="alerts">
   <h4>What gets a banner</h4>
@@ -1240,7 +1241,7 @@ body.tint #empty.lobby .sg div{color:#C7D6CC}
 
 /* Bump on every change. Shown on the start screen and in Settings so you can
    tell at a glance whether the browser is running the file you just uploaded. */
-var BUILD = 'build 2026-11-26c';
+var BUILD = 'build 2026-11-26d';
 
 var API = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 var SUM = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
@@ -1543,11 +1544,15 @@ function aheadDone(list){
    board already knows the moment every score reached it, so the missing half of
    the measurement is the moment it reached the room: one key press as the
    television shows a score, and the gap between the two is the answer. */
-var SCOREAT = [], RAWSCORE = null;
+var SCOREAT = [], RAWSCORE = null, PLAYAT = [];
 function noteRawScores(data){
   var now = Date.now(), map = Object.create(null);
   ((data && data.events) || []).forEach(function(e){
     var c = (e.competitions && e.competitions[0]) || {};
+    /* Every play counts too, not just scores, so the delay can be matched to
+       whatever just happened on the television instead of waiting for points. */
+    var lp = (c.situation && c.situation.lastPlay) || null;
+    var pid = lp ? String(lp.id || lp.text || '') : '';
     var sc = {}, ab = {};
     ((c.competitors) || []).forEach(function(x){
       sc[x.homeAway] = Number(x.score) || 0;
@@ -1556,7 +1561,7 @@ function noteRawScores(data){
     // a game that has not started cannot have scored
     var st = (e.status && e.status.type && e.status.type.state) || '';
     map[e.id] = {a:sc.away || 0, h:sc.home || 0, live:st === 'in',
-                 aa:ab.away || '', ha:ab.home || ''};
+                 aa:ab.away || '', ha:ab.home || '', pid:pid, ptext:lp ? String(lp.text || '') : ''};
   });
   if (RAWSCORE){
     for (var id in map){
@@ -1569,8 +1574,14 @@ function noteRawScores(data){
         SCOREAT.push({at:now, id:id,
           what: (cur.aa && cur.ha) ? (cur.aa + ' ' + cur.a + '\u2013' + cur.h + ' ' + cur.ha) : 'that score'});
       }
+      if (cur.pid && cur.pid !== was.pid){
+        var t = cur.ptext.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').replace(/\s+([.,])/g, '$1').trim().replace(/\.$/, '');
+        PLAYAT.push({at:now, id:id, what: (cur.aa && cur.ha ? cur.aa + '\u2013' + cur.ha + ': ' : '') +
+          (t.length > 60 ? t.slice(0, 58) + '\u2026' : t || 'the last play')});
+      }
     }
     while (SCOREAT.length > 40) SCOREAT.shift();
+    while (PLAYAT.length > 120) PLAYAT.shift();
   }
   RAWSCORE = map;
 }
@@ -1578,25 +1589,37 @@ function syncToTV(){
   if (DEMO || REPLAY){ toast('Sync works on the live feed, not on a demo or a replay.'); return; }
   var now = Date.now(), last = null;
   var key = /SundayBoardFireTV/.test(navigator.userAgent) ? 'Play' : 'T';   // the Fire TV remote's Play button
-  for (var i = SCOREAT.length - 1; i >= 0; i--){
-    if (now - SCOREAT[i].at < 180000){ last = SCOREAT[i]; break; }
+  /* Press as the last play ends on the television (or as a score shows). The
+     game is the one you're watching when the board can tell: the one shown on
+     its own, the pinned one, or the only one on. With several games on and none
+     picked, it takes the newest play anywhere and says which, so a wrong pick is
+     plain to see. */
+  var live = (window.__games || []).filter(function(g){ return g.state === 'in'; });
+  var gid = cfg.focusId || SPOT.pin || (live.length === 1 ? live[0].id : '');
+  var evs = PLAYAT.concat(SCOREAT).filter(function(x){
+    return now - x.at < 180000 && (!gid || String(x.id) === String(gid));
+  }).sort(function(a, b){ return a.at - b.at; });
+  // a score and the play that scored it arrive together: name it by the score
+  last = evs.length ? evs[evs.length - 1] : null;
+  if (last){
+    var sc = SCOREAT.filter(function(x){ return x.id === last.id && Math.abs(x.at - last.at) < 1500; })[0];
+    if (sc) last = sc;
   }
   if (!last){
-    toast('Nothing has scored in the last three minutes. Press ' + key + ' the moment a score lands on your TV.');
+    toast((gid ? 'No new play in that game' : 'No new play') + ' in the last three minutes. Press ' + key +
+          ' the moment the next play ends on your TV.');
     return;
   }
   var d = Math.round((now - last.at) / 1000);
-  /* Two scores inside twenty seconds and there is no telling which one was on
-     the screen, so it says which it took rather than quietly picking wrong. */
-  var near = 0;
-  for (var k = 0; k < SCOREAT.length; k++)
-    if (SCOREAT[k] !== last && Math.abs(SCOREAT[k].at - last.at) < 20000) near++;
+  /* Another game's play inside a few seconds and there is no telling which was
+     on the screen, so it says which it took rather than quietly picking wrong. */
+  var near = gid ? 0 : evs.filter(function(x){ return x.id !== last.id && Math.abs(x.at - last.at) < 8000; }).length;
   cfg.delay = Math.max(0, Math.min(180, d));
   var box = document.getElementById('sDelay');
   if (box) box.value = String(cfg.delay);
   save(); drain(); paintStatus();
   toast('Holding ' + cfg.delay + 's behind your TV \u2014 measured off ' + last.what +
-        (near ? '. Another game scored at almost the same moment, so press ' + key + ' again on a clearer one.' : '.'));
+        (near ? '. Another game had a play at almost the same moment: spotlight the game you\u2019re watching and press ' + key + ' again.' : '.'));
 }
 /* A line along the foot of the screen for a few seconds. Not the alert rail:
    this is an answer to something the room just did, and it should neither chime
@@ -8694,7 +8717,7 @@ var TIPS = {
   sTickClock: 'Run the game clock down smoothly between polls instead of jumping every few seconds. Cosmetic only — the real clock still comes from the feed.',
   sDeep: 'The scoreboard feed carries scores and the clock, and nothing else. This asks ESPN for a second feed, one game at a time, and that is where the rest comes from: the down and distance, the field position bar, the live betting line, the win percentage, the play-by-play in single-game view, and a fix for when the scoreboard clock sticks. Switch it off and all of that leaves the cards straight away, leaving the score, the clock and the channel. It is also most of the board\u2019s network traffic, so off is much lighter. Games with a live bet on them are fetched either way, and a demo makes its own detail up, so this changes nothing there.',
   sDelay: 'Hold everything back by this many seconds to match a stream that runs behind, so the board never spoils a play. Also on the square-bracket keys, five seconds at a time.',
-  sSyncTV: 'Measures the delay instead of guessing it. Press T \u2014 or this \u2014 as a score turns up on your television: the board knows when that score reached it, and the gap between the two is what it should be holding. If another game scored at almost the same moment it says so, so you can try again on a clearer one.',
+  sSyncTV: 'Measures the delay instead of guessing it. Press T \u2014 or this, or Play on the Fire TV remote \u2014 the moment a play ends on your television: the board knows when that play reached it, and the gap between the two is what it should be holding. It uses the game shown on its own, the pinned game, or the only game on; with several on and none picked it takes the newest play and names it, and warns if another game had a play at the same moment.',
   // alerts
   sTD: 'Raise a banner for touchdowns.',
   sFG: 'Raise a banner for field goals.',
